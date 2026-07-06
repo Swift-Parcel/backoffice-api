@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SwiftParcel.Api/SwiftParcel.Api.csproj" />
+    <Project Path="src/SwiftParcel.Application/SwiftParcel.Application.csproj" />
+    <Project Path="src/SwiftParcel.Domain/SwiftParcel.Domain.csproj" />
+    <Project Path="src/SwiftParcel.Infrastructure/SwiftParcel.Infrastructure.csproj" />
+  </Folder>
+</Solution>
