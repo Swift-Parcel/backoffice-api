@@ -1,0 +1,177 @@
+using Microsoft.EntityFrameworkCore;
+using SwiftParcel.Domain.Entities;
+using SwiftParcel.Domain.Enums;
+
+namespace SwiftParcel.Infrastructure.Persistence
+{
+    public class AppDbContext : DbContext
+    {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) 
+        { 
+        }
+
+        // Core Tables
+        public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<AutoAssignmentRule> AutoAssignmentRules { get; set; }
+        public DbSet<Case> Cases { get; set; }
+        public DbSet<CaseNote> CaseNotes { get; set; }
+        public DbSet<Country> Countries { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<EmailTemplate> EmailTemplates { get; set; }
+        public DbSet<Handler> Handlers { get; set; }
+        public DbSet<Holiday> Holidays { get; set; }
+        public DbSet<Parcel> Parcels { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<Region> Regions { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<SlaRule> SlaRules { get; set; }
+        public DbSet<StatusWorkflow> StatusWorkflows { get; set; }
+        public DbSet<SystemConfig> SystemConfigs { get; set; }
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<User> Users { get; set; }
+
+        // Junction Tables
+        public DbSet<CaseTag> CaseTags { get; set; }
+        public DbSet<CaseParcel> CaseParcels { get; set; }
+        public DbSet<HolidayRegion> HolidayRegions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
+        public DbSet<StatusWorkflowRole> StatusWorkflowRoles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<UserRegion> UserRegions { get; set; }
+        public DbSet<UserPermission> UserPermissions { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.HasPostgresExtension("citext");
+            
+            modelBuilder.HasPostgresEnum<ParcelStatus>("enum_parcel_status");
+            modelBuilder.HasPostgresEnum<Timeslot>("enum_timeslot");
+            modelBuilder.HasPostgresEnum<ServiceType>("enum_service_type");
+            modelBuilder.HasPostgresEnum<CaseType>("enum_case_type");
+            modelBuilder.HasPostgresEnum<CaseStatus>("enum_case_status");
+            modelBuilder.HasPostgresEnum<Priority>("enum_priority");
+            modelBuilder.HasPostgresEnum<Channel>("enum_channel");
+            modelBuilder.HasPostgresEnum<SwiftParcel.Domain.Enums.DayOfWeek>("enum_day_of_week");
+            modelBuilder.HasPostgresEnum<SwiftParcel.Domain.Enums.Action>("enum_action");
+            modelBuilder.HasPostgresEnum<EntityType>("enum_entity_type");
+
+            modelBuilder.Entity<AuditLog>(b =>
+            {
+                b.Property(e => e.Action).HasColumnType("enum_action");
+                b.Property(e => e.EntityType).HasColumnType("enum_entity_type");
+                b.Property(e => e.IpAddress).HasColumnType("inet");
+            });
+
+            modelBuilder.Entity<AutoAssignmentRule>(b =>
+            {
+                b.Property(e => e.Priority).HasDefaultValue(99);
+                b.HasCheckConstraint("CK_auto_assignment_rules_priority", "\"Priority\" >= 0 AND \"Priority\" <= 99");
+            });
+
+            modelBuilder.Entity<Case>(b =>
+            {
+                b.Property(e => e.CaseType).HasColumnType("enum_case_type");
+                b.Property(e => e.Status).HasColumnType("enum_case_status").HasDefaultValue(CaseStatus.Open);
+                b.Property(e => e.Priority).HasColumnType("enum_priority").HasDefaultValue(Priority.Low);
+                b.Property(e => e.Channel).HasColumnType("enum_channel");
+                
+                b.HasOne(e => e.Handler).WithMany(h => h.CasesHandled).HasForeignKey(e => e.HandlerId);
+                b.HasOne(e => e.EscalatedTo).WithMany(h => h.CasesEscalatedTo).HasForeignKey(e => e.EscalatedToId);
+            });
+
+            modelBuilder.Entity<Country>(b => 
+            {
+                b.HasKey(e => e.CountryCode);
+                b.Property(e => e.CountryCode).HasMaxLength(10);
+            });
+
+            modelBuilder.Entity<Customer>(b =>
+            {
+                b.Property(e => e.Email).HasColumnType("citext");
+                b.HasIndex(e => e.Email).IsUnique();
+                b.Property(e => e.Vip).HasDefaultValue(false);
+            });
+
+            modelBuilder.Entity<EmailTemplate>(b => 
+            {
+                b.HasIndex(e => new { e.TemplateName, e.Language, e.RegionId }).IsUnique();
+            });
+            
+            modelBuilder.Entity<Handler>(b =>
+            {
+                b.HasIndex(e => e.UserId).IsUnique(); 
+                b.Property(e => e.MaxCases).HasDefaultValue(10);
+            });
+
+            modelBuilder.Entity<Holiday>(b =>
+            {
+                b.Property(e => e.StartDate).HasColumnType("date");
+                b.Property(e => e.EndDate).HasColumnType("date");
+            });
+
+            modelBuilder.Entity<Parcel>(b =>
+            {
+                b.HasIndex(e => e.TrackingNumber).IsUnique();
+                b.Property(e => e.Status).HasColumnType("enum_parcel_status").HasDefaultValue(ParcelStatus.PendingPickup);
+                b.Property(e => e.ServiceType).HasColumnType("enum_service_type");
+            });
+
+            modelBuilder.Entity<Permission>(b =>
+            {
+                b.HasIndex(e => e.Name).IsUnique();
+                b.Property(e => e.Granular).HasDefaultValue(false);
+            });
+
+            modelBuilder.Entity<Region>(b =>
+            {
+                b.HasIndex(e => e.RegionName).IsUnique();
+                b.Property(e => e.ManagerEmail).HasColumnType("citext");
+                b.Property(e => e.BusinessHoursStart).HasColumnType("time");
+                b.Property(e => e.BusinessHoursEnd).HasColumnType("time");
+                b.Property(e => e.BusinessDays).HasColumnType("enum_day_of_week[]");
+            });
+
+            modelBuilder.Entity<Role>().HasIndex(e => e.RoleName).IsUnique();
+
+            modelBuilder.Entity<SlaRule>(b =>
+            {
+                b.Property(e => e.CaseType).HasColumnType("enum_case_type");
+                b.Property(e => e.Priority).HasColumnType("enum_priority");
+                b.Property(e => e.ServiceType).HasColumnType("enum_service_type");
+            });
+
+            modelBuilder.Entity<StatusWorkflow>(b =>
+            {
+                b.Property(e => e.FromStatus).HasColumnType("enum_case_status");
+                b.Property(e => e.ToStatus).HasColumnType("enum_case_status");
+            });
+
+            modelBuilder.Entity<SystemConfig>(b =>
+            {
+                b.HasIndex(e => e.ConfigKey).IsUnique();
+                b.Property(e => e.ConfigValue).HasColumnType("jsonb"); 
+            });
+
+            modelBuilder.Entity<Tag>().HasIndex(e => e.Name).IsUnique();
+
+            modelBuilder.Entity<User>(b =>
+            {
+                b.HasIndex(e => e.Username).IsUnique();
+                b.HasIndex(e => e.Email).IsUnique();
+                b.Property(e => e.Email).HasColumnType("citext");
+                b.HasOne(e => e.CreatedBy).WithMany().HasForeignKey(e => e.CreatedById);
+            });
+
+            modelBuilder.Entity<CaseTag>().HasKey(ct => new { ct.CaseId, ct.TagId });
+            modelBuilder.Entity<CaseParcel>().HasKey(cp => new { cp.CaseId, cp.ParcelId });
+            modelBuilder.Entity<HolidayRegion>().HasKey(hr => new { hr.HolidayId, hr.RegionId });
+            modelBuilder.Entity<RolePermission>().HasKey(rp => new { rp.RoleId, rp.PermissionId });
+            modelBuilder.Entity<StatusWorkflowRole>().HasKey(swr => new { swr.WorkflowId, swr.RoleId });
+            modelBuilder.Entity<UserRole>().HasKey(ur => new { ur.UserId, ur.RoleId });
+            modelBuilder.Entity<UserRegion>().HasKey(ur => new { ur.UserId, ur.RegionId });
+            modelBuilder.Entity<UserPermission>().HasKey(up => new { up.UserId, up.PermissionId });
+        }
+    }
+}
