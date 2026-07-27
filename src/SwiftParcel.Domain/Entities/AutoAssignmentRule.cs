@@ -1,6 +1,6 @@
 namespace SwiftParcel.Domain.Entities;
 
-public class AutoAssignmentRules
+public class AutoAssignmentRule
 {
     public int Id { get; set; }
     public string RuleName { get; set; } = string.Empty;

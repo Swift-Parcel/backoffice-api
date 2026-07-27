@@ -1,7 +1,7 @@
 namespace SwiftParcel.Domain.Entities;
 using Enums;
 
-public class Cases
+public class Case
 {
     public int Id { get; set; }
     public string CaseNumber { get; set; } = string.Empty;

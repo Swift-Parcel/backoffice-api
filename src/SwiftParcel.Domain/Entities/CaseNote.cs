@@ -1,6 +1,6 @@
 namespace SwiftParcel.Domain.Entities;
 
-public class CaseNotes
+public class CaseNote
 {
     public int Id { get; set; }
     public int CaseId { get; set; }

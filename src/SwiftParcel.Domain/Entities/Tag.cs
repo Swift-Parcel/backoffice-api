@@ -1,7 +1,7 @@
 namespace SwiftParcel.Domain.Entities;
 
-public class CaseTags
+public class Tag
 {
-    public int CaseId { get; set; }
+    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
 }
