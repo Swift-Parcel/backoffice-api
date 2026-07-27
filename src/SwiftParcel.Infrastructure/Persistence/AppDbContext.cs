@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
-using Action = System.Action;
 
 namespace SwiftParcel.Infrastructure.Persistence
 {
@@ -14,22 +13,22 @@ namespace SwiftParcel.Infrastructure.Persistence
         // Core Tables
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<AutoAssignmentRule> AutoAssignmentRules { get; set; }
-        public DbSet<CaseNote> CaseNotes { get; set; }
         public DbSet<Case> Cases { get; set; }
+        public DbSet<CaseNote> CaseNotes { get; set; }
+        public DbSet<Country> Countries { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<EmailTemplate> EmailTemplates { get; set; }
         public DbSet<Handler> Handlers { get; set; }
         public DbSet<Holiday> Holidays { get; set; }
         public DbSet<Parcel> Parcels { get; set; }
-        public DbSet<Region> Regions { get; set; }
-        public DbSet<Country> Countries { get; set; }
-        public DbSet<Role> Roles { get; set; }
         public DbSet<Permission> Permissions { get; set; }
+        public DbSet<Region> Regions { get; set; }
+        public DbSet<Role> Roles { get; set; }
         public DbSet<SlaRule> SlaRules { get; set; }
         public DbSet<StatusWorkflow> StatusWorkflows { get; set; }
         public DbSet<SystemConfig> SystemConfigs { get; set; }
-        public DbSet<User> Users { get; set; }
         public DbSet<Tag> Tags { get; set; }
+        public DbSet<User> Users { get; set; }
 
         // Junction Tables
         public DbSet<CaseTag> CaseTags { get; set; }
