@@ -6,5 +6,5 @@ public class Handler
     public int UserId { get; set; }
     public string Department { get; set; } = string.Empty;
     public DateTime HireDate { get; set; }
-    public int MaxCases { get; set; } = 10;
+    public int MaxCases { get; set; }
 }
