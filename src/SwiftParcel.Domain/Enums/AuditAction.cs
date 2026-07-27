@@ -1,6 +1,6 @@
 namespace SwiftParcel.Domain.Enums;
 
-public enum Action
+public enum AuditAction
 {
     Create,
     StatusChange,

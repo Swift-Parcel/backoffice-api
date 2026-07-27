@@ -4,7 +4,7 @@ using SwiftParcel.Domain.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("SwiftParcel");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
         options
@@ -17,8 +17,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
                 npgsqlOptions.MapEnum<CaseStatus>("enum_case_status");
                 npgsqlOptions.MapEnum<Priority>("enum_priority");
                 npgsqlOptions.MapEnum<Channel>("enum_channel");
-                npgsqlOptions.MapEnum<SwiftParcel.Domain.Enums.DayOfWeek>("enum_day_of_week");
-                npgsqlOptions.MapEnum<SwiftParcel.Domain.Enums.Action>("enum_action");
+                npgsqlOptions.MapEnum<DayOfWeek>("enum_day_of_week");
+                npgsqlOptions.MapEnum<SwiftParcel.Domain.Enums.AuditAction>("enum_action");
                 npgsqlOptions.MapEnum<EntityType>("enum_entity_type");
             })
             .UseSnakeCaseNamingConvention()

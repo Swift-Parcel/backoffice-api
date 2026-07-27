@@ -53,13 +53,13 @@ namespace SwiftParcel.Infrastructure.Persistence
             modelBuilder.HasPostgresEnum<CaseStatus>("enum_case_status");
             modelBuilder.HasPostgresEnum<Priority>("enum_priority");
             modelBuilder.HasPostgresEnum<Channel>("enum_channel");
-            modelBuilder.HasPostgresEnum<SwiftParcel.Domain.Enums.DayOfWeek>("enum_day_of_week");
-            modelBuilder.HasPostgresEnum<SwiftParcel.Domain.Enums.Action>("enum_action");
+            modelBuilder.HasPostgresEnum<System.DayOfWeek>("enum_day_of_week");
+            modelBuilder.HasPostgresEnum<Domain.Enums.AuditAction>("enum_action");
             modelBuilder.HasPostgresEnum<EntityType>("enum_entity_type");
 
             modelBuilder.Entity<AuditLog>(b =>
             {
-                b.Property(e => e.Action).HasColumnType("enum_action");
+                b.Property(e => e.AuditAction).HasColumnType("enum_action");
                 b.Property(e => e.EntityType).HasColumnType("enum_entity_type");
                 b.Property(e => e.IpAddress).HasColumnType("inet");
             });

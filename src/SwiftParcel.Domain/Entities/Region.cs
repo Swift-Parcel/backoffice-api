@@ -1,5 +1,4 @@
 namespace SwiftParcel.Domain.Entities;
-using Enums;
 
 public class Region
 {
