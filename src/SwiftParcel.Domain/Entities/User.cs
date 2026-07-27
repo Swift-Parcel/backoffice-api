@@ -10,5 +10,6 @@ public class User
     public bool IsActive { get; set; }
     public DateTime LastLogin { get; set; }
     public DateTime CreatedDate { get; set; }
-    public int CreatedBy { get; set; }
+    public int CreatedById { get; set; }
+    public User CreatedBy { get; set; }
 }

@@ -11,14 +11,17 @@ public class Case
     public CaseStatus Status { get; set; }
     public Priority Priority { get; set; }
     public int CustomerId { get; set; }
-    public int HandlerId { get; set; }
+    public Customer Customer { get; set; } = null!;
+    public int? HandlerId { get; set; }
+    public Handler? Handler { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime UpdatedDate { get; set; }
     public DateTime ResolvedDate { get; set; }
     public DateTime SlaDeadline { get; set; }
     public int Region { get; set; }
     public Channel Channel { get; set; }
-    public int EscalatedTo { get; set; }
+    public int EscalatedToId { get; set; }
+    public Handler? EscalatedTo  { get; set; } 
     public string Resolution { get; set; } = string.Empty;
     public int SatisfactionScore { get; set; }
 }
