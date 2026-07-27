@@ -67,7 +67,7 @@ namespace SwiftParcel.Infrastructure.Persistence
             modelBuilder.Entity<AutoAssignmentRule>(b =>
             {
                 b.Property(e => e.Priority).HasDefaultValue(99);
-                b.HasCheckConstraint("CK_auto_assignment_rules_priority", "\"Priority\" >= 0 AND \"Priority\" <= 99");
+                b.HasCheckConstraint("CK_auto_assignment_rules_priority", "priority >= 0 AND priority <= 99");
             });
 
             modelBuilder.Entity<Case>(b =>
