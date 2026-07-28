@@ -1,77 +1,35 @@
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
 using Microsoft.EntityFrameworkCore;
-using Interfaces;
 using Domain.Entities;
-using Helpers;
 
-public class HolidaySeeder : IEntitySeeder
+public class HolidaySeeder : BaseCsvRelationSeeder<Holiday, Region>
 {
-    public int Order => 10;
+    private List<Region> _allRegions = new();
 
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public override int Order => 45;
+    protected override string SqlQuery => "SELECT id, region FROM holidays WHERE region IS NOT NULL AND region != ''";
+
+    protected override async Task<Dictionary<int, Holiday>> GetEntitiesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
     {
-        // Load all regions for potential "ALL" wildcard matching
-        var allRegions = await dbContext.Regions.ToListAsync(cancellationToken);
+        _allRegions = await dbContext.Regions.ToListAsync(cancellationToken);
+        return await dbContext.Holidays.Include(h => h.Regions).ToDictionaryAsync(h => h.Id, cancellationToken);
+    }
 
-        // Fetch existing Holidays with their loaded Regions to prevent duplicate assignments
-        var holidays = await dbContext.Holidays
-            .Include(h => h.Regions)
-            .ToDictionaryAsync(h => h.Id, cancellationToken);
-
-        // Raw SQL query to fetch raw region codes from legacy holidays table
-        await using var command = dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandText = "SELECT id, region FROM holidays WHERE region IS NOT NULL AND region != ''";
-
-        await dbContext.Database.OpenConnectionAsync(cancellationToken);
-        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
-
-        var hasChanges = false;
-
-        // Process results row-by-row
-        while (await reader.ReadAsync(cancellationToken))
+    protected override Task<List<Region>> ResolveTargetsAsync(AppDbContext dbContext, string token, CancellationToken cancellationToken)
+    {
+        if (token.Equals("ALL", StringComparison.OrdinalIgnoreCase))
         {
-            var holidayId = reader.GetInt32(0);
-            var rawRegions = reader.GetString(1);
-
-            // Parse and clean CSV region tokens
-            var regionTokens = StringParserHelper.ParseCsvString(rawRegions);
-
-            if (holidays.TryGetValue(holidayId, out var currentHoliday))
-            {
-                foreach (var token in regionTokens)
-                {
-                    List<Region> matchedRegions = new();
-
-                    // Handle "ALL" keyword vs specific country/region matching
-                    if (token.Equals("ALL", StringComparison.OrdinalIgnoreCase))
-                    {
-                        matchedRegions = allRegions;
-                    }
-                    else
-                    {
-                        var found = allRegions.Where(r =>
-                            string.Equals(r.CountryCode, token, StringComparison.OrdinalIgnoreCase) ||
-                            string.Equals(r.RegionName, token, StringComparison.OrdinalIgnoreCase)).ToList();
-
-                        matchedRegions.AddRange(found);
-                    }
-
-                    foreach (var region in matchedRegions)
-                    {
-                        // Ensure region is not already linked to the Holiday
-                        if (currentHoliday.Regions.All(r => r.Id == region.Id))
-                        {
-                            currentHoliday.Regions.Add(region);
-                            hasChanges = true;
-                        }
-                    }
-                }
-            }
+            return Task.FromResult(_allRegions);
         }
 
-        // Save changes if any new relationships were established
-        if (hasChanges)
-            await dbContext.SaveChangesAsync(cancellationToken);
+        var found = _allRegions.Where(r =>
+            string.Equals(r.CountryCode, token, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(r.RegionName, token, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        return Task.FromResult(found);
     }
+
+    protected override bool RelationExists(Holiday entity, Region target) => entity.Regions.Any(r => r.Id == target.Id);
+    protected override void AttachRelation(Holiday entity, Region target) => entity.Regions.Add(target);
 }
