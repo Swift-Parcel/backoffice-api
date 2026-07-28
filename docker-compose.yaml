@@ -6,11 +6,16 @@
       POSTGRES_USER: legacydb
       POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - legacy_data:/var/lib/postgresql/data
-      - ./localenv/init.sql:/docker-entrypoint-initdb.d
-  
+      - ./localenv:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U legacydb -d LegacySwiftParcelDb" ]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
   swiftparcel-db:
     image: postgres:16
     environment:
@@ -21,6 +26,11 @@
       - "5433:5432"
     volumes:
       - swiftparcel_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U swiftparceldb -d SwiftParcelDb" ]
+      interval: 3s
+      timeout: 3s
+      retries: 5
 
   backoffice-api:
     build: 
@@ -30,8 +40,8 @@
       - "8080:8080"
     environment:
       - ASPNETCORE_DEVELOPMENT=Development
-      - ConnectionStrings__Default=Host=legacy-db;Database=LegacyDb;Username=legacydb;Password=password
-      - ConnectionStrings__Default=Host=swiftparcel-db;Database=SwiftParcelDb;Username=swiftparceldb;Password=password
+      - ConnectionStrings__LegacyConnection=Host=legacy-db;Database=LegacySwiftParcelDb;Username=legacydb;Password=password
+      - ConnectionStrings__DefaultConnection=Host=swiftparcel-db;Database=SwiftParcelDb;Username=swiftparceldb;Password=password
     depends_on:
       legacy-db:
         condition: service_healthy
