@@ -3,7 +3,7 @@ namespace SwiftParcel.Domain.Entities;
 public class Region
 {
     public int Id { get; set; }
-    public string RegionName { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
     public string CountryCode { get; set; } = string.Empty;
     public Country Country { get; set; } = null!;
     public TimeOnly BusinessHoursStart  { get; set; }

@@ -118,7 +118,7 @@ namespace SwiftParcel.Infrastructure.Persistence
 
             modelBuilder.Entity<Region>(b =>
             {
-                b.HasIndex(e => e.RegionName).IsUnique();
+                b.HasIndex(e => e.Name).IsUnique();
                 b.Property(e => e.ManagerEmail).HasColumnType("citext");
                 b.Property(e => e.BusinessHoursStart).HasColumnType("time");
                 b.Property(e => e.BusinessHoursEnd).HasColumnType("time");

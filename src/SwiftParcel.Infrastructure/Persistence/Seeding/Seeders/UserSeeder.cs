@@ -63,7 +63,7 @@ public class UserSeeder : BaseCsvRelationSeeder<User, Region>
 
         var found = _allRegions.Where(r =>
             string.Equals(r.CountryCode, token, StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(r.RegionName, token, StringComparison.OrdinalIgnoreCase)).ToList();
+            string.Equals(r.Name, token, StringComparison.OrdinalIgnoreCase)).ToList();
 
         return Task.FromResult(found);
     }
