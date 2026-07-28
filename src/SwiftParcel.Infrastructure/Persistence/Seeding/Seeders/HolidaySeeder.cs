@@ -14,12 +14,10 @@ public class HolidaySeeder : IEntitySeeder
         // Load all regions for potential "ALL" wildcard matching
         var allRegions = await dbContext.Regions.ToListAsync(cancellationToken);
 
-        // Load existing relations into a HashSet to prevent duplicate insertions
-        var existingHolidayRegions = await dbContext.HolidayRegions
-            .Select(hr => new { hr.HolidayId, hr.RegionId })
-            .ToHashSetAsync(cancellationToken);
-
-        var holidayRegionsToInsert = new List<HolidayRegion>();
+        // Fetch existing Holidays with their loaded Regions to prevent duplicate assignments
+        var holidays = await dbContext.Holidays
+            .Include(h => h.Regions)
+            .ToDictionaryAsync(h => h.Id, cancellationToken);
 
         // Raw SQL query to fetch raw region codes from legacy holidays table
         await using var command = dbContext.Database.GetDbConnection().CreateCommand();
@@ -27,6 +25,8 @@ public class HolidaySeeder : IEntitySeeder
 
         await dbContext.Database.OpenConnectionAsync(cancellationToken);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+
+        var hasChanges = false;
 
         // Process results row-by-row
         while (await reader.ReadAsync(cancellationToken))
@@ -37,47 +37,41 @@ public class HolidaySeeder : IEntitySeeder
             // Parse and clean CSV region tokens
             var regionTokens = StringParserHelper.ParseCsvString(rawRegions);
 
-            foreach (var token in regionTokens)
+            if (holidays.TryGetValue(holidayId, out var currentHoliday))
             {
-                List<Region> matchedRegions = new();
-
-                // Handle "ALL" keyword vs specific country/region matching
-                if (token.Equals("ALL", StringComparison.OrdinalIgnoreCase))
+                foreach (var token in regionTokens)
                 {
-                    matchedRegions = allRegions;
-                }
-                else
-                {
-                    var found = allRegions.Where(r =>
-                        string.Equals(r.CountryCode, token, StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(r.RegionName, token, StringComparison.OrdinalIgnoreCase)).ToList();
+                    List<Region> matchedRegions = new();
 
-                    matchedRegions.AddRange(found);
-                }
-
-                foreach (var region in matchedRegions)
-                {
-                    var pair = new { HolidayId = holidayId, RegionId = region.Id };
-
-                    // Ensure record doesn't exist in the database or in the current batch
-                    if (!existingHolidayRegions.Contains(pair) &&
-                        !holidayRegionsToInsert.Any(hr => hr.HolidayId == holidayId && hr.RegionId == region.Id))
+                    // Handle "ALL" keyword vs specific country/region matching
+                    if (token.Equals("ALL", StringComparison.OrdinalIgnoreCase))
                     {
-                        holidayRegionsToInsert.Add(new HolidayRegion
+                        matchedRegions = allRegions;
+                    }
+                    else
+                    {
+                        var found = allRegions.Where(r =>
+                            string.Equals(r.CountryCode, token, StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(r.RegionName, token, StringComparison.OrdinalIgnoreCase)).ToList();
+
+                        matchedRegions.AddRange(found);
+                    }
+
+                    foreach (var region in matchedRegions)
+                    {
+                        // Ensure region is not already linked to the Holiday
+                        if (currentHoliday.Regions.All(r => r.Id == region.Id))
                         {
-                            HolidayId = holidayId,
-                            RegionId = region.Id
-                        });
+                            currentHoliday.Regions.Add(region);
+                            hasChanges = true;
+                        }
                     }
                 }
             }
         }
 
-        // Bulk insert mapped entities in a single transaction
-        if (holidayRegionsToInsert.Any())
-        {
-            await dbContext.HolidayRegions.AddRangeAsync(holidayRegionsToInsert, cancellationToken);
+        // Save changes if any new relationships were established
+        if (hasChanges)
             await dbContext.SaveChangesAsync(cancellationToken);
-        }
     }
 }
