@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
@@ -49,17 +51,25 @@ public class StringParserHelper
         var match = Regex.Match(input, @"\d+(\.\d+)?");
         return match.Success ? decimal.Parse(match.Value) : 0;
     }
+
+    /**
+     * Splits character-separated strings with a chosen delimiter
+     */
+    private static IEnumerable<string> ParseSeparatedString(string input, char delimiter)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return Enumerable.Empty<string>();
+
+        return input
+            .Split(delimiter, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct();
+    }
     
     /**
      * Splits comma-separated strings like "SP-101, SP-102" -> ["SP-101", "SP-102"]
      */
     public static IEnumerable<string> ParseCsvString(string input)
     {
-        if (string.IsNullOrWhiteSpace(input)) return Enumerable.Empty<string>();
-
-        return input
-            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Distinct();
+        return ParseSeparatedString(input, ',');
     }
     
     private static readonly JsonSerializerOptions DefaultJsonOptions = new()
@@ -108,5 +118,57 @@ public class StringParserHelper
         {
             return null;
         }
+    }
+
+    /**
+     * Parses legacy string database value to a JsonDocument
+     */
+    public static JsonDocument ParseToJsonDocument(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return JsonDocument.Parse("null");
+        }
+
+        var clean = input.Trim();
+
+        try
+        {
+            return JsonDocument.Parse(clean);
+        }
+        catch (JsonException)
+        {
+        }
+
+        if (IsBooleanString(clean))
+        {
+            bool boolResult = ParseBoolean(clean);
+            return JsonDocument.Parse(boolResult ? "true" : "false");
+        }
+        
+        if (long.TryParse(clean, NumberStyles.Integer, CultureInfo.InvariantCulture, out var longVal))
+        {
+            return JsonDocument.Parse(longVal.ToString());
+        }
+
+        if (decimal.TryParse(clean, NumberStyles.Number, CultureInfo.InvariantCulture, out var decimalVal))
+        {
+            return JsonDocument.Parse(decimalVal.ToString(CultureInfo.InvariantCulture));
+        }
+
+        if (clean.Contains('|') || clean.Contains(','))
+        {
+            char delimiter = clean.Contains('|') ? '|' : ',';
+            var items = ParseSeparatedString(clean, delimiter);
+            return JsonSerializer.SerializeToDocument(items);
+        }
+
+        return JsonDocument.Parse(JsonSerializer.Serialize(clean));
+    }
+    
+    private static bool IsBooleanString(string input)
+    {
+        var val = input.Trim().ToLower();
+        return val is "yes" or "no" or "true" or "false" or "1" or "0" or "y" or "n" or "t" or "f" or "internal";
     }
 }
