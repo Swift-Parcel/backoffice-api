@@ -8,6 +8,22 @@ namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 public class TagSeeder : IEntitySeeder
 {
     public int Order => 19;
+    
+    private static readonly HashSet<string> BannedTags = LoadBannedTags();
+    private static HashSet<string> LoadBannedTags()
+    {
+        HashSet<string> OtherTags = new()
+        {
+            "vip",
+            "multiple_parcels"
+        };
+
+        return StringParserHelpers.GetEnumNamesSnakeCase<Tag>()
+            .Union(StringParserHelpers.GetEnumNamesLowercase<Tag>())
+            .Union(OtherTags)
+            .ToHashSet();
+    }
+
 
     private static IEnumerable<string> CleanTagList(IEnumerable<string> tags)
     {
