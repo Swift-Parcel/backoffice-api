@@ -31,11 +31,6 @@ namespace SwiftParcel.Infrastructure.Persistence
         public DbSet<User> Users { get; set; }
 
         // Junction Tables
-        public DbSet<HolidayRegion> HolidayRegions { get; set; }
-        public DbSet<RolePermission> RolePermissions { get; set; }
-        public DbSet<StatusWorkflowRole> StatusWorkflowRoles { get; set; }
-        public DbSet<UserRole> UserRoles { get; set; }
-        public DbSet<UserRegion> UserRegions { get; set; }
         public DbSet<UserPermission> UserPermissions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -51,8 +46,8 @@ namespace SwiftParcel.Infrastructure.Persistence
             modelBuilder.HasPostgresEnum<CaseStatus>("enum_case_status");
             modelBuilder.HasPostgresEnum<Priority>("enum_priority");
             modelBuilder.HasPostgresEnum<Channel>("enum_channel");
-            modelBuilder.HasPostgresEnum<System.DayOfWeek>("enum_day_of_week");
-            modelBuilder.HasPostgresEnum<Domain.Enums.AuditAction>("enum_action");
+            modelBuilder.HasPostgresEnum<DayOfWeek>("enum_day_of_week");
+            modelBuilder.HasPostgresEnum<AuditAction>("enum_action");
             modelBuilder.HasPostgresEnum<EntityType>("enum_entity_type");
 
             modelBuilder.Entity<AuditLog>(b =>
@@ -76,7 +71,6 @@ namespace SwiftParcel.Infrastructure.Persistence
                 b.Property(e => e.Channel).HasColumnType("enum_channel");
                 
                 b.HasOne(e => e.Handler).WithMany(h => h.CasesHandled).HasForeignKey(e => e.HandlerId);
-                b.HasOne(e => e.EscalatedTo).WithMany(h => h.Cases).HasForeignKey(e => e.EscalatedToId);
             });
 
             modelBuilder.Entity<Country>(b => 
@@ -162,11 +156,6 @@ namespace SwiftParcel.Infrastructure.Persistence
                 b.HasOne(e => e.CreatedBy).WithMany().HasForeignKey(e => e.CreatedById);
             });
 
-            modelBuilder.Entity<HolidayRegion>().HasKey(hr => new { hr.HolidayId, hr.RegionId });
-            modelBuilder.Entity<RolePermission>().HasKey(rp => new { rp.RoleId, rp.PermissionId });
-            modelBuilder.Entity<StatusWorkflowRole>().HasKey(swr => new { swr.WorkflowId, swr.RoleId });
-            modelBuilder.Entity<UserRole>().HasKey(ur => new { ur.UserId, ur.RoleId });
-            modelBuilder.Entity<UserRegion>().HasKey(ur => new { ur.UserId, ur.RegionId });
             modelBuilder.Entity<UserPermission>().HasKey(up => new { up.UserId, up.PermissionId });
         }
     }
