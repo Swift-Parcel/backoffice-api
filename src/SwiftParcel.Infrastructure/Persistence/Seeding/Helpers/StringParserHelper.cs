@@ -49,5 +49,15 @@ public class StringParserHelper
         return match.Success ? decimal.Parse(match.Value) : 0;
     }
     
-    
+    /**
+     * Splits comma-separated strings like "SP-101, SP-102" -> ["SP-101", "SP-102"]
+     */
+    public static IEnumerable<string> ParseCsvString(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return Enumerable.Empty<string>();
+
+        return input
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct();
+    }
 }
