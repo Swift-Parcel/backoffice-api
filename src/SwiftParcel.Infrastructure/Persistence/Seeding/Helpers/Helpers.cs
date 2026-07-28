@@ -114,4 +114,14 @@ public class StringParserHelpers
             DayOfWeek.Friday
         };
     }
+    
+    private static HashSet<string> LoadAllEnumNames()
+    {
+        var domainAssembly = typeof(SwiftParcel.Domain.Entities.Tag).Assembly; 
+        
+        return domainAssembly.GetTypes()
+            .Where(t => t.IsEnum && t.Namespace != null && t.Namespace.StartsWith("SwiftParcel.Domain.Enums"))
+            .SelectMany(Enum.GetNames)
+            .ToHashSet();
+    }
 }
