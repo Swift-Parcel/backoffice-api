@@ -50,6 +50,18 @@ public class StringParserHelper
         return match.Success ? decimal.Parse(match.Value) : 0;
     }
     
+    /**
+     * Splits comma-separated strings like "SP-101, SP-102" -> ["SP-101", "SP-102"]
+     */
+    public static IEnumerable<string> ParseCsvString(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return Enumerable.Empty<string>();
+
+        return input
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct();
+    }
+    
     private static readonly JsonSerializerOptions DefaultJsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
@@ -78,7 +90,7 @@ public class StringParserHelper
 
    
     /**
-     * Parses a JSON string into a JsonDocument for dynamic/unstructured extraction when 
+     * Parses a JSON string into a JsonDocument for dynamic/unstructured extraction when
      * a fixed target model does not exist yet.
      */
     public static JsonDocument? ParseJsonDocument(string? rawJson)

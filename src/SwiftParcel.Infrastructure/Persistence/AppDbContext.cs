@@ -31,8 +31,6 @@ namespace SwiftParcel.Infrastructure.Persistence
         public DbSet<User> Users { get; set; }
 
         // Junction Tables
-        public DbSet<CaseTag> CaseTags { get; set; }
-        public DbSet<CaseParcel> CaseParcels { get; set; }
         public DbSet<HolidayRegion> HolidayRegions { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<StatusWorkflowRole> StatusWorkflowRoles { get; set; }
@@ -164,8 +162,6 @@ namespace SwiftParcel.Infrastructure.Persistence
                 b.HasOne(e => e.CreatedBy).WithMany().HasForeignKey(e => e.CreatedById);
             });
 
-            modelBuilder.Entity<CaseTag>().HasKey(ct => new { ct.CaseId, ct.TagId });
-            modelBuilder.Entity<CaseParcel>().HasKey(cp => new { cp.CaseId, cp.ParcelId });
             modelBuilder.Entity<HolidayRegion>().HasKey(hr => new { hr.HolidayId, hr.RegionId });
             modelBuilder.Entity<RolePermission>().HasKey(rp => new { rp.RoleId, rp.PermissionId });
             modelBuilder.Entity<StatusWorkflowRole>().HasKey(swr => new { swr.WorkflowId, swr.RoleId });
