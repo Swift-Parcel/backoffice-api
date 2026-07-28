@@ -2,7 +2,6 @@ namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
 using Microsoft.EntityFrameworkCore;
 using Interfaces;
-using Domain.Entities;
 using Helpers;
 
 public class StatusWorkflowSeeder : IEntitySeeder
@@ -11,16 +10,14 @@ public class StatusWorkflowSeeder : IEntitySeeder
 
     public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
-        // Build a case-insensitive lookup dictionary for roles (O(1) lookup time)
+        // Build a case-insensitive lookup dictionary mapping role names to Role entities
         var roleMap = await dbContext.Roles
-            .ToDictionaryAsync(r => r.RoleName, r => r.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
+            .ToDictionaryAsync(r => r.RoleName, r => r, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
-        // Load existing relations into a HashSet to prevent duplicate insertions
-        var existingWorkflowRoles = await dbContext.StatusWorkflowRoles
-            .Select(swr => new { swr.WorkflowId, swr.RoleId })
-            .ToHashSetAsync(cancellationToken);
-
-        var workflowRolesToInsert = new List<StatusWorkflowRole>();
+        // Fetch existing StatusWorkflows with their loaded AllowedRoles to prevent duplicate assignments
+        var workflows = await dbContext.StatusWorkflows
+            .Include(sw => sw.AllowedRoles)
+            .ToDictionaryAsync(sw => sw.Id, cancellationToken);
 
         // Raw SQL query to fetch allowed roles from legacy status_workflow table
         await using var command = dbContext.Database.GetDbConnection().CreateCommand();
@@ -28,6 +25,8 @@ public class StatusWorkflowSeeder : IEntitySeeder
 
         await dbContext.Database.OpenConnectionAsync(cancellationToken);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+
+        var hasChanges = false;
 
         // Process results row-by-row
         while (await reader.ReadAsync(cancellationToken))
@@ -38,31 +37,25 @@ public class StatusWorkflowSeeder : IEntitySeeder
             // Parse and clean CSV role names
             var roleNames = StringParserHelper.ParseCsvString(rawRoles);
 
-            foreach (var roleName in roleNames)
+            if (workflows.TryGetValue(workflowId, out var currentWorkflow))
             {
-                // Match role name against the new Roles table ID
-                if (roleMap.TryGetValue(roleName, out var roleId))
+                foreach (var roleName in roleNames)
                 {
-                    var pair = new { WorkflowId = workflowId, RoleId = roleId };
-
-                    // Ensure record doesn't exist in the database or in the current batch
-                    if (!existingWorkflowRoles.Contains(pair) && !workflowRolesToInsert.Any(swr => swr.WorkflowId == workflowId && swr.RoleId == roleId))
+                    // Match role name and ensure it is not already linked to the StatusWorkflow
+                    if (roleMap.TryGetValue(roleName, out var role))
                     {
-                        workflowRolesToInsert.Add(new StatusWorkflowRole
+                        if (currentWorkflow.AllowedRoles.All(r => r.Id != role.Id))
                         {
-                            WorkflowId = workflowId,
-                            RoleId = roleId
-                        });
+                            currentWorkflow.AllowedRoles.Add(role);
+                            hasChanges = true;
+                        }
                     }
                 }
             }
         }
 
-        // Bulk insert mapped entities in a single transaction
-        if (workflowRolesToInsert.Any())
-        {
-            await dbContext.StatusWorkflowRoles.AddRangeAsync(workflowRolesToInsert, cancellationToken);
+        // Save changes if any new relationships were established
+        if (hasChanges)
             await dbContext.SaveChangesAsync(cancellationToken);
-        }
     }
 }
