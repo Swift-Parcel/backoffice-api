@@ -8,4 +8,5 @@ public class Holiday
     public DateTime EndDate { get; set; }
     public bool IsRecurring { get; set; }
     public string Notes { get; set; } = string.Empty;
+    public ICollection<Region> Regions { get; set; } = new List<Region>();
 }

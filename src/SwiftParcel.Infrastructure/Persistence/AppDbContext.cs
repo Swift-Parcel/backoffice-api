@@ -76,7 +76,7 @@ namespace SwiftParcel.Infrastructure.Persistence
                 b.Property(e => e.Channel).HasColumnType("enum_channel");
                 
                 b.HasOne(e => e.Handler).WithMany(h => h.CasesHandled).HasForeignKey(e => e.HandlerId);
-                b.HasOne(e => e.EscalatedTo).WithMany(h => h.CasesEscalatedTo).HasForeignKey(e => e.EscalatedToId);
+                b.HasOne(e => e.EscalatedTo).WithMany(h => h.Cases).HasForeignKey(e => e.EscalatedToId);
             });
 
             modelBuilder.Entity<Country>(b => 
