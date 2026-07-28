@@ -24,6 +24,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
             .UseSnakeCaseNamingConvention()
 );
 
+var legacyConnectionString = builder.Configuration.GetConnectionString("Legacy");
+builder.Services.AddDbContext<LegacyDbContext>(options =>
+    options.UseNpgsql(legacyConnectionString));
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
