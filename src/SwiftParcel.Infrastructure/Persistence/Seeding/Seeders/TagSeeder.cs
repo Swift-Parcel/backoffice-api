@@ -49,7 +49,7 @@ public class TagSeeder : IEntitySeeder
             .SqlQueryRaw<LegacyTagDto>("SELECT tags FROM cases")
             .ToListAsync(cancellationToken);
         
-        var newTags = new List<Tag>();
+        var uniqueTagNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         
         foreach (var legacyConfig in legacyConfigs)
         {
@@ -58,13 +58,10 @@ public class TagSeeder : IEntitySeeder
             
             foreach (var cleanTag in cleanTags)
             {
-                var newTag = new Tag
-                {
-                    Name = cleanTag
-                };
-                newTags.Add(newTag);
+                uniqueTagNames.Add(cleanTag);
             }
         }
+        var newTags = uniqueTagNames.Select(tagName => new Tag { Name = tagName }).ToList();
         
         await dbContext.Tags.AddRangeAsync(newTags, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
