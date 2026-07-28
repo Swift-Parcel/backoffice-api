@@ -24,7 +24,6 @@ public class TagSeeder : IEntitySeeder
             .ToHashSet();
     }
 
-
     private static IEnumerable<string> CleanTagList(IEnumerable<string> tags)
     {
         var cleanedTags = new List<string>();
