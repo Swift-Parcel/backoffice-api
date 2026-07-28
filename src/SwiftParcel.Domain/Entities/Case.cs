@@ -22,8 +22,6 @@ public class Case
     public int RegionId { get; set; }
     public Region Region { get; set; } = null!;
     public Channel Channel { get; set; }
-    public int EscalatedToId { get; set; }
-    public Handler? EscalatedTo { get; set; }
     public string Resolution { get; set; } = string.Empty;
     public int SatisfactionScore { get; set; }
     public ICollection<Tag> Tags { get; set; } = new List<Tag>();
