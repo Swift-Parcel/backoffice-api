@@ -24,15 +24,6 @@ public class SystemConfigSeeder : IEntitySeeder
 
         foreach (var oldConfig in legacyConfigs)
         {
-            if (!TimestampParserHelper.TryParse(oldConfig.updated_date, out var updatedDate))
-            {
-                updatedDate = DateTime.UtcNow;
-            }
-            else
-            {
-                updatedDate = DateTime.SpecifyKind(updatedDate, DateTimeKind.Utc);
-            }
-            
             var newConfig = new SystemConfig
             {
                 Id = StringParserHelper.ExtractIntegerId(oldConfig.id),
@@ -40,7 +31,7 @@ public class SystemConfigSeeder : IEntitySeeder
                 ConfigValue = StringParserHelper.ParseJsonDocument(oldConfig.config_value),
                 Description = oldConfig.description,
                 // UpdatedBy: match users.username to users.id
-                UpdatedDate = updatedDate
+                UpdatedDate = TimestampParserHelper.ParseOrFallback(oldConfig.updated_date)
             };
 
             newConfigs.Add(newConfig);
