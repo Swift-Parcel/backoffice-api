@@ -12,7 +12,7 @@ public class TagSeeder : IEntitySeeder
     private static readonly HashSet<string> BannedTags = LoadBannedTags();
     private static HashSet<string> LoadBannedTags()
     {
-        HashSet<string> OtherTags = new()
+        HashSet<string> otherTags = new()
         {
             "vip",
             "multiple_parcels"
@@ -20,17 +20,22 @@ public class TagSeeder : IEntitySeeder
 
         return StringParserHelpers.GetEnumNamesSnakeCase<Tag>()
             .Union(StringParserHelpers.GetEnumNamesLowercase<Tag>())
-            .Union(OtherTags)
+            .Union(otherTags)
             .ToHashSet();
     }
 
 
     private static IEnumerable<string> CleanTagList(IEnumerable<string> tags)
     {
+        var cleanedTags = new List<string>();
         foreach (var tag in tags)
         {
-            
+            if (!BannedTags.Contains(tag))
+            {
+                cleanedTags.Add(tag);
+            }
         }
+        return cleanedTags;
     }
     
     public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
@@ -41,30 +46,30 @@ public class TagSeeder : IEntitySeeder
         }
         
         var legacyConfigs = await dbContext.Database
-            .SqlQueryRaw<LegacyConfigDto>("SELECT tags FROM cases")
+            .SqlQueryRaw<LegacyTagDto>("SELECT tags FROM cases")
             .ToListAsync(cancellationToken);
         
-        var newConfigs = new List<LegacyConfigDto>();
+        var newTags = new List<Tag>();
         
         foreach (var legacyConfig in legacyConfigs)
         {
             var legacyTags = StringParserHelper.ParseCsvString(legacyConfig.tags);
             var cleanTags = CleanTagList(legacyTags);
+            
             foreach (var cleanTag in cleanTags)
             {
-                var newConfig = new Tag
+                var newTag = new Tag
                 {
-                    // Id: give incremental id automatically? idk how
                     Name = cleanTag
                 };
-                newConfigs.Add(newConfig);
+                newTags.Add(newTag);
             }
         }
         
-        await dbContext.Tags.AddRangeAsync(newConfigs, cancellationToken);
+        await dbContext.Tags.AddRangeAsync(newTags, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
     
-    private record LegacyConfigDto(
+    private record LegacyTagDto(
         string tags);
 }
