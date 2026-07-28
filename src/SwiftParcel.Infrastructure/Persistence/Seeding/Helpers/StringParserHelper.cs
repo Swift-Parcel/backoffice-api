@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
@@ -59,5 +60,53 @@ public class StringParserHelper
         return input
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Distinct();
+    }
+    
+    private static readonly JsonSerializerOptions DefaultJsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        AllowTrailingCommas = true
+    };
+
+    /**
+     * Parses a JSON string into a strongly-typed object.
+     */
+    public static T? ParseJson<T>(string? rawJson, T? fallback = default)
+    {
+        if (string.IsNullOrWhiteSpace(rawJson))
+        {
+            return fallback;
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<T>(rawJson.Trim(), DefaultJsonOptions) ?? fallback;
+        }
+        catch (JsonException)
+        {
+            return fallback;
+        }
+    }
+
+   
+    /**
+     * Parses a JSON string into a JsonDocument for dynamic/unstructured extraction when
+     * a fixed target model does not exist yet.
+     */
+    public static JsonDocument? ParseJsonDocument(string? rawJson)
+    {
+        if (string.IsNullOrWhiteSpace(rawJson))
+        {
+            return null;
+        }
+
+        try
+        {
+            return JsonDocument.Parse(rawJson.Trim());
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 }

@@ -28,8 +28,18 @@ public class TimestampParserHelper
             input?.Trim(), 
             GlobalFormats, 
             CultureInfo.InvariantCulture, 
-            DateTimeStyles.None, 
+            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
             out result
         );
+    }
+    
+    public static DateTime ParseOrFallback(string input, DateTime? fallback = null)
+    {
+        if (TryParse(input, out var parsedDate))
+        {
+            return parsedDate;
+        }
+
+        return fallback ?? DateTime.UtcNow;
     }
 }
