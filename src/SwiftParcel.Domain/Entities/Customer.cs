@@ -10,4 +10,6 @@ public class Customer
     public DateTime RegisteredDate { get; set; }
     public bool Vip { get; set; }
     public string Notes { get; set; } = string.Empty;
+    public ICollection<Parcel> Parcels = new List<Parcel>();
+    public ICollection<Case> Cases = new List<Case>();
 }

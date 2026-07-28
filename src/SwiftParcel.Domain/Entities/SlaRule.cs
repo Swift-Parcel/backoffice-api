@@ -13,6 +13,7 @@ public class SlaRule
     public bool IsBusinessHours { get; set; }
     public int EscalationAfter { get; set; }
     public int EscalationHandlerId { get; set; }
+    public Handler EscalationHandler { get; set; } = null!;
     public string EscalationDepartment { get; set; } = string.Empty;
     public bool IsActive { get; set; }
     public DateTime CreatedDate { get; set; }

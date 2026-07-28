@@ -8,6 +8,7 @@ public class SystemConfig
     public string ConfigKey { get; set; } = string.Empty;
     public JsonDocument? ConfigValue { get; set; }
     public string Description { get; set; } = string.Empty;
-    public int UpdatedBy { get; set; }
+    public int UpdatedById { get; set; }
+    public User UpdatedBy { get; set; } = null!;
     public DateTime UpdatedDate { get; set; }
 }
