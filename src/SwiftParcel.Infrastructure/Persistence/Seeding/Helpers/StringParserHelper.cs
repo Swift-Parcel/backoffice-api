@@ -1,92 +1,102 @@
 using System.Globalization;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
 
-public class StringParserHelper
+public static class StringParserHelper
 {
-    /**
-     * Strips "AZ123", "C45", "U99", etc -> returns 123, 45, 99
-     */
-    public static int ExtractIntegerId(string legacyId)
-    {
-        if (string.IsNullOrWhiteSpace(legacyId)) return 0;
-        var match = Regex.Match(legacyId, @"\d+");
-        return match.Success ? int.Parse(match.Value) : 0;
-    }
+    private static readonly Regex DigitsRegex = new(@"\d+", RegexOptions.Compiled);
+    private static readonly Regex DecimalRegex = new(@"\d+(\.\d+)?", RegexOptions.Compiled);
 
-    /**
-     * Converts "yes"/"no", "1"/"0", "true"/"false", etc -> bool
-     */
-    public static bool ParseBoolean(string input)
-    {
-        if (string.IsNullOrWhiteSpace(input)) return false;
-        var clean = input.Trim().ToLower();
-        return clean is "yes" or "1" or "true" or "y" or "t" or "internal";
-    }
-    
-    /**
-     * Splits "10x20x30 cm" -> (10, 20, 30)
-     */
-    public static (int width, int length, int height) ParseDimensions(string raw)
-    {
-        if (string.IsNullOrWhiteSpace(raw)) return (0, 0, 0);
-        var matches = Regex.Matches(raw, @"\d+");
-        if (matches.Count >= 3)
-        {
-            return (int.Parse(matches[0].Value), int.Parse(matches[1].Value), int.Parse(matches[2].Value));
-        }
-
-        return (0, 0, 0);
-    }
-
-    /**
-     * Extracts number from "15 kg" or "€50" -> 15.0 or 50.0
-     */
-    public static decimal ExtractDecimal(string input)
-    {
-        if (string.IsNullOrWhiteSpace(input)) return 0;
-        var match = Regex.Match(input, @"\d+(\.\d+)?");
-        return match.Success ? decimal.Parse(match.Value) : 0;
-    }
-
-    /**
-     * Splits character-separated strings with a chosen delimiter
-     */
-    private static IEnumerable<string> ParseSeparatedString(string input, char delimiter)
-    {
-        if (string.IsNullOrWhiteSpace(input)) return Enumerable.Empty<string>();
-
-        return input
-            .Split(delimiter, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Distinct();
-    }
-    
-    /**
-     * Splits comma-separated strings like "SP-101, SP-102" -> ["SP-101", "SP-102"]
-     */
-    public static IEnumerable<string> ParseCsvString(string input)
-    {
-        return ParseSeparatedString(input, ',');
-    }
-    
     private static readonly JsonSerializerOptions DefaultJsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
         AllowTrailingCommas = true
     };
 
-    /**
-     * Parses a JSON string into a strongly-typed object.
-     */
+    /// <summary>
+    /// Strips non-digits ("AZ123", "C45") and returns the parsed integer.
+    /// </summary>
+    public static int ExtractIntegerId(string? legacyId)
+    {
+        if (string.IsNullOrWhiteSpace(legacyId)) return 0;
+        
+        var match = DigitsRegex.Match(legacyId);
+        return match.Success && int.TryParse(match.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id) 
+            ? id 
+            : 0;
+    }
+
+    /// <summary>
+    /// Converts boolean representations ("yes"/"no", "1"/"0", "true"/"false") to a bool.
+    /// </summary>
+    public static bool ParseBoolean(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return false;
+        
+        var clean = input.Trim().ToLower();
+        return clean is "yes" or "1" or "true" or "y" or "t" or "internal";
+    }
+    
+    /// <summary>
+    /// Splits "10x20x30 cm" into a (width, length, height) tuple.
+    /// </summary>
+    public static (int width, int length, int height) ParseDimensions(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return (0, 0, 0);
+
+        var matches = DigitsRegex.Matches(raw);
+        if (matches.Count >= 3 &&
+            int.TryParse(matches[0].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var w) &&
+            int.TryParse(matches[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var l) &&
+            int.TryParse(matches[2].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var h))
+        {
+            return (w, l, h);
+        }
+
+        return (0, 0, 0);
+    }
+
+    /// <summary>
+    /// Extracts a decimal number from formatted strings ("15 kg", "€50").
+    /// </summary>
+    public static decimal ExtractDecimal(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return 0m;
+
+        var match = DecimalRegex.Match(input);
+        return match.Success && decimal.TryParse(match.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out var val)
+            ? val
+            : 0m;
+    }
+
+    /// <summary>
+    /// Splits character-separated strings with a chosen delimiter.
+    /// </summary>
+    private static IEnumerable<string> ParseSeparatedString(string? input, char delimiter)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return [];
+
+        return input
+            .Split(delimiter, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct();
+    }
+    
+    /// <summary>
+    /// Splits comma-separated strings ("SP-101, SP-102") into an array of strings.
+    /// </summary>
+    public static IEnumerable<string> ParseCsvString(string? input)
+    {
+        return ParseSeparatedString(input, ',');
+    }
+    
+    /// <summary>
+    /// Parses a JSON string into a strongly-typed object.
+    /// </summary>
     public static T? ParseJson<T>(string? rawJson, T? fallback = default)
     {
-        if (string.IsNullOrWhiteSpace(rawJson))
-        {
-            return fallback;
-        }
+        if (string.IsNullOrWhiteSpace(rawJson)) return fallback;
 
         try
         {
@@ -98,17 +108,12 @@ public class StringParserHelper
         }
     }
 
-   
-    /**
-     * Parses a JSON string into a JsonDocument for dynamic/unstructured extraction when
-     * a fixed target model does not exist yet.
-     */
+    /// <summary>
+    /// Parses a JSON string into a JsonDocument for unstructured extraction.
+    /// </summary>
     public static JsonDocument? ParseJsonDocument(string? rawJson)
     {
-        if (string.IsNullOrWhiteSpace(rawJson))
-        {
-            return null;
-        }
+        if (string.IsNullOrWhiteSpace(rawJson)) return null;
 
         try
         {
@@ -120,9 +125,9 @@ public class StringParserHelper
         }
     }
 
-    /**
-     * Parses legacy string database value to a JsonDocument
-     */
+    /// <summary>
+    /// Parses any legacy database string value into a clean JsonDocument (jsonb).
+    /// </summary>
     public static JsonDocument ParseToJsonDocument(string? input)
     {
         if (string.IsNullOrWhiteSpace(input))
@@ -132,20 +137,23 @@ public class StringParserHelper
 
         var clean = input.Trim();
 
+        // Existing valid JSON
         try
         {
             return JsonDocument.Parse(clean);
         }
         catch (JsonException)
         {
+            // Not native JSON; fallback to heuristics
         }
 
+        // Booleans
         if (IsBooleanString(clean))
         {
-            bool boolResult = ParseBoolean(clean);
-            return JsonDocument.Parse(boolResult ? "true" : "false");
+            return JsonDocument.Parse(ParseBoolean(clean) ? "true" : "false");
         }
         
+        // Numbers
         if (long.TryParse(clean, NumberStyles.Integer, CultureInfo.InvariantCulture, out var longVal))
         {
             return JsonDocument.Parse(longVal.ToString());
@@ -156,6 +164,7 @@ public class StringParserHelper
             return JsonDocument.Parse(decimalVal.ToString(CultureInfo.InvariantCulture));
         }
 
+        // Delimited lists
         if (clean.Contains('|') || clean.Contains(','))
         {
             char delimiter = clean.Contains('|') ? '|' : ',';
@@ -163,6 +172,7 @@ public class StringParserHelper
             return JsonSerializer.SerializeToDocument(items);
         }
 
+        // Fallback string primitive
         return JsonDocument.Parse(JsonSerializer.Serialize(clean));
     }
     
