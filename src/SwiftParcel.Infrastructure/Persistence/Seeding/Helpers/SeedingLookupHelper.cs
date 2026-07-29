@@ -89,6 +89,40 @@ public static class SeedingLookupHelper
     }
     
     /// <summary>
+    /// Maps Customer Email to Customer Id
+    /// </summary>
+    public static async Task<Dictionary<string, int>> GetCustomerLookupByPhoneAsync(
+        AppDbContext dbContext, 
+        CancellationToken ct = default)
+    {
+        return await dbContext.Customers
+            .AsNoTracking()
+            .Where(c => c.Phone != null)
+            .ToDictionaryAsync(
+                c => c.Phone!, 
+                c => c.Id, 
+                StringComparer.OrdinalIgnoreCase, 
+                ct);
+    }
+    
+    /// <summary>
+    /// Maps Customer Email to Customer Id
+    /// </summary>
+    public static async Task<Dictionary<string, int>> GetCustomerLookupByNameAsync(
+        AppDbContext dbContext, 
+        CancellationToken ct = default)
+    {
+        return await dbContext.Customers
+            .AsNoTracking()
+            .Where(c => c.Name != null)
+            .ToDictionaryAsync(
+                c => c.Name!, 
+                c => c.Id, 
+                StringComparer.OrdinalIgnoreCase, 
+                ct);
+    }
+    
+    /// <summary>
     /// Maps a deterministic composite address key to Address Id
     /// </summary>
     public static async Task<Dictionary<string, int>> GetAddressLookupAsync(
