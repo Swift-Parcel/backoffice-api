@@ -3,72 +3,128 @@ namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
 using Helpers;
+using Interfaces;
 
-public class UserSeeder : BaseCsvRelationSeeder<User, Region>
+
+public class UserSeeder : IEntitySeeder
 {
-    private List<Region> _allRegions = new();
+    public int Order => 50;
 
-    public override int Order => 5;
-
-    protected override string SqlQuery =>
-        "SELECT id, regions FROM users WHERE regions IS NOT NULL AND regions != ''";
-
-    protected override async Task<Dictionary<int, User>> GetEntitiesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
-        _allRegions = await dbContext.Regions.ToListAsync(cancellationToken);
+        if (await dbContext.Users.AnyAsync(cancellationToken))
+            return;
 
-        var users = await dbContext.Users
-            .Include(u => u.Regions)
-            .ToDictionaryAsync(u => u.Id, cancellationToken);
+        // Caches for fast in-memory lookups
+        var rolesById = await dbContext.Roles
+            .ToDictionaryAsync(r => r.Id, cancellationToken);
 
-        // Process roles according to RBAC (1 User = 1 Role)
-        var roleMap = await dbContext.Roles
-            .ToDictionaryAsync(r => r.RoleName, r => r.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
+        var regionsByName = await dbContext.Regions
+            .ToDictionaryAsync(r => r.Name, r => r, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
-        await using var command = dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandText = "SELECT id, roles FROM users WHERE roles IS NOT NULL AND roles != ''";
+        var legacyUsers = await dbContext.Database
+            .SqlQueryRaw<LegacyUserDto>(@"
+                SELECT 
+                    id, username, password, full_name, email, 
+                    role, role_id, regions, is_active, 
+                    last_login, created_date, created_by 
+                FROM users")
+            .ToListAsync(cancellationToken);
 
-        await dbContext.Database.OpenConnectionAsync(cancellationToken);
-        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        var newUsers = new List<User>();
+        // Temporary tracking for 2-pass CreatedBy resolving: UserId -> CreatedByUsername string
+        var createdByMap = new Dictionary<int, string>();
 
-        while (await reader.ReadAsync(cancellationToken))
+        foreach (var oldUser in legacyUsers)
         {
-            var userId = reader.GetInt32(0);
-            var rawRoles = reader.GetString(1);
+            int userId = StringParserHelper.ExtractIntegerId(oldUser.id);
 
-            var roleTokens = StringParserHelper.ParseCsvString(rawRoles);
-
-            if (users.TryGetValue(userId, out var user))
+            // 1. Resolve Primary RoleId
+            int roleId = 0;
+            if (!string.IsNullOrWhiteSpace(oldUser.role_id))
             {
-                foreach (var token in roleTokens)
+                var roleIdStrings = StringParserHelper.ParseCsvString(oldUser.role_id);
+                foreach (var rIdStr in roleIdStrings)
                 {
-                    if (roleMap.TryGetValue(token, out var roleId))
+                    int parsedId = StringParserHelper.ExtractIntegerId(rIdStr);
+                    if (rolesById.ContainsKey(parsedId))
                     {
-                        user.RoleId = roleId;
+                        roleId = parsedId;
                         break;
                     }
                 }
             }
+
+            var newUser = new User
+            {
+                Id = userId,
+                Username = oldUser.username ?? string.Empty,
+                //TODO: Password Hash
+                PasswordHash = oldUser.password ?? string.Empty,
+                FullName = oldUser.full_name ?? string.Empty,
+                Email = oldUser.email ?? string.Empty,
+                RoleId = roleId,
+                LastLogin = TimestampParserHelper.ParseOrFallback(oldUser.last_login),
+                CreatedDate = TimestampParserHelper.ParseOrFallback(oldUser.created_date)
+            };
+
+            // 2. Resolve Regions (Many-to-Many)
+            if (!string.IsNullOrWhiteSpace(oldUser.region))
+            {
+                // Skip non-active users
+                bool isActive = oldUser.is_active?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
+                if (!isActive)
+                    continue;
+                var regionNames = StringParserHelper.ParseCsvString(oldUser.region);
+                foreach (var regName in regionNames)
+                {
+                    if (regionsByName.TryGetValue(regName, out var region))
+                    {
+                        newUser.Regions.Add(region);
+                    }
+                }
+            }
+
+            // Store created_by string for the second pass
+            if (!string.IsNullOrWhiteSpace(oldUser.created_by))
+            {
+                createdByMap[userId] = oldUser.created_by.Trim();
+            }
+
+            newUsers.Add(newUser);
         }
 
-        return users;
-    }
+        // Pass 2: Resolve CreatedById using the created username map
+        var usersByUsername = newUsers.ToDictionary(u => u.Username, u => u.Id, StringComparer.OrdinalIgnoreCase);
 
-    protected override Task<List<Region>> ResolveTargetsAsync(AppDbContext dbContext, string token, CancellationToken cancellationToken)
-    {
-        if (token.Equals("ALL", StringComparison.OrdinalIgnoreCase) || token == "*")
+        foreach (var user in newUsers)
         {
-            return Task.FromResult(_allRegions);
+            if (createdByMap.TryGetValue(user.Id, out var creatorUsername) &&
+                usersByUsername.TryGetValue(creatorUsername, out var creatorId))
+            {
+                user.CreatedById = creatorId;
+            }
+            else
+            {
+                // Fallback: If creator is 'system' or not found, point to self
+                user.CreatedById = user.Id;
+            }
         }
 
-        var found = _allRegions.Where(r =>
-            string.Equals(r.CountryCode, token, StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(r.Name, token, StringComparison.OrdinalIgnoreCase)).ToList();
-
-        return Task.FromResult(found);
+        await dbContext.Users.AddRangeAsync(newUsers, cancellationToken);
     }
 
-    protected override bool RelationExists(User entity, Region target) => entity.Regions.Any(r => r.Id == target.Id);
-
-    protected override void AttachRelation(User entity, Region target) => entity.Regions.Add(target);
+    private record LegacyUserDto(
+        string id,
+        string username,
+        string password,
+        string full_name,
+        string email,
+        string role,
+        string role_id,
+        string region,
+        string is_active,
+        string last_login,
+        string created_date,
+        string created_by);
 }
