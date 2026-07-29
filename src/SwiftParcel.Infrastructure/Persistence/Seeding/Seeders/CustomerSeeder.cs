@@ -62,8 +62,8 @@ public class CustomerSeeder : IEntitySeeder
             var newCustomer = new Customer
             {
                 Name = legacyOrphanCustomer.customer_name,
-                Email = legacyOrphanCustomer.customer_email,
-                Phone = legacyOrphanCustomer.customer_phone,
+                Email = StringParserHelper.NormalizeEmailOrDefault(legacyOrphanCustomer.customer_email),
+                Phone = StringParserHelper.NormalizePhoneNumberOrDefault(legacyOrphanCustomer.customer_phone),
             };
             
             newCustomers.Add(newCustomer);

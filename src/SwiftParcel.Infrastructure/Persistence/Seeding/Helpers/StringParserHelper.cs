@@ -235,7 +235,7 @@ public static partial class StringParserHelper
     /// <summary>
     /// Normalizes a phone number, or returns the specified fallback.
     /// </summary>
-    public static string? NormalizePhoneNumberOrDefault(string? input, string? defaultValue = "")
+    public static string NormalizePhoneNumberOrDefault(string? input, string defaultValue = "")
     {
         return TryNormalizePhoneNumber(input, out var normalized) ? normalized : defaultValue;
     }
@@ -267,7 +267,7 @@ public static partial class StringParserHelper
     /// <summary>
     /// Normalizes an email address, or returns the specified fallback.
     /// </summary>
-    public static string? NormalizeEmailOrDefault(string? input, string? defaultValue = "")
+    public static string NormalizeEmailOrDefault(string? input, string defaultValue = "")
     {
         return TryNormalizeEmail(input, out var normalized) ? normalized : defaultValue;
     }
