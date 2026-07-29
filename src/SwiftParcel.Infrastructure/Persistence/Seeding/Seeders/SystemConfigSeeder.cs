@@ -22,16 +22,18 @@ public class SystemConfigSeeder : IEntitySeeder
 
         var newConfigs = new List<SystemConfig>();
 
-        foreach (var oldConfig in legacyConfigs)
+        var userLookup = await SeedingLookupHelper.GetUserLookupByUsernameAsync(dbContext, cancellationToken);
+        
+        foreach (var legacyConfig in legacyConfigs)
         {
             var newConfig = new SystemConfig
             {
-                Id = StringParserHelper.ExtractIntegerId(oldConfig.id),
-                ConfigKey = oldConfig.config_key,
-                ConfigValue = StringParserHelper.ParseJsonDocument(oldConfig.config_value),
-                Description = oldConfig.description,
-                // UpdatedBy: match users.username to users.id
-                UpdatedDate = TimestampParserHelper.ParseOrFallback(oldConfig.updated_date)
+                Id = StringParserHelper.ExtractIntegerId(legacyConfig.id),
+                ConfigKey = legacyConfig.config_key,
+                ConfigValue = StringParserHelper.ParseJsonDocument(legacyConfig.config_value),
+                Description = legacyConfig.description,
+                UpdatedById = userLookup[legacyConfig.updated_by],
+                UpdatedDate = TimestampParserHelper.ParseOrFallback(legacyConfig.updated_date)
             };
 
             newConfigs.Add(newConfig);
