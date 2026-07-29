@@ -47,7 +47,6 @@ public partial class SlaRuleSeeder : IEntitySeeder
             .ToHashSet()!;
     }
     
-    
     public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.SlaRules.AnyAsync(cancellationToken))
@@ -62,6 +61,8 @@ public partial class SlaRuleSeeder : IEntitySeeder
         var activeRuleIds = GetActiveRuleIds(legacySlaRules);
         
         var newSlaRules = new List<SlaRule>();
+        
+        var handlerLookup = await SeedingLookupHelper.GetHandlerLookupByNameAsync(dbContext, cancellationToken);
         
         foreach (var legacySlaRule in legacySlaRules)
         {
@@ -82,6 +83,12 @@ public partial class SlaRuleSeeder : IEntitySeeder
             {
                 validServiceType = true;
             }
+
+            var hasHandlerId = false;
+            if (handlerLookup.TryGetValue(legacySlaRule.escalation_target, out var newEscalationHandlerId))
+            {
+                hasHandlerId = true;
+            }
             
             var newRule = new SlaRule
             {
@@ -93,8 +100,8 @@ public partial class SlaRuleSeeder : IEntitySeeder
                 SlaHours = StringParserHelper.ExtractInteger(legacySlaRule.sla_hours),
                 IsBusinessHours = StringParserHelper.ParseBoolean(legacySlaRule.is_business_hours),
                 EscalationAfter = StringParserHelper.ExtractInteger(legacySlaRule.escalation_after),
-                // EscalationHandlerId = 
-                // EscalationDepartment =
+                EscalationHandlerId = hasHandlerId ? newEscalationHandlerId : null,
+                EscalationDepartment = hasHandlerId ? null : legacySlaRule.escalation_target,
                 IsActive = activeRuleIds.Contains(legacySlaRule.id),
                 CreatedDate = TimestampParserHelper.ParseOrFallback(legacySlaRule.created_date),
                 Notes = legacySlaRule.notes
