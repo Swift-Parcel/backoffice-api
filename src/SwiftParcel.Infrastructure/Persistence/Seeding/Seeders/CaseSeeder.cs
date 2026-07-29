@@ -23,7 +23,7 @@ public class CaseSeeder : IEntitySeeder
             .ToDictionaryAsync(h => h.Id, cancellationToken);
 
         var regionsByName = await dbContext.Regions
-            .ToDictionaryAsync(r => r.RegionName, r => r.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
+            .ToDictionaryAsync(r => r.Name, r => r.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
         var parcelsByTrackingNumber = await dbContext.Parcels
             .ToDictionaryAsync(p => p.TrackingNumber, cancellationToken);
