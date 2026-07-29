@@ -1,10 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Net.Mail;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
 
-public static class StringParserHelper
+public partial static class StringParserHelper
 {
     private static readonly Regex DigitsRegex = new(@"\d+", RegexOptions.Compiled);
     private static readonly Regex DecimalRegex = new(@"\d+(\.\d+)?", RegexOptions.Compiled);
@@ -195,5 +197,62 @@ public static class StringParserHelper
     {
         var val = input.Trim().ToLower();
         return val is "yes" or "no" or "true" or "false" or "1" or "0" or "y" or "n" or "t" or "f" or "internal";
+    }
+    
+    [GeneratedRegex(@"^(?:\+|00)?\d{7,15}$", RegexOptions.Compiled)]
+    private static partial Regex PhoneRegex();
+
+    /// <summary>
+    /// Normalizes phone numbers into E.164 format.
+    /// Converts leading '00' to '+', strips spaces/dashes, and verifies digit count.
+    /// </summary>
+    public static bool TryNormalizePhoneNumber(string? input, [NotNullWhen(true)] out string? normalized)
+    {
+        normalized = null;
+        if (string.IsNullOrWhiteSpace(input))
+            return false;
+
+        ReadOnlySpan<char> cleanedSpan = input
+            .Replace(" ", "")
+            .Replace("-", "")
+            .Replace("(", "")
+            .Replace(")", "");
+
+        string cleaned = cleanedSpan.ToString();
+
+        if (cleaned.StartsWith("00", StringComparison.Ordinal))
+        {
+            cleaned = "+" + cleaned[2..];
+        }
+
+        if (!PhoneRegex().IsMatch(cleaned))
+            return false;
+
+        normalized = cleaned.StartsWith('+') ? cleaned : "+" + cleaned;
+        return true;
+    }
+
+    /// <summary>
+    /// Normalizes email addresses by trimming whitespace, lowercasing, and validating standard syntax.
+    /// </summary>
+    public static bool TryNormalizeEmail(string? input, [NotNullWhen(true)] out string? normalized)
+    {
+        normalized = null;
+        if (string.IsNullOrWhiteSpace(input))
+            return false;
+
+        string trimmed = input.Trim().ToLowerInvariant();
+
+        if (!MailAddress.TryCreate(trimmed, out var address) || address.Address != trimmed)
+            return false;
+
+        int lastDotIndex = trimmed.LastIndexOf('.');
+        int atIndex = trimmed.IndexOf('@');
+
+        if (atIndex <= 0 || lastDotIndex <= atIndex + 1 || lastDotIndex == trimmed.Length - 1)
+            return false;
+
+        normalized = trimmed;
+        return true;
     }
 }
