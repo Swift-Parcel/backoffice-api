@@ -1,61 +1,57 @@
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Domain.Entities;
+using SwiftParcel.Infrastructure.Parsers;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
-using Parsers;
-
 public class CustomerSeeder : IEntitySeeder
 {
-    public int Order => 70;
-
+    public int Order => 6;
     public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Customers.AnyAsync(cancellationToken))
-            return;
-
-        var legacyCustomers = await dbContext.Database
-            .SqlQueryRaw<LegacyCustomerDto>(@"
-                SELECT 
-                    id, name, email, phone, address, 
-                    registered_date, vip, notes 
-                FROM customers")
-            .ToListAsync(cancellationToken);
-
-        var newCustomers = new List<Customer>();
-        var processedEmails = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var oldCustomer in legacyCustomers)
         {
-            var email = oldCustomer.email?.Trim() ?? string.Empty;
-
-            // Email deduplication
-            if (!string.IsNullOrEmpty(email) && !processedEmails.Add(email))
-                continue;
-
-            // Parse VIP Boolean
-            bool isVip = oldCustomer.vip?.Trim().ToLowerInvariant() is "yes" or "y" or "true" or "1";
-
-            var customer = new Customer
-            {
-                Id = StringParserHelper.ExtractIntegerId(oldCustomer.id),
-                Name = oldCustomer.name ?? string.Empty,
-                Email = email,
-                Phone = oldCustomer.phone ?? string.Empty,
-                Address = AddressParserHelper.SplitStringAddress(oldCustomer.address),
-                RegisteredDate = TimestampParserHelper.ParseOrFallback(oldCustomer.registered_date),
-                Vip = isVip,
-                Notes = oldCustomer.notes ?? string.Empty
-            };
-
-            newCustomers.Add(customer);
+            return;
         }
-
+        
+        var addressLookup = await SeedingLookupHelper.GetAddressLookupAsync(dbContext, cancellationToken);
+        
+        var legacyCustomers = await dbContext.Database
+            .SqlQueryRaw<LegacyCustomerDto>("SELECT * FROM customers")
+            .ToListAsync(cancellationToken);
+        
+        var newCustomers = new List<Customer>();
+        
+        foreach (var legacyCustomer in legacyCustomers)
+        {
+            var parsedAddress = AddressParserHelper.SplitStringAddress(legacyCustomer.address);
+            
+            var addressKey = SeedingLookupHelper.GenerateAddressKey(
+                parsedAddress.City, 
+                parsedAddress.Street, 
+                parsedAddress.StreetNumber, 
+                parsedAddress.PostalCode, 
+                parsedAddress.CountryCode);
+            
+            var newCustomer = new Customer
+            {
+                Id = StringParserHelper.ExtractIntegerId(legacyCustomer.id),
+                Name = legacyCustomer.name,
+                Email = legacyCustomer.email,
+                Phone = legacyCustomer.phone,
+                AddressId = addressLookup.GetValueOrDefault(addressKey),
+                RegisteredDate = TimestampParserHelper.ParseOrFallback(legacyCustomer.registered_date),
+                Vip = StringParserHelper.ParseBoolean(legacyCustomer.vip),
+                Notes = legacyCustomer.notes
+            };
+            
+            newCustomers.Add(newCustomer);
+        }
         await dbContext.Customers.AddRangeAsync(newCustomers, cancellationToken);
     }
-
+    
     private record LegacyCustomerDto(
         string id,
         string name,
