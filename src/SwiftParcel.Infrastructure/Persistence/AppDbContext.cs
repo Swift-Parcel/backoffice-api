@@ -77,7 +77,7 @@ namespace SwiftParcel.Infrastructure.Persistence
                 b.Property(e => e.Priority).HasColumnType("enum_priority").HasDefaultValue(Priority.Low);
                 b.Property(e => e.Channel).HasColumnType("enum_channel");
                 
-                b.HasOne(e => e.Handler).WithMany(h => h.CasesHandled).HasForeignKey(e => e.HandlerId);
+                b.HasOne(e => e.Handler).WithMany(h => h.Cases).HasForeignKey(e => e.HandlerId);
             });
 
             modelBuilder.Entity<Country>(b => 
@@ -132,6 +132,10 @@ namespace SwiftParcel.Infrastructure.Persistence
                 b.Property(e => e.BusinessHoursStart).HasColumnType("time");
                 b.Property(e => e.BusinessHoursEnd).HasColumnType("time");
                 b.Property(e => e.BusinessDays).HasColumnType("enum_day_of_week[]");
+                
+                b.HasOne(r => r.Country)
+                    .WithMany()
+                    .HasForeignKey(r => r.CountryCode);
             });
 
             modelBuilder.Entity<Role>().HasIndex(e => e.RoleName).IsUnique();
