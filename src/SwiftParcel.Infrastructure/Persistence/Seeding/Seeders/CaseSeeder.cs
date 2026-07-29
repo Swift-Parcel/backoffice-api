@@ -18,17 +18,10 @@ public class CaseSeeder : IEntitySeeder
         var customersByEmail = await SeedingLookupHelper.GetCustomerLookupByEmailAsync(dbContext, cancellationToken);
         var customersByPhone = await SeedingLookupHelper.GetCustomerLookupByPhoneAsync(dbContext, cancellationToken);
         var customersByName = await SeedingLookupHelper.GetCustomerLookupByNameAsync(dbContext, cancellationToken);
-        
         var regionsByName = await SeedingLookupHelper.GetRegionLookupByNameAsync(dbContext, cancellationToken);
-
-        var handlersById = await dbContext.Handlers
-            .ToDictionaryAsync(h => h.Id, cancellationToken);
-
-        var parcelsByTrackingNumber = await dbContext.Parcels
-            .ToDictionaryAsync(p => p.TrackingNumber, cancellationToken);
-
-        var tagsByName = await dbContext.Tags
-            .ToDictionaryAsync(t => t.Name, StringComparer.OrdinalIgnoreCase, cancellationToken);
+        var validHandlerIds = await SeedingLookupHelper.GetHandlerIdLookupAsync(dbContext, cancellationToken);
+        var parcelsByTrackingNumber = await SeedingLookupHelper.GetTrackedParcelLookupByTrackingNumberAsync(dbContext, cancellationToken);
+        var tagsByName = await SeedingLookupHelper.GetTrackedTagLookupByNameAsync(dbContext, cancellationToken);
 
         var legacyCases = await dbContext.Database
             .SqlQueryRaw<LegacyCaseDto>(@"
@@ -57,7 +50,7 @@ public class CaseSeeder : IEntitySeeder
 
             int? handlerId = null;
             if (int.TryParse(oldCase.handler_id, out var parsedHandlerId) && 
-                handlersById.ContainsKey(parsedHandlerId))
+                validHandlerIds.ContainsKey(parsedHandlerId))
             {
                 handlerId = parsedHandlerId;
             }

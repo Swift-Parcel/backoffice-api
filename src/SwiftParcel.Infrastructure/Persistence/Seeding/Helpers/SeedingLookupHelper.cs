@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SwiftParcel.Domain.Entities;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
 
@@ -146,5 +147,51 @@ public static class SeedingLookupHelper
     public static string GenerateAddressKey(string? city, string? street, string? streetNumber, string? postalCode, string? countryCode)
     {
         return $"{city?.Trim()}|{street?.Trim()}|{streetNumber?.Trim()}|{postalCode?.Trim()}|{countryCode?.Trim()}";
+    }
+    
+    /// <summary>
+    /// Maps Handler Id to itself for existence validation. Highly optimized.
+    /// </summary>
+    public static async Task<Dictionary<int, int>> GetHandlerIdLookupAsync(
+        AppDbContext dbContext, 
+        CancellationToken ct = default)
+    {
+        return await dbContext.Handlers
+            .AsNoTracking()
+            .Select(h => h.Id)
+            .ToDictionaryAsync(
+                id => id, 
+                id => id, 
+                ct);
+    }
+
+    /// <summary>
+    /// Maps Tracking Number to Parcel entity.
+    /// </summary>
+    public static async Task<Dictionary<string, Parcel>> GetTrackedParcelLookupByTrackingNumberAsync(
+        AppDbContext dbContext, 
+        CancellationToken ct = default)
+    {
+        return await dbContext.Parcels
+            .Where(p => p.TrackingNumber != null)
+            .ToDictionaryAsync(
+                p => p.TrackingNumber!, 
+                StringComparer.OrdinalIgnoreCase, 
+                ct);
+    }
+
+    /// <summary>
+    /// Maps Tag Name to Tag entity
+    /// </summary>
+    public static async Task<Dictionary<string, Tag>> GetTrackedTagLookupByNameAsync(
+        AppDbContext dbContext, 
+        CancellationToken ct = default)
+    {
+        return await dbContext.Tags
+            .Where(t => t.Name != null)
+            .ToDictionaryAsync(
+                t => t.Name!, 
+                StringComparer.OrdinalIgnoreCase, 
+                ct);
     }
 }
