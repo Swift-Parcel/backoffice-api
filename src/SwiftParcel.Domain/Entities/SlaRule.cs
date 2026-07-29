@@ -5,7 +5,7 @@ using Enums;
 public class SlaRule
 {
     public int Id { get; set; }
-    public string RuleName { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
     public CaseType? CaseType { get; set; }
     public Priority? Priority { get; set; }
     public ServiceType? ServiceType { get; set; }

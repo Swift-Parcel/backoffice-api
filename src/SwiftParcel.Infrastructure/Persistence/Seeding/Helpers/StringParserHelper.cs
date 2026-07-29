@@ -70,6 +70,21 @@ public static class StringParserHelper
             ? val
             : 0m;
     }
+    
+    private static readonly Regex IntegerRegex = new Regex(@"-?\d+", RegexOptions.Compiled);
+
+    /// <summary>
+    /// Extracts an integer number from formatted strings ("15 kg", "€50", "-10 pcs").
+    /// </summary>
+    public static int ExtractInteger(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return 0;
+
+        var match = IntegerRegex.Match(input);
+        return match.Success && int.TryParse(match.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var val)
+            ? val
+            : 0;
+    }
 
     /// <summary>
     /// Splits character-separated strings with a chosen delimiter.
