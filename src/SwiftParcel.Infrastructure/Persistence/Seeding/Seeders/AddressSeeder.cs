@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Domain.Entities;
-using SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
+using SwiftParcel.Infrastructure.Parsers;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
@@ -9,7 +8,6 @@ public class AddressSeeder : IEntitySeeder
 {
     public int Order => 60;
     
-    
     public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Addresses.AnyAsync(cancellationToken))
@@ -17,13 +15,15 @@ public class AddressSeeder : IEntitySeeder
             return;
         }
         
+        var legacyAddresses = await dbContext.Database
+            .SqlQueryRaw<LegacyAddressDto>(@"SELECT sender_address AS address FROM parcels UNION SELECT recipient_address FROM parcels UNION SELECT address FROM customers")
+            .ToListAsync(cancellationToken);
         
-        var newAddresses = new List<Address>();
-        
-        
+        var newAddresses = legacyAddresses.Select(legacyAddress => AddressParserHelper.SplitStringAddress(legacyAddress.address)).ToList();
+
         await dbContext.Addresses.AddRangeAsync(newAddresses, cancellationToken);
     }
     
     private record LegacyAddressDto(
-        string Address);
+        string address);
 }
