@@ -88,5 +88,29 @@ public static class SeedingLookupHelper
                 ct);
     }
     
-    
+    /// <summary>
+    /// Maps a deterministic composite address key to Address Id
+    /// </summary>
+    public static async Task<Dictionary<string, int>> GetAddressLookupAsync(
+        AppDbContext dbContext, 
+        CancellationToken ct = default)
+    {
+        var addresses = await dbContext.Addresses
+            .AsNoTracking()
+            .Select(a => new { a.Id, a.City, a.Street, a.StreetNumber, a.PostalCode, a.CountryCode })
+            .ToListAsync(ct);
+
+        return addresses.ToDictionary(
+            a => GenerateAddressKey(a.City, a.Street, a.StreetNumber, a.PostalCode, a.CountryCode), 
+            a => a.Id, 
+            StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Generates a deterministic key from address components to ensure matching lookups.
+    /// </summary>
+    public static string GenerateAddressKey(string? city, string? street, string? streetNumber, string? postalCode, string? countryCode)
+    {
+        return $"{city?.Trim()}|{street?.Trim()}|{streetNumber?.Trim()}|{postalCode?.Trim()}|{countryCode?.Trim()}";
+    }
 }

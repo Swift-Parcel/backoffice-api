@@ -55,7 +55,7 @@ public partial class SlaRuleSeeder : IEntitySeeder
         }
         
         var legacySlaRules = await dbContext.Database
-            .SqlQueryRaw<LegacySlaRuleDto>("SELECT * FROM cases")
+            .SqlQueryRaw<LegacySlaRuleDto>("SELECT * FROM sla_rules")
             .ToListAsync(cancellationToken);
         
         var activeRuleIds = GetActiveRuleIds(legacySlaRules);
