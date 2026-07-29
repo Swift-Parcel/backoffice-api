@@ -7,7 +7,7 @@ public class RoleSeeder : BaseCsvRelationSeeder<Role, Permission>
 {
     private List<Permission> _allPermissions = new();
 
-    public override int Order => 1;
+    public override int Order => 3;
 
     protected override string SqlQuery =>
         "SELECT id, permissions FROM roles WHERE permissions IS NOT NULL AND permissions != ''";

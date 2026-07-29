@@ -35,4 +35,5 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 app.MapControllers();
 
+app.MapGet("/", () => "A Swift-Parcel Backoffice API fut és működik!");
 app.Run();

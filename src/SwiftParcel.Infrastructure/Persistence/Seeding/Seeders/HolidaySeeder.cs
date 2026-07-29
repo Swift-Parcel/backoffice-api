@@ -7,7 +7,7 @@ public class HolidaySeeder : BaseCsvRelationSeeder<Holiday, Region>
 {
     private List<Region> _allRegions = new();
 
-    public override int Order => 45;
+    public override int Order => 10;
     protected override string SqlQuery => "SELECT id, region FROM holidays WHERE region IS NOT NULL AND region != ''";
 
     protected override async Task<Dictionary<int, Holiday>> GetEntitiesAsync(AppDbContext dbContext, CancellationToken cancellationToken)

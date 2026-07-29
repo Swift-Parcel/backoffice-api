@@ -8,7 +8,7 @@ public class UserSeeder : BaseCsvRelationSeeder<User, Region>
 {
     private List<Region> _allRegions = new();
 
-    public override int Order => 1;
+    public override int Order => 5;
 
     protected override string SqlQuery =>
         "SELECT id, regions FROM users WHERE regions IS NOT NULL AND regions != ''";
