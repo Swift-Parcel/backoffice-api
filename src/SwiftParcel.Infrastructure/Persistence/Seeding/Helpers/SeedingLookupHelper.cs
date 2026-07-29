@@ -36,6 +36,23 @@ public static class SeedingLookupHelper
                 StringComparer.OrdinalIgnoreCase, 
                 ct);
     }
+    
+    /// <summary>
+    /// Maps Handler Name (User Name) to Handler Id
+    /// </summary>
+    public static async Task<Dictionary<string, int>> GetHandlerLookupByNameAsync(
+        AppDbContext dbContext, 
+        CancellationToken ct = default)
+    {
+        return await dbContext.Handlers
+            .AsNoTracking()
+            .Select(h => new { Name = h.User.FullName, HandlerId = h.Id })
+            .ToDictionaryAsync(
+                x => x.Name, 
+                x => x.HandlerId, 
+                StringComparer.OrdinalIgnoreCase, 
+                ct);
+    }
 
     /// <summary>
     /// Maps User Email to User Id
@@ -70,4 +87,6 @@ public static class SeedingLookupHelper
                 StringComparer.OrdinalIgnoreCase, 
                 ct);
     }
+    
+    
 }

@@ -10,7 +10,7 @@ namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
 public partial class SlaRuleSeeder : IEntitySeeder
 {
-    public int Order => 21;
+    public int Order => 13;
 
     [GeneratedRegex(@"\s*[\-\–]\s*(updated|disabled|deprecated|old|v\d+).*", RegexOptions.IgnoreCase)]
     private static partial Regex RuleNameCleanerRegex();
@@ -78,7 +78,7 @@ public partial class SlaRuleSeeder : IEntitySeeder
             }
             
             var validServiceType = false;
-            if (Enum.TryParse<ServiceType>(legacySlaRule.case_type, ignoreCase: true, out var newServiceType))
+            if (Enum.TryParse<ServiceType>(legacySlaRule.service_type, ignoreCase: true, out var newServiceType))
             {
                 validServiceType = true;
             }
