@@ -11,7 +11,9 @@ public class Parcel
     public Customer Customer { get; set; } = null!;
 
     public string RecipientName { get; set; } = string.Empty;
-    public string RecipientAddress { get; set; } = string.Empty;
+    
+    public int RecipientAddressId { get; set; }
+    public Address RecipientAddress { get; set; } = null!;
 
     public float Weight { get; set; }
 
@@ -24,5 +26,5 @@ public class Parcel
     public ServiceType ServiceType { get; set; }
     public int DeclaredValueInEuros { get; set; }
 
-    public ICollection<Case> Cases = new List<Case>();
+    public ICollection<Case> Cases { get; set; } = new List<Case>();
 }
