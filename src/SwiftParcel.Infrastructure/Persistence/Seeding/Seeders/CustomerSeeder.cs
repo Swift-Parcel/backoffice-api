@@ -5,6 +5,8 @@ using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
+using Parsers;
+
 public class CustomerSeeder : IEntitySeeder
 {
     public int Order => 70;
@@ -42,7 +44,7 @@ public class CustomerSeeder : IEntitySeeder
                 Name = oldCustomer.name ?? string.Empty,
                 Email = email,
                 Phone = oldCustomer.phone ?? string.Empty,
-                Address = oldCustomer.address ?? string.Empty,
+                Address = AddressParserHelper.SplitStringAddress(oldCustomer.address),
                 RegisteredDate = TimestampParserHelper.ParseOrFallback(oldCustomer.registered_date),
                 Vip = isVip,
                 Notes = oldCustomer.notes ?? string.Empty
