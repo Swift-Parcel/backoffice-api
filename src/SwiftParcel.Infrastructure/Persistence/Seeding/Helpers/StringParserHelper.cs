@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
 
-public partial static class StringParserHelper
+public static partial class StringParserHelper
 {
     private static readonly Regex DigitsRegex = new(@"\d+", RegexOptions.Compiled);
     private static readonly Regex DecimalRegex = new(@"\d+(\.\d+)?", RegexOptions.Compiled);
@@ -231,6 +231,14 @@ public partial static class StringParserHelper
         normalized = cleaned.StartsWith('+') ? cleaned : "+" + cleaned;
         return true;
     }
+    
+    /// <summary>
+    /// Normalizes a phone number, or returns the specified fallback.
+    /// </summary>
+    public static string? NormalizePhoneNumberOrDefault(string? input, string? defaultValue = "")
+    {
+        return TryNormalizePhoneNumber(input, out var normalized) ? normalized : defaultValue;
+    }
 
     /// <summary>
     /// Normalizes email addresses by trimming whitespace, lowercasing, and validating standard syntax.
@@ -254,5 +262,13 @@ public partial static class StringParserHelper
 
         normalized = trimmed;
         return true;
+    }
+    
+    /// <summary>
+    /// Normalizes an email address, or returns the specified fallback.
+    /// </summary>
+    public static string? NormalizeEmailOrDefault(string? input, string? defaultValue = "")
+    {
+        return TryNormalizeEmail(input, out var normalized) ? normalized : defaultValue;
     }
 }
