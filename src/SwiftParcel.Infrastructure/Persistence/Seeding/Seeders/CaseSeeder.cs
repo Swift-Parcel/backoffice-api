@@ -1,27 +1,150 @@
+using Microsoft.EntityFrameworkCore;
+using SwiftParcel.Domain.Entities;
+using SwiftParcel.Domain.Enums;
+using SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
+using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
+
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
-using Microsoft.EntityFrameworkCore;
-using Domain.Entities;
-
-public class CaseSeeder : BaseCsvRelationSeeder<Case, Parcel>
+public class CaseSeeder : IEntitySeeder
 {
-    private Dictionary<string, Parcel> _parcelMap = new();
+    public int Order => 11;
 
-    public override int Order => 11;
-    protected override string SqlQuery => "SELECT id, parcel_tracking_numbers FROM cases WHERE parcel_tracking_numbers IS NOT NULL AND parcel_tracking_numbers != ''";
-
-    protected override async Task<Dictionary<int, Case>> GetEntitiesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
-        _parcelMap = await dbContext.Parcels.ToDictionaryAsync(p => p.TrackingNumber, p => p, cancellationToken);
-        return await dbContext.Cases.Include(c => c.Parcels).ToDictionaryAsync(c => c.Id, cancellationToken);
+        if (await dbContext.Cases.AnyAsync(cancellationToken))
+            return;
+
+        // Caches for fast in-memory lookups
+        var customersByEmail = await dbContext.Customers
+            .ToDictionaryAsync(c => c.Email, c => c.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
+
+        var handlersById = await dbContext.Handlers
+            .ToDictionaryAsync(h => h.Id, cancellationToken);
+
+        var regionsByName = await dbContext.Regions
+            .ToDictionaryAsync(r => r.RegionName, r => r.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
+
+        var parcelsByTrackingNumber = await dbContext.Parcels
+            .ToDictionaryAsync(p => p.TrackingNumber, cancellationToken);
+
+        var tagsByName = await dbContext.Tags
+            .ToDictionaryAsync(t => t.Name, StringComparer.OrdinalIgnoreCase, cancellationToken);
+
+        var legacyCases = await dbContext.Database
+            .SqlQueryRaw<LegacyCaseDto>(@"
+                SELECT 
+                    id, case_number, title, description, case_type, status, priority, 
+                    customer_email, handler_id, parcel_tracking_numbers, created_date, 
+                    updated_date, resolved_date, sla_deadline, region, channel, tags, 
+                    is_escalated, escalated_to, resolution, satisfaction_score 
+                FROM cases")
+            .ToListAsync(cancellationToken);
+
+        var newCases = new List<Case>();
+
+        foreach (var oldCase in legacyCases)
+        {
+            // Resolve Foreign Keys
+            int customerId = 0;
+            if (!string.IsNullOrWhiteSpace(oldCase.customer_email) && 
+                customersByEmail.TryGetValue(oldCase.customer_email.Trim(), out var parsedCustomerId))
+            {
+                customerId = parsedCustomerId;
+            }
+
+            int? handlerId = null;
+            if (int.TryParse(oldCase.handler_id, out var parsedHandlerId) && 
+                handlersById.ContainsKey(parsedHandlerId))
+            {
+                handlerId = parsedHandlerId;
+            }
+
+            int regionId = 0;
+            if (!string.IsNullOrWhiteSpace(oldCase.region) && 
+                regionsByName.TryGetValue(oldCase.region.Trim(), out var parsedRegionId))
+            {
+                regionId = parsedRegionId;
+            }
+
+            Enum.TryParse<CaseType>(oldCase.case_type, true, out var caseType);
+            Enum.TryParse<CaseStatus>(oldCase.status?.Replace(" ", ""), true, out var status);
+            Enum.TryParse<Priority>(oldCase.priority, true, out var priority);
+            Enum.TryParse<Channel>(oldCase.channel, true, out var channel);
+
+            var newCase = new Case
+            {
+                Id = StringParserHelper.ExtractIntegerId(oldCase.id),
+                CaseNumber = oldCase.case_number,
+                Title = oldCase.title ?? string.Empty,
+                Description = oldCase.description ?? string.Empty,
+                CaseType = caseType,
+                Status = status,
+                Priority = priority,
+                Channel = channel,
+                CustomerId = customerId,
+                HandlerId = handlerId,
+                RegionId = regionId,
+                CreatedDate = TimestampParserHelper.ParseOrFallback(oldCase.created_date),
+                UpdatedDate = TimestampParserHelper.ParseOrFallback(oldCase.updated_date),
+                ResolvedDate = TimestampParserHelper.ParseOrFallback(oldCase.resolved_date),
+                SlaDeadline = TimestampParserHelper.ParseOrFallback(oldCase.sla_deadline),
+                Resolution = oldCase.resolution,
+                SatisfactionScore = int.TryParse(oldCase.satisfaction_score, out var score) ? score : 0
+            };
+
+            // Many-to-Many: Parcels
+            if (!string.IsNullOrWhiteSpace(oldCase.parcel_tracking_numbers))
+            {
+                var trackingNumbers = StringParserHelper.ParseCsvString(oldCase.parcel_tracking_numbers);
+                foreach (var trackingNumber in trackingNumbers)
+                {
+                    if (parcelsByTrackingNumber.TryGetValue(trackingNumber, out var parcel))
+                    {
+                        newCase.Parcels.Add(parcel);
+                    }
+                }
+            }
+
+            // Many-to-Many: Tags
+            if (!string.IsNullOrWhiteSpace(oldCase.tags))
+            {
+                var tagList = StringParserHelper.ParseCsvString(oldCase.tags);
+                foreach (var tagName in tagList)
+                {
+                    if (tagsByName.TryGetValue(tagName, out var tag))
+                    {
+                        newCase.Tags.Add(tag);
+                    }
+                }
+            }
+
+            newCases.Add(newCase);
+        }
+
+        await dbContext.Cases.AddRangeAsync(newCases, cancellationToken);
     }
 
-    protected override Task<List<Parcel>> ResolveTargetsAsync(AppDbContext dbContext, string token, CancellationToken cancellationToken)
-    {
-        var result = _parcelMap.TryGetValue(token, out var parcel) ? new List<Parcel> { parcel } : new List<Parcel>();
-        return Task.FromResult(result);
-    }
-
-    protected override bool RelationExists(Case entity, Parcel target) => entity.Parcels.Any(p => p.Id == target.Id);
-    protected override void AttachRelation(Case entity, Parcel target) => entity.Parcels.Add(target);
+    private record LegacyCaseDto(
+        string id,
+        string case_number,
+        string title,
+        string description,
+        string case_type,
+        string status,
+        string priority,
+        string customer_email,
+        string handler_id,
+        string parcel_tracking_numbers,
+        string created_date,
+        string updated_date,
+        string resolved_date,
+        string sla_deadline,
+        string region,
+        string channel,
+        string tags,
+        string is_escalated,
+        string escalated_to,
+        string resolution,
+        string satisfaction_score);
 }
