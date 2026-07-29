@@ -11,8 +11,8 @@ public class DataSeederOrchestrator
         _newDb = newDb;
     }
 
-    public async Task RunAsync()
+    public async Task RunMigrationIfNeededAsync()
     {
-        Console.WriteLine("Starting data seeding...");
+        Console.WriteLine($"Starting data seeding...{_oldDb.Database}, {_newDb.Addresses}");
     }
 }
