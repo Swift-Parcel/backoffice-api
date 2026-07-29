@@ -16,7 +16,7 @@ public class CustomerSeeder : IEntitySeeder
         }
         
         var legacyCustomers = await dbContext.Database
-            .SqlQueryRaw<LegacyCustomerDto>("SELECT Customers FROM cases")
+            .SqlQueryRaw<LegacyCustomerDto>("SELECT * FROM customers")
             .ToListAsync(cancellationToken);
         
         var newCustomers = new List<Customer>();
