@@ -7,7 +7,7 @@ public class CaseSeeder : BaseCsvRelationSeeder<Case, Parcel>
 {
     private Dictionary<string, Parcel> _parcelMap = new();
 
-    public override int Order => 7;
+    public override int Order => 11;
     protected override string SqlQuery => "SELECT id, parcel_tracking_numbers FROM cases WHERE parcel_tracking_numbers IS NOT NULL AND parcel_tracking_numbers != ''";
 
     protected override async Task<Dictionary<int, Case>> GetEntitiesAsync(AppDbContext dbContext, CancellationToken cancellationToken)

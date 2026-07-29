@@ -7,7 +7,7 @@ public class StatusWorkflowSeeder : BaseCsvRelationSeeder<StatusWorkflow, Role>
 {
     private Dictionary<string, Role> _roleMap = new();
 
-    public override int Order => 11;
+    public override int Order => 14;
     protected override string SqlQuery => "SELECT id, allowed_roles FROM status_workflow WHERE allowed_roles IS NOT NULL AND allowed_roles != ''";
 
     protected override async Task<Dictionary<int, StatusWorkflow>> GetEntitiesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
