@@ -9,7 +9,7 @@ public class PermissionSeeder : IEntitySeeder
 {
     public int Order => 20;
 
-    public List<string> granularPermissions = new List<string>
+    public static List<string> granularPermissions = new List<string>
     {
         "case.delete",
         "case.export",
@@ -20,7 +20,7 @@ public class PermissionSeeder : IEntitySeeder
         "report.financial"
     };
     
-    public List<string> rolePermissions = new List<string>
+    public static List<string> rolePermissions = new List<string>
     {
         "case.view",
         "case.create",
