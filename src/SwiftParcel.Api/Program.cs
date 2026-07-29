@@ -1,11 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Infrastructure.Persistence; 
 using SwiftParcel.Domain.Enums;
-using SwiftParcel.Infrastructure.Persistence.Seeding;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("SwiftParcel");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
         options
@@ -25,37 +24,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
             .UseSnakeCaseNamingConvention()
 );
 
-var legacyConnectionString = builder.Configuration.GetConnectionString("LegacyConnection");
-builder.Services.AddDbContext<LegacyDbContext>(options =>
-    options.UseNpgsql(legacyConnectionString));
-
-builder.Services.AddScoped<DataSeederOrchestrator>();
-
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var newDbContext = services.GetRequiredService<AppDbContext>();
-        await newDbContext.Database.MigrateAsync();
-        
-        var migrationService = services.GetRequiredService<DataSeederOrchestrator>();
-        await migrationService.RunMigrationIfNeededAsync();
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Error occured while migrating the database.");
-        throw;
-    }
-}
-
 app.UseHttpsRedirection();
 app.MapControllers();
 
-app.MapGet("/", () => "Swift-parcel backoffice is up and running.");
-await app.RunAsync();
+app.Run();

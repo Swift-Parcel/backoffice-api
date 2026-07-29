@@ -6,12 +6,6 @@ public class User
     public string Username { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
-    public int RoleId { get; set; }
-    public Role Role { get; set; } = null!;
-
-    public ICollection<Region> Regions { get; set; }= new List<Region>();
-    
-    public ICollection<UserPermission> Permissions { get; set; } = new List<UserPermission>();
     public string Email { get; set; } = string.Empty;
     public bool IsActive { get; set; }
     public DateTime LastLogin { get; set; }
