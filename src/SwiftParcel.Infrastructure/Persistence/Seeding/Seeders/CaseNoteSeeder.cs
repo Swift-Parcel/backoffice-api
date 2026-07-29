@@ -1,80 +1,86 @@
+using Microsoft.EntityFrameworkCore;
+using SwiftParcel.Domain.Entities;
+using SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
-using Microsoft.EntityFrameworkCore;
-using Domain.Entities;
-using Helpers;
-using Interfaces;
-
 public class CaseNoteSeeder : IEntitySeeder
 {
-    public int Order => 12;
-
-    private static readonly HashSet<string> TruthyValues = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "yes", "true", "1", "internal"
-    };
+    public int Order => 130;
 
     public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.CaseNotes.AnyAsync(cancellationToken))
+        {
             return;
+        }
 
-        // Cache users by email for fast lookup
+        // Caches for fast in-memory lookups
+        var casesByNumber = await dbContext.Cases
+            .ToDictionaryAsync(c => c.CaseNumber, c => c.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
+
         var usersByEmail = await dbContext.Users
-            .ToDictionaryAsync(u => u.Email, u => u, StringComparer.OrdinalIgnoreCase, cancellationToken);
+            .ToDictionaryAsync(u => u.Email, u => u.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
-        // Cache cases by Id for fast lookup
-        var casesById = await dbContext.Cases
-            .ToDictionaryAsync(c => c.Id, cancellationToken);
+        var legacyNotes = await dbContext.Database
+            .SqlQueryRaw<LegacyCaseNoteDto>(@"SELECT id, case_id, case_number, author, author_email, note_text, created_date, is_internal, attachment 
+                FROM case_notes")
+            .ToListAsync(cancellationToken);
 
-        await using var command = dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandText = @"SELECT case_id, author, author_email, note_text, created_date, is_internal, attachment FROM case_notes";
+        var newCaseNotes = new List<CaseNote>();
 
-        await dbContext.Database.OpenConnectionAsync(cancellationToken);
-        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
-
-        var notesToInsert = new List<CaseNote>();
-
-        while (await reader.ReadAsync(cancellationToken))
+        foreach (var oldNote in legacyNotes)
         {
-            var caseIdRaw = reader.IsDBNull(0) ? string.Empty : reader.GetString(0);
-            var authorEmail = reader.IsDBNull(2) ? string.Empty : reader.GetString(2);
-            var noteText = reader.IsDBNull(3) ? string.Empty : reader.GetString(3);
-            var createdAtRaw = reader.IsDBNull(4) ? string.Empty : reader.GetString(4);
-            var isInternalRaw = reader.IsDBNull(5) ? string.Empty : reader.GetString(5);
-            var attachment = reader.IsDBNull(6) ? string.Empty : reader.GetString(6);
-
-            // Safe string-to-int conversion for case_id
-            if (!int.TryParse(caseIdRaw, out var caseId) || !casesById.TryGetValue(caseId, out var parentCase))
-                continue;
-
-            // Resolve User entity by author email
-            if (!usersByEmail.TryGetValue(authorEmail, out var author))
-                continue;
-
-            // Parse IsInternal flag
-            var isInternal = TruthyValues.Contains(isInternalRaw.Trim());
-
-            // Parse created timestamp using helper
-            var createdDate = TimestampParserHelper.ParseOrFallback(createdAtRaw);
-
-            notesToInsert.Add(new CaseNote
+            // 1. Resolve CaseId
+            int caseId = 0;
+            if (!string.IsNullOrWhiteSpace(oldNote.case_number) && 
+                casesByNumber.TryGetValue(oldNote.case_number.Trim(), out var parsedCaseId))
             {
-                CaseId = parentCase.Id,
-                AuthorId = author.Id,
-                NoteText = noteText,
-                CreatedDate = createdDate,
+                caseId = parsedCaseId;
+            }
+
+            // 2. Resolve AuthorId (User)
+            int authorId = 0;
+            if (!string.IsNullOrWhiteSpace(oldNote.author_email) && 
+                usersByEmail.TryGetValue(oldNote.author_email.Trim(), out var parsedAuthorId))
+            {
+                authorId = parsedAuthorId;
+            }
+
+            // 3. Parse Boolean (is_internal)
+            bool isInternal = false;
+            if (!string.IsNullOrWhiteSpace(oldNote.is_internal))
+            {
+                var val = oldNote.is_internal.Trim().ToLowerInvariant();
+                isInternal = val is "yes" or "true" or "1" or "internal";
+            }
+
+            var newNote = new CaseNote
+            {
+                Id = StringParserHelper.ExtractIntegerId(oldNote.id),
+                CaseId = caseId,
+                AuthorId = authorId,
+                NoteText = oldNote.note_text ?? string.Empty,
+                CreatedDate = TimestampParserHelper.ParseOrFallback(oldNote.created_date),
                 IsInternal = isInternal,
-                Attachment = attachment
-            });
+                Attachment = oldNote.attachment ?? string.Empty
+            };
+
+            newCaseNotes.Add(newNote);
         }
 
-        if (notesToInsert.Count > 0)
-        {
-            await dbContext.CaseNotes.AddRangeAsync(notesToInsert, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
-        }
+        await dbContext.CaseNotes.AddRangeAsync(newCaseNotes, cancellationToken);
     }
+
+    private record LegacyCaseNoteDto(
+        string id,
+        string case_id,
+        string case_number,
+        string author_name,
+        string author_email,
+        string note_text,
+        string created_date,
+        string is_internal,
+        string attachment);
 }
