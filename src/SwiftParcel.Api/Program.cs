@@ -2,9 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Infrastructure.Persistence; 
 using SwiftParcel.Domain.Enums;
 using SwiftParcel.Infrastructure.Persistence.Seeding;
+using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//dbContext registration
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -31,6 +33,16 @@ builder.Services.AddDbContext<LegacyDbContext>(options =>
 
 builder.Services.AddScoped<DataSeederOrchestrator>();
 
+//registration of seeders
+var seederTypes = typeof(DataSeederOrchestrator).Assembly
+    .GetTypes()
+    .Where(t => typeof(IEntitySeeder).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+foreach (var type in seederTypes)
+{
+    builder.Services.AddScoped(typeof(IEntitySeeder), type);
+}
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -49,7 +61,6 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Error occured while migrating the database.");
         throw;
     }
 }
