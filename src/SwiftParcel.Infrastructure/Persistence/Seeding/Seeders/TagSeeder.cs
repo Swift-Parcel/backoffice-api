@@ -37,14 +37,14 @@ public class TagSeeder : IEntitySeeder
         return cleanedTags;
     }
     
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Tags.AnyAsync(cancellationToken))
         {
             return;
         }
         
-        var legacyTags = await dbContext.Database
+        var legacyTags = await oldDbContext.Database
             .SqlQueryRaw<LegacyTagDto>("SELECT tags FROM cases")
             .ToListAsync(cancellationToken);
         

@@ -4,5 +4,5 @@ public interface IEntitySeeder
 {
     int Order { get; }
     
-    Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default);
+    Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default);
 }

@@ -10,7 +10,7 @@ public class UserSeeder : IEntitySeeder
 {
     public int Order => 50;
 
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Users.AnyAsync(cancellationToken))
             return;
@@ -22,7 +22,7 @@ public class UserSeeder : IEntitySeeder
         var regionsByName = await dbContext.Regions
             .ToDictionaryAsync(r => r.Name, r => r, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
-        var legacyUsers = await dbContext.Database
+        var legacyUsers = await oldDbContext.Database
             .SqlQueryRaw<LegacyUserDto>(@"
                 SELECT 
                     id, username, password, full_name, email, 

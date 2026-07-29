@@ -16,14 +16,14 @@ public abstract class BaseCsvRelationSeeder<TEntity, TTarget> : IEntitySeeder
     protected abstract void AttachRelation(TEntity entity, TTarget target);
     protected abstract bool RelationExists(TEntity entity, TTarget target);
 
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         var entities = await GetEntitiesAsync(dbContext, cancellationToken);
 
-        await using var command = dbContext.Database.GetDbConnection().CreateCommand();
+        await using var command = oldDbContext.Database.GetDbConnection().CreateCommand();
         command.CommandText = SqlQuery;
 
-        await dbContext.Database.OpenConnectionAsync(cancellationToken);
+        await oldDbContext.Database.OpenConnectionAsync(cancellationToken);
         await using var reader = await command.ExecuteReaderAsync(cancellationToken);
 
         var hasChanges = false;

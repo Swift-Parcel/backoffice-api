@@ -9,7 +9,7 @@ public class CaseNoteSeeder : IEntitySeeder
 {
     public int Order => 130;
 
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.CaseNotes.AnyAsync(cancellationToken))
         {
@@ -23,7 +23,7 @@ public class CaseNoteSeeder : IEntitySeeder
         var usersByEmail = await dbContext.Users
             .ToDictionaryAsync(u => u.Email, u => u.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
-        var legacyNotes = await dbContext.Database
+        var legacyNotes = await oldDbContext.Database
             .SqlQueryRaw<LegacyCaseNoteDto>(@"SELECT id, case_id, case_number, author, author_email, note_text, created_date, is_internal, attachment 
                 FROM case_notes")
             .ToListAsync(cancellationToken);

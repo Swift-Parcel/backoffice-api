@@ -9,14 +9,14 @@ public class UserPermissionSeeder : IEntitySeeder
 {
     public int Order => 45;
     
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.UserPermissions.AnyAsync(cancellationToken))
         {
             return;
         }
         
-        var legacyUserPermissions = await dbContext.Database
+        var legacyUserPermissions = await oldDbContext.Database
             .SqlQueryRaw<LegacyUserPermissionDto>("SELECT * UserPermissions FROM user_permission")
             .ToListAsync(cancellationToken);
 

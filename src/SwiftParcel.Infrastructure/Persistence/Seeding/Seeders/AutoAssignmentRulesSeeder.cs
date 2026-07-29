@@ -9,7 +9,7 @@ public class AutoAssignmentRuleSeeder : IEntitySeeder
 {
     public int Order => 160;
 
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.AutoAssignmentRules.AnyAsync(cancellationToken))
             return;
@@ -24,7 +24,7 @@ public class AutoAssignmentRuleSeeder : IEntitySeeder
         var usersByUsername = await dbContext.Users
             .ToDictionaryAsync(u => u.Username, u => u.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
-        var legacyRules = await dbContext.Database
+        var legacyRules = await oldDbContext.Database
             .SqlQueryRaw<LegacyAutoAssignmentRuleDto>(@"
                 SELECT 
                     id, rule_name, priority, conditions, 

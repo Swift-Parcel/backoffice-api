@@ -10,7 +10,7 @@ public class CaseSeeder : IEntitySeeder
 {
     public int Order => 11;
 
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Cases.AnyAsync(cancellationToken))
             return;
@@ -31,7 +31,7 @@ public class CaseSeeder : IEntitySeeder
         var tagsByName = await dbContext.Tags
             .ToDictionaryAsync(t => t.Name, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
-        var legacyCases = await dbContext.Database
+        var legacyCases = await oldDbContext.Database
             .SqlQueryRaw<LegacyCaseDto>(@"
                 SELECT 
                     id, case_number, title, description, case_type, status, priority, 

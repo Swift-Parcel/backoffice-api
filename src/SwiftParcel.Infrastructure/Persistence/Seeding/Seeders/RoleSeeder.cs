@@ -9,7 +9,7 @@ public class RoleSeeder : IEntitySeeder
 {
     public int Order => 30;
 
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Roles.AnyAsync(cancellationToken))
         {
@@ -20,7 +20,7 @@ public class RoleSeeder : IEntitySeeder
         var permissionsByName = await dbContext.Permissions
             .ToDictionaryAsync(p => p.Name, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
-        var legacyRoles = await dbContext.Database
+        var legacyRoles = await oldDbContext.Database
             .SqlQueryRaw<LegacyRoleDto>(@"
                 SELECT 
                     id, role_name, description, permissions, 

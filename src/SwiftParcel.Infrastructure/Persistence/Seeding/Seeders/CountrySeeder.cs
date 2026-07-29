@@ -6,7 +6,7 @@ public class CountrySeeder : IEntitySeeder
 {
     public int Order => 1;
 
-    public Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;
     }

@@ -36,7 +36,7 @@ public class PermissionSeeder : IEntitySeeder
         "note.create"
     };
     
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Permissions.AnyAsync(cancellationToken))
         {

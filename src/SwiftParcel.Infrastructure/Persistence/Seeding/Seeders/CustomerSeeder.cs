@@ -9,7 +9,7 @@ namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 public class CustomerSeeder : IEntitySeeder
 {
     public int Order => 6;
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Customers.AnyAsync(cancellationToken))
         {
@@ -18,7 +18,7 @@ public class CustomerSeeder : IEntitySeeder
         
         var addressLookup = await SeedingLookupHelper.GetAddressLookupAsync(dbContext, cancellationToken);
         
-        var legacyCustomers = await dbContext.Database
+        var legacyCustomers = await oldDbContext.Database
             .SqlQueryRaw<LegacyCustomerDto>("SELECT * FROM customers")
             .ToListAsync(cancellationToken);
         
@@ -60,5 +60,5 @@ public class CustomerSeeder : IEntitySeeder
         string address,
         string registered_date,
         string vip,
-        string notes);
+        string? notes);
 }

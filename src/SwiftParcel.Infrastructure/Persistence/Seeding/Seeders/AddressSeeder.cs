@@ -8,14 +8,14 @@ public class AddressSeeder : IEntitySeeder
 {
     public int Order => 60;
     
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Addresses.AnyAsync(cancellationToken))
         {
             return;
         }
         
-        var legacyAddresses = await dbContext.Database
+        var legacyAddresses = await oldDbContext.Database
             .SqlQueryRaw<LegacyAddressDto>(@"SELECT sender_address AS address FROM parcels UNION SELECT recipient_address FROM parcels UNION SELECT address FROM customers")
             .ToListAsync(cancellationToken);
         

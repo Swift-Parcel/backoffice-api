@@ -47,14 +47,14 @@ public partial class SlaRuleSeeder : IEntitySeeder
             .ToHashSet()!;
     }
     
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.SlaRules.AnyAsync(cancellationToken))
         {
             return;
         }
         
-        var legacySlaRules = await dbContext.Database
+        var legacySlaRules = await oldDbContext.Database
             .SqlQueryRaw<LegacySlaRuleDto>("SELECT * FROM sla_rules")
             .ToListAsync(cancellationToken);
         
