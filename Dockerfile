@@ -10,7 +10,7 @@ COPY ["src/SwiftParcel.Domain/SwiftParcel.Domain.csproj", "SwiftParcel.Domain/"]
 COPY ["src/SwiftParcel.Infrastructure/SwiftParcel.Infrastructure.csproj", "SwiftParcel.Infrastructure/"]
 RUN dotnet restore "SwiftParcel.Api/SwiftParcel.Api.csproj"
 COPY src/ .
-RUN dotnet publish "SwiftParcel.Api/SwiftParcel.Api.csproj" -c Release -o /app/publish --no-restore
+RUN dotnet publish "SwiftParcel.Api/SwiftParcel.Api.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
