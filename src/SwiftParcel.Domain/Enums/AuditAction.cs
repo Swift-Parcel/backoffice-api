@@ -12,5 +12,5 @@ public enum AuditAction
     RoleChange,
     Delete,
     Escalate,
-    NodeAdd
+    NoteAdd
 }
