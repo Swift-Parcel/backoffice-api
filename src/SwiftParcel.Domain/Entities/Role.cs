@@ -8,6 +8,4 @@ public class Role
     public bool CanAccessAllRegions { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedDate { get; set; }
-    public ICollection<Permission> Permissions { get; set; } = new List<Permission>();
-    public ICollection<User> Users { get; set; } = new List<User>();
 }

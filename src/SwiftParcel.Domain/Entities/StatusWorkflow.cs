@@ -10,5 +10,4 @@ public class StatusWorkflow
     public bool RequireNote { get; set; }
     public bool RequireResolution { get; set; }
     public bool IsActive { get; set; }
-    public ICollection<Role> AllowedRoles { get; set; } = new List<Role>();
 }
