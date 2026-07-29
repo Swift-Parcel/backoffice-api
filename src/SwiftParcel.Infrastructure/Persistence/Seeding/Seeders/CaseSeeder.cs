@@ -15,27 +15,19 @@ public class CaseSeeder : IEntitySeeder
         if (await dbContext.Cases.AnyAsync(cancellationToken))
             return;
 
-        // Caches for fast in-memory lookups
-        var customersByEmail = await dbContext.Customers
-            .ToDictionaryAsync(c => c.Email, c => c.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
-
-        var handlersById = await dbContext.Handlers
-            .ToDictionaryAsync(h => h.Id, cancellationToken);
-
-        var regionsByName = await dbContext.Regions
-            .ToDictionaryAsync(r => r.Name, r => r.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
-
-        var parcelsByTrackingNumber = await dbContext.Parcels
-            .ToDictionaryAsync(p => p.TrackingNumber, cancellationToken);
-
-        var tagsByName = await dbContext.Tags
-            .ToDictionaryAsync(t => t.Name, StringComparer.OrdinalIgnoreCase, cancellationToken);
+        var customersByEmail = await SeedingLookupHelper.GetCustomerLookupByEmailAsync(dbContext, cancellationToken);
+        var customersByPhone = await SeedingLookupHelper.GetCustomerLookupByPhoneAsync(dbContext, cancellationToken);
+        var customersByName = await SeedingLookupHelper.GetCustomerLookupByNameAsync(dbContext, cancellationToken);
+        var regionsByName = await SeedingLookupHelper.GetRegionLookupByNameAsync(dbContext, cancellationToken);
+        var validHandlerIds = await SeedingLookupHelper.GetHandlerIdLookupAsync(dbContext, cancellationToken);
+        var parcelsByTrackingNumber = await SeedingLookupHelper.GetTrackedParcelLookupByTrackingNumberAsync(dbContext, cancellationToken);
+        var tagsByName = await SeedingLookupHelper.GetTrackedTagLookupByNameAsync(dbContext, cancellationToken);
 
         var legacyCases = await dbContext.Database
             .SqlQueryRaw<LegacyCaseDto>(@"
                 SELECT 
                     id, case_number, title, description, case_type, status, priority, 
-                    customer_email, handler_id, parcel_tracking_numbers, created_date, 
+                    customer_email, customer_phone, customer_name, handler_id, parcel_tracking_numbers, created_date, 
                     updated_date, resolved_date, sla_deadline, region, channel, tags, 
                     is_escalated, escalated_to, resolution, satisfaction_score 
                 FROM cases")
@@ -45,17 +37,20 @@ public class CaseSeeder : IEntitySeeder
 
         foreach (var oldCase in legacyCases)
         {
-            // Resolve Foreign Keys
-            int customerId = 0;
-            if (!string.IsNullOrWhiteSpace(oldCase.customer_email) && 
-                customersByEmail.TryGetValue(oldCase.customer_email.Trim(), out var parsedCustomerId))
+            int customerId;
+            if (!string.IsNullOrWhiteSpace(oldCase.customer_email) && customersByEmail.TryGetValue(oldCase.customer_email, out customerId))
             {
-                customerId = parsedCustomerId;
+            }
+            else if (!string.IsNullOrWhiteSpace(oldCase.customer_phone) && customersByPhone.TryGetValue(oldCase.customer_phone, out customerId))
+            {
+            }
+            else {
+                customerId = customersByName[oldCase.customer_name];
             }
 
             int? handlerId = null;
             if (int.TryParse(oldCase.handler_id, out var parsedHandlerId) && 
-                handlersById.ContainsKey(parsedHandlerId))
+                validHandlerIds.ContainsKey(parsedHandlerId))
             {
                 handlerId = parsedHandlerId;
             }
@@ -76,8 +71,8 @@ public class CaseSeeder : IEntitySeeder
             {
                 Id = StringParserHelper.ExtractIntegerId(oldCase.id),
                 CaseNumber = oldCase.case_number,
-                Title = oldCase.title ?? string.Empty,
-                Description = oldCase.description ?? string.Empty,
+                Title = oldCase.title,
+                Description = oldCase.description,
                 CaseType = caseType,
                 Status = status,
                 Priority = priority,
@@ -134,6 +129,8 @@ public class CaseSeeder : IEntitySeeder
         string status,
         string priority,
         string customer_email,
+        string customer_phone,
+        string customer_name,
         string handler_id,
         string parcel_tracking_numbers,
         string created_date,
