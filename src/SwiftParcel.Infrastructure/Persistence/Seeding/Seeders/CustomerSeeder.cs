@@ -1,8 +1,49 @@
+using Microsoft.EntityFrameworkCore;
+using SwiftParcel.Domain.Entities;
+using SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
 public class CustomerSeeder : IEntitySeeder
 {
+    public int Order => 6;
+    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    {
+        if (await dbContext.Customers.AnyAsync(cancellationToken))
+        {
+            return;
+        }
+        
+        var legacyCustomers = await dbContext.Database
+            .SqlQueryRaw<LegacyCustomerDto>("SELECT Customers FROM cases")
+            .ToListAsync(cancellationToken);
+        
+        var newCustomers = new List<Customer>();
+        
+        foreach (var legacyCustomer in legacyCustomers)
+        {
+            var newCustomer = new Customer
+            {
+                Id = StringParserHelper.ExtractIntegerId(legacyCustomer.id),
+                Name = legacyCustomer.name,
+                Email = legacyCustomer.email,
+                Phone = legacyCustomer.phone,
+                
+            };
+            
+            newCustomers.Add(newCustomer);
+        }
+        await dbContext.Customers.AddRangeAsync(newCustomers, cancellationToken);
+    }
     
+    private record LegacyCustomerDto(
+        string id,
+        string name,
+        string email,
+        string phone,
+        string address,
+        string registered_date,
+        string vip,
+        string notes);
 }
