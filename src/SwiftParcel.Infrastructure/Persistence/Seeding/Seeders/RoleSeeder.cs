@@ -1,44 +1,84 @@
+using Microsoft.EntityFrameworkCore;
+using SwiftParcel.Domain.Entities;
+using SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
+using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
+
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
-using Microsoft.EntityFrameworkCore;
-using Domain.Entities;
-
-public class RoleSeeder : BaseCsvRelationSeeder<Role, Permission>
+public class RoleSeeder : IEntitySeeder
 {
-    private List<Permission> _allPermissions = new();
+    public int Order => 30;
 
-    public override int Order => 3;
-
-    protected override string SqlQuery =>
-        "SELECT id, permissions FROM roles WHERE permissions IS NOT NULL AND permissions != ''";
-
-    protected override async Task<Dictionary<int, Role>> GetEntitiesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
-        _allPermissions = await dbContext.Permissions.ToListAsync(cancellationToken);
-
-        return await dbContext.Roles
-            .Include(r => r.Permissions)
-            .ToDictionaryAsync(r => r.Id, cancellationToken);
-    }
-
-    protected override Task<List<Permission>> ResolveTargetsAsync(AppDbContext dbContext, string token, CancellationToken cancellationToken)
-    {
-        // Wildcard '*' maps to all available permissions
-        if (token == "*")
+        if (await dbContext.Roles.AnyAsync(cancellationToken))
         {
-            return Task.FromResult(_allPermissions);
+            return;
         }
 
-        var found = _allPermissions
-            .Where(p => string.Equals(p.Name, token, StringComparison.OrdinalIgnoreCase))
-            .ToList();
+        // Cache for permissions lookup by Name or Code
+        var permissionsByName = await dbContext.Permissions
+            .ToDictionaryAsync(p => p.Name, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
-        return Task.FromResult(found);
+        var legacyRoles = await dbContext.Database
+            .SqlQueryRaw<LegacyRoleDto>(@"
+                SELECT 
+                    id, role_name, description, permissions, 
+                    can_access_all_regions, is_active, created_date 
+                FROM roles")
+            .ToListAsync(cancellationToken);
+
+        var newRoles = new List<Role>();
+
+        foreach (var oldRole in legacyRoles)
+        {
+            // Parse Booleans
+            bool canAccessAllRegions = oldRole.can_access_all_regions?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
+            bool isActive = oldRole.is_active?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
+
+            var newRole = new Role
+            {
+                Id = StringParserHelper.ExtractIntegerId(oldRole.id),
+                RoleName = oldRole.role_name ?? string.Empty,
+                Description = oldRole.description ?? string.Empty,
+                CanAccessAllRegions = canAccessAllRegions,
+                IsActive = isActive,
+                CreatedDate = TimestampParserHelper.ParseOrFallback(oldRole.created_date)
+            };
+
+            // Process Permissions (Many-to-Many)
+            if (!string.IsNullOrWhiteSpace(oldRole.permissions))
+            {
+                var permissionNames = StringParserHelper.ParseCsvString(oldRole.permissions);
+                foreach (var permName in permissionNames)
+                {
+                    if (permName == "*")
+                    {
+                        // Wildcard: add all existing permissions
+                        foreach (var perm in permissionsByName.Values)
+                        {
+                            newRole.Permissions.Add(perm);
+                        }
+                    }
+                    else if (permissionsByName.TryGetValue(permName, out var perm))
+                    {
+                        newRole.Permissions.Add(perm);
+                    }
+                }
+            }
+
+            newRoles.Add(newRole);
+        }
+
+        await dbContext.Roles.AddRangeAsync(newRoles, cancellationToken);
     }
 
-    protected override bool RelationExists(Role entity, Permission target) =>
-        entity.Permissions.Any(p => p.Id == target.Id);
-
-    protected override void AttachRelation(Role entity, Permission target) =>
-        entity.Permissions.Add(target);
+    private record LegacyRoleDto(
+        string id,
+        string role_name,
+        string description,
+        string permissions,
+        string can_access_all_regions,
+        string is_active,
+        string created_date);
 }
