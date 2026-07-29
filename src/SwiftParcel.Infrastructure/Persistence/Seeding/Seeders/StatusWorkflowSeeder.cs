@@ -2,26 +2,92 @@ namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
 using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
+using Domain.Enums;
+using Helpers;
+using Interfaces;
 
-public class StatusWorkflowSeeder : BaseCsvRelationSeeder<StatusWorkflow, Role>
+public class StatusWorkflowSeeder : IEntitySeeder
 {
-    private Dictionary<string, Role> _roleMap = new();
+    public int Order => 150;
 
-    public override int Order => 14;
-    protected override string SqlQuery => "SELECT id, allowed_roles FROM status_workflow WHERE allowed_roles IS NOT NULL AND allowed_roles != ''";
-
-    protected override async Task<Dictionary<int, StatusWorkflow>> GetEntitiesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
-        _roleMap = await dbContext.Roles.ToDictionaryAsync(r => r.RoleName, r => r, StringComparer.OrdinalIgnoreCase, cancellationToken);
-        return await dbContext.StatusWorkflows.Include(sw => sw.AllowedRoles).ToDictionaryAsync(sw => sw.Id, cancellationToken);
+        if (await dbContext.StatusWorkflows.AnyAsync(cancellationToken))
+        {
+            return;
+        }
+
+        // Cache for Roles lookup by RoleName
+        var rolesByName = await dbContext.Roles
+            .ToDictionaryAsync(r => r.RoleName, StringComparer.OrdinalIgnoreCase, cancellationToken);
+
+        var legacyWorkflows = await dbContext.Database
+            .SqlQueryRaw<LegacyStatusWorkflowDto>(@"
+                SELECT 
+                    id, from_status, to_status, require_note, 
+                    require_resolution, allowed_roles, is_active 
+                FROM status_workflows")
+            .ToListAsync(cancellationToken);
+
+        var newWorkflows = new List<StatusWorkflow>();
+
+        foreach (var oldWorkflow in legacyWorkflows)
+        {
+            // Parse Enums for FromStatus and ToStatus
+            CaseStatus? fromStatus = null;
+            if (!string.IsNullOrWhiteSpace(oldWorkflow.from_status) &&
+                Enum.TryParse<CaseStatus>(oldWorkflow.from_status.Replace(" ", ""), true, out var parsedFrom))
+            {
+                fromStatus = parsedFrom;
+            }
+
+            CaseStatus? toStatus = null;
+            if (!string.IsNullOrWhiteSpace(oldWorkflow.to_status) &&
+                Enum.TryParse<CaseStatus>(oldWorkflow.to_status.Replace(" ", ""), true, out var parsedTo))
+            {
+                toStatus = parsedTo;
+            }
+
+            // Parse Booleans
+            bool requireNote = oldWorkflow.require_note?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
+            bool requireResolution = oldWorkflow.require_resolution?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
+            bool isActive = oldWorkflow.is_active?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
+
+            var newWorkflow = new StatusWorkflow
+            {
+                Id = StringParserHelper.ExtractIntegerId(oldWorkflow.id),
+                FromStatus = fromStatus,
+                ToStatus = toStatus,
+                RequireNote = requireNote,
+                RequireResolution = requireResolution,
+                IsActive = isActive
+            };
+
+            // Process AllowedRoles (Many-to-Many)
+            if (!string.IsNullOrWhiteSpace(oldWorkflow.allowed_roles))
+            {
+                var roleNames = StringParserHelper.ParseCsvString(oldWorkflow.allowed_roles);
+                foreach (var roleName in roleNames)
+                {
+                    if (rolesByName.TryGetValue(roleName, out var role))
+                    {
+                        newWorkflow.AllowedRoles.Add(role);
+                    }
+                }
+            }
+
+            newWorkflows.Add(newWorkflow);
+        }
+
+        await dbContext.StatusWorkflows.AddRangeAsync(newWorkflows, cancellationToken);
     }
 
-    protected override Task<List<Role>> ResolveTargetsAsync(AppDbContext dbContext, string token, CancellationToken cancellationToken)
-    {
-        var result = _roleMap.TryGetValue(token, out var role) ? new List<Role> { role } : new List<Role>();
-        return Task.FromResult(result);
-    }
-
-    protected override bool RelationExists(StatusWorkflow entity, Role target) => entity.AllowedRoles.Any(r => r.Id == target.Id);
-    protected override void AttachRelation(StatusWorkflow entity, Role target) => entity.AllowedRoles.Add(target);
+    private record LegacyStatusWorkflowDto(
+        string id,
+        string from_status,
+        string to_status,
+        string require_note,
+        string require_resolution,
+        string allowed_roles,
+        string is_active);
 }
