@@ -11,6 +11,7 @@ namespace SwiftParcel.Infrastructure.Persistence
         }
 
         // Core Tables
+        public DbSet<Address> Addresses { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<AutoAssignmentRule> AutoAssignmentRules { get; set; }
         public DbSet<Case> Cases { get; set; }
@@ -50,6 +51,12 @@ namespace SwiftParcel.Infrastructure.Persistence
             modelBuilder.HasPostgresEnum<AuditAction>("enum_action");
             modelBuilder.HasPostgresEnum<EntityType>("enum_entity_type");
 
+            modelBuilder.Entity<Address>(b =>
+            {
+                b.HasKey(a => a.Id);
+                b.HasOne(a => a.Country).WithMany().HasForeignKey(a => a.CountryCode);
+            });
+            
             modelBuilder.Entity<AuditLog>(b =>
             {
                 b.Property(e => e.AuditAction).HasColumnType("enum_action");
@@ -84,6 +91,7 @@ namespace SwiftParcel.Infrastructure.Persistence
                 b.Property(e => e.Email).HasColumnType("citext");
                 b.HasIndex(e => e.Email).IsUnique();
                 b.Property(e => e.Vip).HasDefaultValue(false);
+                b.HasOne(c => c.Address).WithMany(a => a.Customers).HasForeignKey(c => c.AddressId);
             });
 
             modelBuilder.Entity<EmailTemplate>(b => 
@@ -108,6 +116,7 @@ namespace SwiftParcel.Infrastructure.Persistence
                 b.HasIndex(e => e.TrackingNumber).IsUnique();
                 b.Property(e => e.Status).HasColumnType("enum_parcel_status").HasDefaultValue(ParcelStatus.PendingPickup);
                 b.Property(e => e.ServiceType).HasColumnType("enum_service_type");
+                b.HasOne(p => p.RecipientAddress).WithMany(a => a.Parcels).HasForeignKey(p => p.RecipientAddressId);
             });
 
             modelBuilder.Entity<Permission>(b =>
