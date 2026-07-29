@@ -7,7 +7,7 @@ namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
 public class TagSeeder : IEntitySeeder
 {
-    public int Order => 19;
+    public int Order => 8;
     
     private static readonly HashSet<string> BannedTags = LoadBannedTags();
     private static HashSet<string> LoadBannedTags()
