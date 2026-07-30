@@ -1,6 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Integration.Models;
+using SwiftParcel.Domain.Enums;
 using SwiftParcel.Infrastructure.Persistence;
 
 namespace SwiftParcel.Infrastructure.Services;
@@ -14,47 +16,47 @@ public class ParcelIntegrationService : IParcelIntegrationService
         _dbContext = dbContext;
     }
 
-    public Task<ParcelStatusResponse?> GetParcelStatusAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public async Task<ParcelStatusResponse?> GetParcelStatusAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<ParcelTrackingResponse?> GetParcelTrackingAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public async Task<ParcelTrackingResponse?> GetParcelTrackingAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<DeliveryEstimateResponse?> GetDeliveryEstimateAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public async Task<DeliveryEstimateResponse?> GetDeliveryEstimateAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<CustomerParcelDto?> GetCustomerParcelAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public async Task<CustomerParcelDto?> GetCustomerParcelAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<CreateParcelRequest?> GetCreateParcelRequestAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public async Task<CreateParcelRequest?> GetCreateParcelRequestAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<CreateParcelResponse?> CreateParcelAsync(CreateParcelRequest createParcelRequest, CancellationToken cancellationToken = default)
+    public async Task<CreateParcelResponse?> CreateParcelAsync(CreateParcelRequest createParcelRequest, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<DeliveryChangeRequest?> GetDeliveryChangeRequestAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public async Task<DeliveryChangeRequest?> GetDeliveryChangeRequestAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<DeliveryEstimateResponse?> CreateDeliveryEstimateAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public async Task<DeliveryEstimateResponse?> CreateDeliveryEstimateAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<ConfirmDeliveryRequest?> GetConfirmDeliveryRequestAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public async Task<ConfirmDeliveryRequest?> GetConfirmDeliveryRequestAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
