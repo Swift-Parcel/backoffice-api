@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using SwiftParcel.Application.DTO;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Integration.Interfaces;
-using SwiftParcel.Application.Integration.Models;
 using SwiftParcel.Application.Services;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;

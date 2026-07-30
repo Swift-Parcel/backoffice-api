@@ -5,9 +5,9 @@ namespace SwiftParcel.Application.DTO.Parcels;
 
 public record CreateParcelDetailsDto(
     [property: JsonPropertyName("weight")] float Weight,
-    [property: JsonPropertyName("height")] float Height,
-    [property: JsonPropertyName("width")] float Width,
-    [property: JsonPropertyName("length")] float Length,
+    [property: JsonPropertyName("height")] int Height,
+    [property: JsonPropertyName("width")] int Width,
+    [property: JsonPropertyName("length")] int Length,
     [property: JsonPropertyName("service_type")] ServiceType ServiceType,
     [property: JsonPropertyName("declared_value")] float DeclaredValue,
     [property: JsonPropertyName("preferred_pickup_date")] DateTime PreferredPickupDate,
