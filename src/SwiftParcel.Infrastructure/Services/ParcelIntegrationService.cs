@@ -26,6 +26,33 @@ public class ParcelIntegrationService : IParcelIntegrationService
             .FirstOrDefaultAsync(p => p.TrackingNumber == trackingNumber, cancellationToken);
     }
 
+    private async Task<string> GenerateTrackingNumberAsync(DateTime now, CancellationToken cancellationToken = default)
+    {
+        var prefix = $"SP{now:yyyyMM}";
+
+        var parcelsThisMonth = await _dbContext.Parcels
+            .CountAsync(p => p.CreatedDate.Year == now.Year && p.CreatedDate.Month == now.Month, cancellationToken);
+    
+        var counter = (parcelsThisMonth + 1).ToString("D2"); 
+    
+        return $"{prefix}{counter}";
+    }
+
+    private async Task<int> FindCustomerIdByEmail(string email, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Customers
+            .Where(c => c.Email == email)
+            .Select(c => c.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+    
+    private async Task<Customer?> FindCustomerByEmail(string email, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Customers
+            .Where(c => c.Email == email)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<ParcelStatusResponse?> GetParcelStatusAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
         var parcel = await FindParcelAsync(trackingNumber, cancellationToken);
@@ -99,9 +126,43 @@ public class ParcelIntegrationService : IParcelIntegrationService
         return parcels;
     }
 
-    public Task<CreateParcelResponse?> CreateParcelAsync(CreateParcelRequest request, CancellationToken cancellationToken = default)
+    public async Task<CreateParcelResponse?> CreateParcelAsync(CreateParcelRequest request, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var now = DateTime.UtcNow;
+    
+        var trackingNumber = await GenerateTrackingNumberAsync(now, cancellationToken);
+        var customerId = await FindCustomerIdByEmail(trackingNumber, cancellationToken);
+
+        var newParcel = new Parcel
+        {
+            TrackingNumber = trackingNumber,
+            CustomerId = customerId,
+            RecipientName = request.Recipient.Name,
+            Weight = request.Parcel.Weight,
+            Width = request.Parcel.Width,
+            Length = request.Parcel.Length,
+            Height = request.Parcel.Height,
+            ServiceType = request.Parcel.ServiceType,
+            DeclaredValueInEuros = request.Parcel.DeclaredValue,
+        
+            Status = ParcelStatus.PendingPickup, 
+            CreatedDate = now,
+        
+            RecipientAddress = new Address
+            {
+                City = request.Recipient.RecipientAddress.City,
+                CountryCode = request.Recipient.RecipientAddress.CountryCode,
+                PostalCode = request.Recipient.RecipientAddress.PostalCode,
+                Street = request.Recipient.RecipientAddress.Street,
+                StreetNumber = request.Recipient.RecipientAddress.StreetNumber
+            }
+        };
+
+        _dbContext.Parcels.Add(newParcel);
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return new CreateParcelResponse(newParcel.TrackingNumber, newParcel.Status);
     }
 
     public async Task<DeliveryChangeResponse?> ChangeDeliveryAsync(string trackingNumber, DeliveryChangeRequest request,
