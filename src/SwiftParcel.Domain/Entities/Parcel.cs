@@ -24,7 +24,9 @@ public class Parcel
     public DateTime CreatedDate { get; set; }
     public DateTime DeliveredDate { get; set; }
     public ServiceType ServiceType { get; set; }
-    public int DeclaredValueInEuros { get; set; }
+    public float DeclaredValueInEuros { get; set; }
+    public DateTime? PreferredPickupDate { get; set; }
+    public Timeslot? PreferredPickupTimeslot { get; set; }
 
     public ICollection<Case> Cases { get; set; } = new List<Case>();
 }

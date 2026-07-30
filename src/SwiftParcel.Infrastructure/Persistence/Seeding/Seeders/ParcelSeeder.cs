@@ -60,7 +60,7 @@ public class ParcelSeeder : IEntitySeeder
                 CreatedDate = TimestampParserHelper.ParseOrFallback(legacyParcel.created_date),
                 DeliveredDate = TimestampParserHelper.ParseOrFallback(legacyParcel.delivered_date, DateTime.MinValue),
                 ServiceType = ParseServiceType(legacyParcel.service_type),
-                DeclaredValueInEuros = StringParserHelpers.ParseEuro(legacyParcel.declared_value) ?? 0
+                DeclaredValueInEuros = (float)StringParserHelper.ExtractDecimal(legacyParcel.declared_value)
             };
 
             newParcels.Add(newParcel);
