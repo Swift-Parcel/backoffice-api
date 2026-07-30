@@ -20,6 +20,11 @@ public class CaseIntegrationService : ICaseIntegrationService
         throw new NotImplementedException();
     }
 
+    public Task<CustomerCasesResponse> GetCustomerCasesAsync(string customerEmail, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<CreateCaseResponse?> CreateCaseAsync(CreateCaseRequest request, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();

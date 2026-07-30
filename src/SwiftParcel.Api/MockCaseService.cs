@@ -25,6 +25,17 @@ public class MockCaseService : ICaseIntegrationService
         return Task.FromResult<CaseStatusResponse?>(response);
     }
 
+    public Task<CustomerCasesResponse> GetCustomerCasesAsync(string customerEmail, CancellationToken cancellationToken = default)
+    {
+        var response = new CustomerCasesResponse(new List<CustomerCaseItemDto>
+        {
+            new("CASE-1001", CaseType.Damaged, CaseStatus.Open, DateTime.UtcNow.AddDays(-2), DateTime.UtcNow.AddDays(-1)),
+            new("CASE-1002", CaseType.Delayed, CaseStatus.Resolved, DateTime.UtcNow.AddDays(-10), DateTime.UtcNow.AddDays(-5))
+        });
+
+        return Task.FromResult(response);
+    }
+
     public Task<CreateCaseResponse?> CreateCaseAsync(CreateCaseRequest request, CancellationToken cancellationToken = default)
     {
         var randomCaseNumber = $"CASE-{Random.Shared.Next(10000, 99999)}";

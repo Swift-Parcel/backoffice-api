@@ -35,6 +35,23 @@ public class CasesController : ControllerBase
     }
     
     /// <summary>
+    /// Return every case for a customer specified.
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(typeof(CustomerCasesResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetCustomerCases([FromQuery] string customerEmail, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(customerEmail))
+        {
+            return BadRequest(new { message = "Customer email query parameter is required." });
+        }
+
+        var result = await _caseIntegrationService.GetCustomerCasesAsync(customerEmail, cancellationToken);
+        return Ok(result);
+    }
+    
+    /// <summary>
     /// Create a new case (complaint) submitted by a customer.
     /// </summary>
     [HttpPost]
