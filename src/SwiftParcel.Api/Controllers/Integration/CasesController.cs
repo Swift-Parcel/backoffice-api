@@ -34,4 +34,15 @@ public class CasesController : ControllerBase
         return Ok(result);
     }
     
+    /// <summary>
+    /// Create a new case (complaint) submitted by a customer.
+    /// </summary>
+    [HttpPost]
+    [ProducesResponseType(typeof(CreateCaseResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateCase([FromBody] CreateCaseRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _caseIntegrationService.CreateCaseAsync(request, cancellationToken);
+        return StatusCode(StatusCodes.Status201Created, result);
+    }
 }

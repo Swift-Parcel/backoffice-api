@@ -6,4 +6,5 @@ namespace SwiftParcel.Application.Integration.Interfaces;
 public interface ICaseIntegrationService
 {
     Task<CaseStatusResponse?> GetCaseStatusAsync(string caseNumber, CancellationToken cancellationToken = default);
+    Task<CreateCaseResponse?> CreateCaseAsync(CreateCaseRequest request, CancellationToken cancellationToken = default);
 }

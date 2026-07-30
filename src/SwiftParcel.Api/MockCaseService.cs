@@ -24,4 +24,10 @@ public class MockCaseService : ICaseIntegrationService
 
         return Task.FromResult<CaseStatusResponse?>(response);
     }
+
+    public Task<CreateCaseResponse?> CreateCaseAsync(CreateCaseRequest request, CancellationToken cancellationToken = default)
+    {
+        var randomCaseNumber = $"CASE-{Random.Shared.Next(10000, 99999)}";
+        return Task.FromResult(new CreateCaseResponse(randomCaseNumber));
+    }
 }
