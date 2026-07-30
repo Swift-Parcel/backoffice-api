@@ -132,9 +132,17 @@ public class CaseIntegrationService : ICaseIntegrationService
         await _dbcontext.SaveChangesAsync(cancellationToken);
     }
 
-    public Task AddCaseFeedbackAsync(string caseNumber, AddCaseFeedbackRequest request,
-        CancellationToken cancellationToken = default)
+    public async Task AddCaseFeedbackAsync(string caseNumber, AddCaseFeedbackRequest request, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var caseEntity = await _dbcontext.Cases
+            .FirstOrDefaultAsync(c => c.CaseNumber == caseNumber, cancellationToken);
+        
+        if (caseEntity == null)
+            return;
+        
+        caseEntity.SatisfactionScore = request.Score;
+        caseEntity.UpdatedDate = DateTime.UtcNow;
+        
+        await _dbcontext.SaveChangesAsync(cancellationToken);
     }
 }
