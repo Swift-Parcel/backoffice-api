@@ -90,8 +90,15 @@ public class ParcelIntegrationService : IParcelIntegrationService
         return estimate;
     }
 
-    public async Task<List<CustomerParcelDto>> GetCustomerParcelsAsync(string customerEmail, CancellationToken cancellationToken = default)
+    public async Task<List<CustomerParcelDto>?> GetCustomerParcelsAsync(string customerEmail, CancellationToken cancellationToken = default)
     {
+        var customer = await FindCustomerByEmail(customerEmail, cancellationToken);
+
+        if (customer == null || customer.Parcels.Count == 0)
+        {
+            return null;
+        }
+        
         var parcels = await _dbContext.Parcels
             .Where(p => p.Customer.Email == customerEmail)
             .Select(p => new CustomerParcelDto(
