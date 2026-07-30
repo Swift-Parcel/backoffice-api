@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.DTO.Cases;
 
 namespace SwiftParcel.Infrastructure.Services;
@@ -17,9 +18,18 @@ public class CaseIntegrationService : ICaseIntegrationService
         _dbcontext = dbcontext;
     }
 
-    public Task<CaseStatusResponse?> GetCaseStatusAsync(string caseNumber, CancellationToken cancellationToken = default)
+    public async Task<CaseStatusResponse?> GetCaseStatusAsync(string caseNumber, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var caseEntity = await _dbcontext.Cases
+            .Include(c => c.Notes)
+            .FirstOrDefaultAsync(c => c.CaseNumber == caseNumber, cancellationToken);
+        
+        if(caseEntity == null)
+            return null;
+        
+        var notesDto = caseEntity.Notes.Select(n => new CaseNoteDto(n.CreatedDate, n.NoteText)).ToList();
+        
+        return new CaseStatusResponse(caseEntity.Status, notesDto, caseEntity.Resolution);
     }
 
     public Task<CustomerCasesResponse> GetCustomerCasesAsync(string customerEmail, CancellationToken cancellationToken = default)
