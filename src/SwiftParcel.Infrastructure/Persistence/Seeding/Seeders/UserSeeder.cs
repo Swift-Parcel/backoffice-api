@@ -17,7 +17,7 @@ public class UserSeeder : IEntitySeeder
 
         var rolesById = await dbContext.Roles
             .ToDictionaryAsync(r => r.Id, cancellationToken);
-
+        
         var regionsByName = await dbContext.Regions
             .ToDictionaryAsync(r => r.Name, r => r, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
@@ -31,14 +31,31 @@ public class UserSeeder : IEntitySeeder
             .ToListAsync(cancellationToken);
 
         var newUsers = new List<User>();
-        // Temporary tracking for 2-pass CreatedBy resolving: UserId -> CreatedByUsername string
         var createdByMap = new Dictionary<int, string>();
-
+        var usedEmails = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        
         foreach (var oldUser in legacyUsers)
         {
             int userId = StringParserHelper.ExtractIntegerId(oldUser.id);
 
-            // 1. Resolve Primary RoleId
+            string rawEmail = (oldUser.email ?? string.Empty).Trim();
+            string finalEmail;
+
+            if (string.IsNullOrWhiteSpace(rawEmail))
+            {
+                finalEmail = $"no-email-{userId}@swiftparcel.local";
+            }
+            else if (usedEmails.Contains(rawEmail))
+            {
+                finalEmail = $"duplicate_{userId}_{rawEmail}";
+            }
+            else
+            {
+                finalEmail = rawEmail;
+            }
+
+            usedEmails.Add(finalEmail);
+            
             int roleId = 1;
             if (!string.IsNullOrWhiteSpace(oldUser.role_id))
             {
@@ -61,7 +78,7 @@ public class UserSeeder : IEntitySeeder
                 //TODO: Password Hash
                 PasswordHash = oldUser.password ?? string.Empty,
                 FullName = oldUser.full_name ?? string.Empty,
-                Email = oldUser.email ?? string.Empty,
+                Email = finalEmail,
                 RoleId = roleId,
                 LastLogin = TimestampParserHelper.ParseOrFallback(oldUser.last_login),
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldUser.created_date)
