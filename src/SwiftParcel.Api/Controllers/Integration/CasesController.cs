@@ -64,4 +64,25 @@ public class CasesController : ControllerBase
         await _caseIntegrationService.AddCaseNoteAsync(caseNumber, request, cancellationToken);
         return Ok();
     }
+    
+    /// <summary>
+    /// Accept a satisfaction score (1–5) and optional comment after case resolution.
+    /// </summary>
+    [HttpPost("{caseNumber}/feedback")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AddCaseFeedback(
+        [FromRoute] string caseNumber, 
+        [FromBody] AddCaseFeedbackRequest request, 
+        CancellationToken cancellationToken)
+    {
+        if (request.Score < 1 || request.Score > 5)
+        {
+            return BadRequest(new { message = "Score must be between 1 and 5." });
+        }
+
+        await _caseIntegrationService.AddCaseFeedbackAsync(caseNumber, request, cancellationToken);
+        return Ok();
+    }
 }

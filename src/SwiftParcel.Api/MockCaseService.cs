@@ -35,4 +35,9 @@ public class MockCaseService : ICaseIntegrationService
     {
         return Task.CompletedTask;
     }
+
+    public Task AddCaseFeedbackAsync(string caseNumber, AddCaseFeedbackRequest request, CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
 }

@@ -29,4 +29,10 @@ public class CaseIntegrationService : ICaseIntegrationService
     {
         throw new NotImplementedException();
     }
+
+    public Task AddCaseFeedbackAsync(string caseNumber, AddCaseFeedbackRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 }
