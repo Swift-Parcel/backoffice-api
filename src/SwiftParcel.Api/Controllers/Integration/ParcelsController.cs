@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Integration.Models;
 
@@ -27,7 +28,7 @@ public class ParcelsController : ControllerBase
 
         if (result is null)
         {
-            return NotFound(new { message = $"Parcel with tracking number {trackingNumber} was not found." });
+            return NotFound(new ErrorResponseDto($"Parcel with tracking number {trackingNumber} was not found."));
         }
 
         return Ok(result);
@@ -42,7 +43,7 @@ public class ParcelsController : ControllerBase
 
         if (result is null)
         {
-            return NotFound(new { message = $"Parcel with tracking number {trackingNumber} was not found." });
+            return NotFound(new ErrorResponseDto($"Parcel with tracking number {trackingNumber} was not found."));
         }
 
         return Ok(result);
