@@ -108,7 +108,6 @@ public class ParcelIntegrationService : IParcelIntegrationService
                     )
                 ),
                 new CustomerParcelRecipientDto(
-                    string.Empty, // TODO: Ask Java if this is really needed
                     p.RecipientName,
                     new AddressDto(
                         p.RecipientAddress.City,
