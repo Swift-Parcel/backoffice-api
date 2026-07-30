@@ -4,8 +4,6 @@ using SwiftParcel.Application.DTO.Cases;
 namespace SwiftParcel.Infrastructure.Services;
 
 using Application.Integration.Interfaces;
-using SwiftParcel.Application.Integration.Models;
-using Application.DTO;
 using Persistence;
 
 
@@ -32,9 +30,20 @@ public class CaseIntegrationService : ICaseIntegrationService
         return new CaseStatusResponse(caseEntity.Status, notesDto, caseEntity.Resolution);
     }
 
-    public Task<CustomerCasesResponse> GetCustomerCasesAsync(string customerEmail, CancellationToken cancellationToken = default)
+    public async Task<CustomerCasesResponse> GetCustomerCasesAsync(string customerEmail, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var cases = await _dbcontext.Cases
+            .Include(c => c.Customer)
+            .Where(c => c.Customer.Email == customerEmail)
+            .Select(c => new CustomerCaseItemDto(
+                c.CaseNumber,
+                c.CaseType,
+                c.Status,
+                c.CreatedDate,
+                c.UpdatedDate
+            )).ToListAsync(cancellationToken);
+
+        return new CustomerCasesResponse(cases);
     }
 
     public Task<CreateCaseResponse?> CreateCaseAsync(CreateCaseRequest request, CancellationToken cancellationToken = default)
