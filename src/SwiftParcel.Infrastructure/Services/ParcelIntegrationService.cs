@@ -18,7 +18,12 @@ public class ParcelIntegrationService : IParcelIntegrationService
 
     public async Task<ParcelStatusResponse?> GetParcelStatusAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var response = await _dbContext.Parcels
+            .Where(p => p.TrackingNumber == trackingNumber)
+            .Select(p => new ParcelStatusResponse(p.Status))
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return response;
     }
 
     public async Task<ParcelTrackingResponse?> GetParcelTrackingAsync(string trackingNumber, CancellationToken cancellationToken = default)
