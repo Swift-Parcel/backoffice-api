@@ -1,4 +1,5 @@
 using SwiftParcel.Application.DTO;
+using SwiftParcel.Application.DTO.Cases;
 
 namespace SwiftParcel.Application.Integration.Interfaces;
 

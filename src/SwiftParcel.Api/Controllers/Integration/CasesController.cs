@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.DTO;
+using SwiftParcel.Application.DTO.Cases;
 
 namespace SwiftParcel.Api.Controllers.Integration;
 

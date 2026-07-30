@@ -1,3 +1,5 @@
+using SwiftParcel.Application.DTO.Cases;
+
 namespace SwiftParcel.Infrastructure.Services;
 
 using Application.Integration.Interfaces;

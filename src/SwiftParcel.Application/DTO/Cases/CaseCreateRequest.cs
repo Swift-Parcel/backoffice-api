@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using SwiftParcel.Domain.Enums;
 
-namespace SwiftParcel.Application.DTO;
+namespace SwiftParcel.Application.DTO.Cases;
 
 public record CreateCaseRequest(
     [property: JsonPropertyName("customer_email")] string CustomerEmail,
