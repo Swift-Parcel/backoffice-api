@@ -3,6 +3,7 @@ using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Integration.Models;
 using SwiftParcel.Application.Services;
+using SwiftParcel.Domain.Enums;
 using SwiftParcel.Infrastructure.Persistence;
 
 namespace SwiftParcel.Infrastructure.Services;
@@ -84,28 +85,31 @@ public class ParcelIntegrationService : IParcelIntegrationService
         return parcels;
     }
 
-    public async Task<CreateParcelRequest?> GetCreateParcelRequestAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public Task<CreateParcelResponse?> CreateParcelAsync(CreateParcelRequest request, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<CreateParcelResponse?> CreateParcelAsync(CreateParcelRequest request, CancellationToken cancellationToken = default)
+    public Task<DeliveryChangeResponse?> ChangeDeliveryAsync(string trackingNumber, DeliveryChangeRequest request,
+        CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<DeliveryChangeRequest?> GetDeliveryChangeRequestAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public async Task<bool> ConfirmDeliveryAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
-    }
+        var parcel = await _dbContext.Parcels
+            .FirstOrDefaultAsync(p => p.TrackingNumber == trackingNumber, cancellationToken);
 
-    public async Task<DeliveryEstimateResponse?> CreateDeliveryEstimateAsync(string trackingNumber, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+        if (parcel == null)
+        {
+            return false;
+        }
 
-    public async Task<ConfirmDeliveryRequest?> GetConfirmDeliveryRequestAsync(string trackingNumber, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
+        parcel.Status = ParcelStatus.Delivered;
+        parcel.DeliveredDate = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return true;
     }
 }
