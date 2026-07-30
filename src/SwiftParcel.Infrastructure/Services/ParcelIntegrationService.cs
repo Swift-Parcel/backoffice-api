@@ -89,7 +89,7 @@ public class ParcelIntegrationService : IParcelIntegrationService
         throw new NotImplementedException();
     }
 
-    public async Task<CreateParcelResponse?> CreateParcelAsync(CreateParcelRequest createParcelRequest, CancellationToken cancellationToken = default)
+    public async Task<CreateParcelResponse?> CreateParcelAsync(CreateParcelRequest request, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

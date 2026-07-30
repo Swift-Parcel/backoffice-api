@@ -5,7 +5,7 @@ namespace SwiftParcel.Application.Integration.Interfaces;
 
 public interface IParcelIntegrationService
 {
-    // GET /api/integration/parcels/{trackingNumber}/status  -- created for testing
+    // GET /api/integration/parcels/{trackingNumber}/status  
     Task<ParcelStatusResponse?> GetParcelStatusAsync(string trackingNumber, CancellationToken cancellationToken = default);
     
     // GET /api/integration/parcels/{trackingNumber}
@@ -14,17 +14,14 @@ public interface IParcelIntegrationService
     // GET /api/integration/parcels/{trackingNumber}/delivery-estimate
     Task<DeliveryEstimateResponse?> GetDeliveryEstimateAsync(string trackingNumber, CancellationToken cancellationToken = default);
     
-    // GET /api/integration/parcel?{customerEmail}=...
-    Task<List<CustomerParcelDto>> GetCustomerParcelsAsync(string trackingNumber, CancellationToken cancellationToken = default);
+    // GET /api/integration/parcels?customerEmail=...
+    Task<List<CustomerParcelDto>> GetCustomerParcelsAsync(string customerEmail, CancellationToken cancellationToken = default);
     
     // POST /api/integration/parcels
-    Task<CreateParcelRequest?> GetCreateParcelRequestAsync(string trackingNumber, CancellationToken cancellationToken = default);
-    Task<CreateParcelResponse?> CreateParcelAsync(CreateParcelRequest createParcelRequest, CancellationToken cancellationToken = default);
+    Task<CreateParcelResponse?> CreateParcelAsync(CreateParcelRequest request, CancellationToken cancellationToken = default);
    
     // POST /api/integration/parcels/{trackingNumber}/delivery-change
-    Task<DeliveryChangeRequest?> GetDeliveryChangeRequestAsync(string trackingNumber, CancellationToken cancellationToken = default);
-    Task<DeliveryEstimateResponse?> CreateDeliveryEstimateAsync(string trackingNumber, CancellationToken cancellationToken = default);
+    Task<DeliveryChangeResponse?> ChangeDeliveryAsync(string trackingNumber, DeliveryChangeRequest request, CancellationToken cancellationToken = default);
     
     // PATCH /api/integration/parcels/{trackingNumber}/confirm-delivery
-    Task<ConfirmDeliveryRequest?> GetConfirmDeliveryRequestAsync(string trackingNumber, CancellationToken cancellationToken = default);
-}
+    Task<bool> ConfirmDeliveryAsync(string trackingNumber, CancellationToken cancellationToken = default);}

@@ -42,7 +42,7 @@ public class MockParcelService : IParcelIntegrationService
         throw new NotImplementedException();
     }
 
-    public Task<CreateParcelResponse?> CreateParcelAsync(CreateParcelRequest createParcelRequest, CancellationToken cancellationToken = default)
+    public Task<CreateParcelResponse?> CreateParcelAsync(CreateParcelRequest request, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
