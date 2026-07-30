@@ -1,4 +1,3 @@
-using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
@@ -26,6 +25,7 @@ public class CountrySeeder : IEntitySeeder
             .SqlQueryRaw<string>("SELECT recipient_address FROM parcels WHERE recipient_address IS NOT NULL AND recipient_address != ''")
             .ToListAsync(cancellationToken);
 
+        //concatting three lists in memory
         var allLocationTexts = legacyRegions
             .Concat(customerAddresses)
             .Concat(parcelAddresses)
@@ -50,6 +50,10 @@ public class CountrySeeder : IEntitySeeder
             if (ContainsAny(text, "Warszawa", "Warsaw", "Kraków", "Gdańsk", "Poland", "PL"))
             {
                 detectedCountries["PL"] = ("Poland", "Europe/Warsaw");
+            }
+            else
+            {
+                detectedCountries["SK"] = ("Slovakia", "Europe/Budapest");
             }
         }
 

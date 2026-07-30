@@ -31,9 +31,7 @@ var legacyConnectionString = builder.Configuration.GetConnectionString("LegacyCo
 builder.Services.AddDbContext<LegacyDbContext>(options =>
     options.UseNpgsql(legacyConnectionString));
 
-builder.Services.AddScoped<DataSeederOrchestrator>();
-
-//registration of seeders
+//seeder registration
 var seederTypes = typeof(DataSeederOrchestrator).Assembly
     .GetTypes()
     .Where(t => typeof(IEntitySeeder).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
@@ -42,6 +40,8 @@ foreach (var type in seederTypes)
 {
     builder.Services.AddScoped(typeof(IEntitySeeder), type);
 }
+
+builder.Services.AddScoped<DataSeederOrchestrator>();
 
 builder.Services.AddControllers();
 

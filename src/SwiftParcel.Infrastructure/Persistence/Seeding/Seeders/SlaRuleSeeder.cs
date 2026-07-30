@@ -10,7 +10,7 @@ namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
 public partial class SlaRuleSeeder : IEntitySeeder
 {
-    public int Order => 13;
+    public int Order => 130;
 
     [GeneratedRegex(@"\s*[\-\–]\s*(updated|disabled|deprecated|old|v\d+).*", RegexOptions.IgnoreCase)]
     private static partial Regex RuleNameCleanerRegex();

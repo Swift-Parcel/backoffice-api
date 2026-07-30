@@ -8,7 +8,7 @@ namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
 public class CustomerSeeder : IEntitySeeder
 {
-    public int Order => 6;
+    public int Order => 60;
     public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Customers.AnyAsync(cancellationToken))

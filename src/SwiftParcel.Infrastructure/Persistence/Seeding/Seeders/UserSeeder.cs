@@ -15,7 +15,6 @@ public class UserSeeder : IEntitySeeder
         if (await dbContext.Users.AnyAsync(cancellationToken))
             return;
 
-        // Caches for fast in-memory lookups
         var rolesById = await dbContext.Roles
             .ToDictionaryAsync(r => r.Id, cancellationToken);
 
@@ -40,7 +39,7 @@ public class UserSeeder : IEntitySeeder
             int userId = StringParserHelper.ExtractIntegerId(oldUser.id);
 
             // 1. Resolve Primary RoleId
-            int roleId = 0;
+            int roleId = 1;
             if (!string.IsNullOrWhiteSpace(oldUser.role_id))
             {
                 var roleIdStrings = StringParserHelper.ParseCsvString(oldUser.role_id);
@@ -69,13 +68,9 @@ public class UserSeeder : IEntitySeeder
             };
 
             // 2. Resolve Regions (Many-to-Many)
-            if (!string.IsNullOrWhiteSpace(oldUser.region))
+            if (!string.IsNullOrWhiteSpace(oldUser.regions))
             {
-                // Skip non-active users
-                bool isActive = oldUser.is_active?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
-                if (!isActive)
-                    continue;
-                var regionNames = StringParserHelper.ParseCsvString(oldUser.region);
+                var regionNames = StringParserHelper.ParseCsvString(oldUser.regions);
                 foreach (var regName in regionNames)
                 {
                     if (regionsByName.TryGetValue(regName, out var region))
@@ -122,7 +117,7 @@ public class UserSeeder : IEntitySeeder
         string email,
         string role,
         string role_id,
-        string region,
+        string regions,
         string is_active,
         string last_login,
         string created_date,

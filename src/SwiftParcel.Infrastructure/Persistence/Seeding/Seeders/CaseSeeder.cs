@@ -8,7 +8,7 @@ namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
 public class CaseSeeder : IEntitySeeder
 {
-    public int Order => 11;
+    public int Order => 110;
 
     public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
@@ -37,15 +37,22 @@ public class CaseSeeder : IEntitySeeder
 
         foreach (var oldCase in legacyCases)
         {
-            int customerId;
-            if (!string.IsNullOrWhiteSpace(oldCase.customer_email) && customersByEmail.TryGetValue(oldCase.customer_email, out customerId))
+            int customerId = 0;
+            if (!string.IsNullOrWhiteSpace(oldCase.customer_email) && customersByEmail.TryGetValue(oldCase.customer_email, out var idByEmail))
             {
+                customerId = idByEmail;
             }
-            else if (!string.IsNullOrWhiteSpace(oldCase.customer_phone) && customersByPhone.TryGetValue(oldCase.customer_phone, out customerId))
+            else if (!string.IsNullOrWhiteSpace(oldCase.customer_phone) && customersByPhone.TryGetValue(oldCase.customer_phone, out var idByPhone))
             {
+                customerId = idByPhone;
             }
-            else {
-                customerId = customersByName[oldCase.customer_name];
+            else if (!string.IsNullOrWhiteSpace(oldCase.customer_name) && customersByName.TryGetValue(oldCase.customer_name.Trim(), out var idByName))
+            {
+                customerId = idByName;
+            }
+            else
+            {
+                continue; 
             }
 
             int? handlerId = null;
@@ -135,13 +142,13 @@ public class CaseSeeder : IEntitySeeder
         string parcel_tracking_numbers,
         string created_date,
         string updated_date,
-        string resolved_date,
+        string? resolved_date,
         string sla_deadline,
         string region,
         string channel,
         string tags,
         string is_escalated,
-        string escalated_to,
-        string resolution,
-        string satisfaction_score);
+        string? escalated_to,
+        string? resolution,
+        string? satisfaction_score);
 }

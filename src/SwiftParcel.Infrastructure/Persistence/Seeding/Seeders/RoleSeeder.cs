@@ -16,7 +16,6 @@ public class RoleSeeder : IEntitySeeder
             return;
         }
 
-        // Cache for permissions lookup by Name or Code
         var permissionsByName = await dbContext.Permissions
             .ToDictionaryAsync(p => p.Name, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
@@ -32,7 +31,9 @@ public class RoleSeeder : IEntitySeeder
 
         foreach (var oldRole in legacyRoles)
         {
-            // Parse Booleans
+            if (oldRole.id == "ROLE06")
+                continue;
+            
             bool canAccessAllRegions = oldRole.can_access_all_regions?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
             bool isActive = oldRole.is_active?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
 
@@ -46,7 +47,6 @@ public class RoleSeeder : IEntitySeeder
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldRole.created_date)
             };
 
-            // Process Permissions (Many-to-Many)
             if (!string.IsNullOrWhiteSpace(oldRole.permissions))
             {
                 var permissionNames = StringParserHelper.ParseCsvString(oldRole.permissions);
@@ -55,12 +55,12 @@ public class RoleSeeder : IEntitySeeder
                     if (permName == "*")
                     {
                         // Wildcard: add all existing permissions
-                        foreach (var perm in permissionsByName.Values)
+                        foreach (var p in permissionsByName.Values)
                         {
-                            newRole.Permissions.Add(perm);
+                            newRole.Permissions.Add(p);
                         }
                     }
-                    else if (permissionsByName.TryGetValue(permName, out var perm))
+                    if (permissionsByName.TryGetValue(permName, out var perm))
                     {
                         newRole.Permissions.Add(perm);
                     }

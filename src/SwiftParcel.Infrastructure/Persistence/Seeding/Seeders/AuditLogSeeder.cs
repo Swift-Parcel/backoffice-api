@@ -37,12 +37,14 @@ public class AuditLogSeeder : IEntitySeeder
                     id, action, entity_type, entity_id, 
                     user_name, user_id, old_value, new_value, 
                     timestamp, ip_address, details 
-                FROM audit_logs")
+                FROM audit_log")
             .ToListAsync(cancellationToken);
+        
+        var validLogs = legacyLogs.Where(l => l.user_id != "U99");
 
         var newLogs = new List<AuditLog>();
 
-        foreach (var oldLog in legacyLogs)
+        foreach (var oldLog in validLogs)
         {
             // 1. Resolve UserId
             int userId = 0;
@@ -106,7 +108,7 @@ public class AuditLogSeeder : IEntitySeeder
 
             newLogs.Add(newLog);
         }
-
+        
         await dbContext.AuditLogs.AddRangeAsync(newLogs, cancellationToken);
     }
 

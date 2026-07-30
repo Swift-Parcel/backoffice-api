@@ -32,15 +32,27 @@ public class CaseNoteSeeder : IEntitySeeder
 
         foreach (var oldNote in legacyNotes)
         {
-            // 1. Resolve CaseId
             int caseId = 0;
+
             if (!string.IsNullOrWhiteSpace(oldNote.case_number) && 
                 casesByNumber.TryGetValue(oldNote.case_number.Trim(), out var parsedCaseId))
             {
                 caseId = parsedCaseId;
             }
+            else if (!string.IsNullOrWhiteSpace(oldNote.case_id))
+            {
+                var rawId = StringParserHelper.ExtractIntegerId(oldNote.case_id);
+                if (casesByNumber.ContainsValue(rawId))
+                {
+                    caseId = rawId;
+                }
+            }
 
-            // 2. Resolve AuthorId (User)
+            if (caseId == 0)
+            {
+                continue;
+            }
+
             int authorId = 0;
             if (!string.IsNullOrWhiteSpace(oldNote.author_email) && 
                 usersByEmail.TryGetValue(oldNote.author_email.Trim(), out var parsedAuthorId))
@@ -48,7 +60,6 @@ public class CaseNoteSeeder : IEntitySeeder
                 authorId = parsedAuthorId;
             }
 
-            // 3. Parse Boolean (is_internal)
             bool isInternal = false;
             if (!string.IsNullOrWhiteSpace(oldNote.is_internal))
             {
@@ -59,7 +70,7 @@ public class CaseNoteSeeder : IEntitySeeder
             var newNote = new CaseNote
             {
                 Id = StringParserHelper.ExtractIntegerId(oldNote.id),
-                CaseId = caseId,
+                CaseId = caseId, // Most már garantáltan létező Case.Id
                 AuthorId = authorId,
                 NoteText = oldNote.note_text ?? string.Empty,
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldNote.created_date),
@@ -77,10 +88,10 @@ public class CaseNoteSeeder : IEntitySeeder
         string id,
         string case_id,
         string case_number,
-        string author_name,
+        string author,
         string author_email,
         string note_text,
         string created_date,
         string is_internal,
-        string attachment);
+        string? attachment);
 }
