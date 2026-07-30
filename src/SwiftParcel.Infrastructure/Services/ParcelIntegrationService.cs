@@ -3,6 +3,7 @@ using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Integration.Models;
 using SwiftParcel.Application.Services;
+using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
 using SwiftParcel.Infrastructure.Persistence;
 
@@ -19,8 +20,21 @@ public class ParcelIntegrationService : IParcelIntegrationService
         _estimationService = estimationService;
     }
 
+    private async Task<Parcel?> FindParcelAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Parcels
+            .FirstOrDefaultAsync(p => p.TrackingNumber == trackingNumber, cancellationToken);
+    }
+
     public async Task<ParcelStatusResponse?> GetParcelStatusAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
+        var parcel = await FindParcelAsync(trackingNumber, cancellationToken);
+
+        if (parcel == null)
+        {
+            return null;
+        }
+        
         var response = await _dbContext.Parcels
             .Where(p => p.TrackingNumber == trackingNumber)
             .Select(p => new ParcelStatusResponse(p.Status))
@@ -90,16 +104,22 @@ public class ParcelIntegrationService : IParcelIntegrationService
         throw new NotImplementedException();
     }
 
-    public Task<DeliveryChangeResponse?> ChangeDeliveryAsync(string trackingNumber, DeliveryChangeRequest request,
+    public async Task<DeliveryChangeResponse?> ChangeDeliveryAsync(string trackingNumber, DeliveryChangeRequest request,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var parcel = await FindParcelAsync(trackingNumber, cancellationToken);
+
+        if (parcel == null)
+        {
+            return null;
+        }
+        
+        
     }
 
     public async Task<bool> ConfirmDeliveryAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
-        var parcel = await _dbContext.Parcels
-            .FirstOrDefaultAsync(p => p.TrackingNumber == trackingNumber, cancellationToken);
+        var parcel = await FindParcelAsync(trackingNumber, cancellationToken);
 
         if (parcel == null)
         {
