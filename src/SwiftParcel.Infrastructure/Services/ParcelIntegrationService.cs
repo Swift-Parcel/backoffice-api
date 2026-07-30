@@ -38,21 +38,16 @@ public class ParcelIntegrationService : IParcelIntegrationService
         return $"{prefix}{counter}";
     }
 
-    private async Task<int> FindCustomerIdByEmail(string email, CancellationToken cancellationToken = default)
+    private async Task<int?> FindCustomerIdByEmail(string email, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Customers
+        var customerId = await _dbContext.Customers
             .Where(c => c.Email == email)
             .Select(c => c.Id)
             .FirstOrDefaultAsync(cancellationToken);
+        
+        return customerId == 0 ? null : customerId; 
     }
     
-    private async Task<Customer?> FindCustomerByEmail(string email, CancellationToken cancellationToken = default)
-    {
-        return await _dbContext.Customers
-            .Where(c => c.Email == email)
-            .FirstOrDefaultAsync(cancellationToken);
-    }
-
     public async Task<ParcelStatusResponse?> GetParcelStatusAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
         var parcel = await FindParcelAsync(trackingNumber, cancellationToken);
@@ -62,12 +57,7 @@ public class ParcelIntegrationService : IParcelIntegrationService
             return null;
         }
         
-        var response = await _dbContext.Parcels
-            .Where(p => p.TrackingNumber == trackingNumber)
-            .Select(p => new ParcelStatusResponse(p.Status))
-            .FirstOrDefaultAsync(cancellationToken);
-
-        return response;
+        return new ParcelStatusResponse(parcel.Status);
     }
 
     public async Task<ParcelTrackingResponse?> GetParcelTrackingAsync(string trackingNumber, CancellationToken cancellationToken = default)
@@ -92,9 +82,10 @@ public class ParcelIntegrationService : IParcelIntegrationService
 
     public async Task<List<CustomerParcelDto>?> GetCustomerParcelsAsync(string customerEmail, CancellationToken cancellationToken = default)
     {
-        var customer = await FindCustomerByEmail(customerEmail, cancellationToken);
+        var customerExists = await _dbContext.Customers
+            .AnyAsync(c => c.Email == customerEmail, cancellationToken);
 
-        if (customer == null || customer.Parcels.Count == 0)
+        if (!customerExists)
         {
             return null;
         }
@@ -137,12 +128,17 @@ public class ParcelIntegrationService : IParcelIntegrationService
         var now = DateTime.UtcNow;
     
         var trackingNumber = await GenerateTrackingNumberAsync(now, cancellationToken);
-        var customerId = await FindCustomerIdByEmail(trackingNumber, cancellationToken);
+        var customerId = await FindCustomerIdByEmail(request.Sender.Email, cancellationToken);
 
+        if (customerId == null)
+        {
+            return null;
+        }
+        
         var newParcel = new Parcel
         {
             TrackingNumber = trackingNumber,
-            CustomerId = customerId,
+            CustomerId = customerId.Value,
             RecipientName = request.Recipient.Name,
             Weight = request.Parcel.Weight,
             Width = request.Parcel.Width,
