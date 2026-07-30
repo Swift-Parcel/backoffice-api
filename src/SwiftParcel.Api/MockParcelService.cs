@@ -47,6 +47,17 @@ public class MockParcelService : IParcelIntegrationService
         throw new NotImplementedException();
     }
 
+    public Task<DeliveryChangeResponse?> ChangeDeliveryAsync(string trackingNumber, DeliveryChangeRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> ConfirmDeliveryAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<DeliveryChangeRequest?> GetDeliveryChangeRequestAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
