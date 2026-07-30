@@ -27,7 +27,7 @@ public class ParcelsController : ControllerBase
 
         if (result is null)
         {
-            return NotFound(new { message = $"Parcel with tracking number {trackingNumber} was not found." });
+            return NotFound(new ErrorResponseDto($"Parcel with tracking number {trackingNumber} was not found."));
         }
 
         return Ok(result);
@@ -42,7 +42,7 @@ public class ParcelsController : ControllerBase
 
         if (result is null)
         {
-            return NotFound(new { message = $"Parcel with tracking number {trackingNumber} was not found." });
+            return NotFound(new ErrorResponseDto($"Parcel with tracking number {trackingNumber} was not found."));
         }
 
         return Ok(result);
