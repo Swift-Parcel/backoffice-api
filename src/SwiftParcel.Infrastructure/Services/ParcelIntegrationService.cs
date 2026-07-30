@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Integration.Models;
-using SwiftParcel.Domain.Enums;
+using SwiftParcel.Application.Services;
 using SwiftParcel.Infrastructure.Persistence;
 
 namespace SwiftParcel.Infrastructure.Services;
@@ -10,10 +10,12 @@ namespace SwiftParcel.Infrastructure.Services;
 public class ParcelIntegrationService : IParcelIntegrationService
 {
     private readonly AppDbContext _dbContext;
+    private readonly IDeliveryEstimationService _estimationService;
 
-    public ParcelIntegrationService(AppDbContext dbContext)
+    public ParcelIntegrationService(AppDbContext dbContext, IDeliveryEstimationService estimationService)
     {
         _dbContext = dbContext;
+        _estimationService = estimationService;
     }
 
     public async Task<ParcelStatusResponse?> GetParcelStatusAsync(string trackingNumber, CancellationToken cancellationToken = default)
@@ -33,7 +35,17 @@ public class ParcelIntegrationService : IParcelIntegrationService
 
     public async Task<DeliveryEstimateResponse?> GetDeliveryEstimateAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var parcelExists = await _dbContext.Parcels
+            .AnyAsync(p => p.TrackingNumber == trackingNumber, cancellationToken);
+
+        if (!parcelExists)
+        {
+            return null; 
+        }
+
+        var estimate = await _estimationService.CalculateForParcelAsync(trackingNumber, cancellationToken);
+
+        return estimate;
     }
 
     public async Task<List<CustomerParcelDto>> GetCustomerParcelsAsync(string customerEmail, CancellationToken cancellationToken = default)

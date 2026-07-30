@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Api;
 using SwiftParcel.Application.Integration.Interfaces;
+using SwiftParcel.Application.Services;
 using SwiftParcel.Infrastructure.Persistence; 
 using SwiftParcel.Domain.Enums;
 using SwiftParcel.Infrastructure.Persistence.Seeding;
@@ -40,6 +41,7 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddScoped<IParcelIntegrationService, MockParcelService>();
+builder.Services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
 
 var app = builder.Build();
 
