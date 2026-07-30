@@ -1,10 +1,13 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.DTO;
 using SwiftParcel.Application.DTO.Parcels;
+using SwiftParcel.Application.Helpers;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Services;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Infrastructure.Integration.Models;
 using SwiftParcel.Infrastructure.Persistence;
 
 namespace SwiftParcel.Infrastructure.Services;
@@ -28,7 +31,7 @@ public class ParcelIntegrationService : IParcelIntegrationService
 
     private async Task<string> GenerateTrackingNumberAsync(DateTime now, CancellationToken cancellationToken = default)
     {
-        var prefix = $"SP{now:yyyyMM}";
+        var prefix = $"SP-{now:yyyyMM}";
 
         var parcelsThisMonth = await _dbContext.Parcels
             .CountAsync(p => p.CreatedDate.Year == now.Year && p.CreatedDate.Month == now.Month, cancellationToken);
@@ -38,21 +41,34 @@ public class ParcelIntegrationService : IParcelIntegrationService
         return $"{prefix}{counter}";
     }
 
-    private async Task<int> FindCustomerIdByEmail(string email, CancellationToken cancellationToken = default)
+    private async Task<int?> FindCustomerIdByEmail(string email, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Customers
+        var customerId = await _dbContext.Customers
             .Where(c => c.Email == email)
             .Select(c => c.Id)
             .FirstOrDefaultAsync(cancellationToken);
+        
+        return customerId == 0 ? null : customerId; 
     }
     
-    private async Task<Customer?> FindCustomerByEmail(string email, CancellationToken cancellationToken = default)
+    private static ParcelStatus MapEuroTrackStatus(string euroTrackStatusCode, ParcelStatus fallbackStatus)
     {
-        return await _dbContext.Customers
-            .Where(c => c.Email == email)
-            .FirstOrDefaultAsync(cancellationToken);
+        return euroTrackStatusCode switch
+        {
+            "PICKED_UP" => ParcelStatus.PickedUp,
+            "ARRIVED_AT_FACILITY" => ParcelStatus.InTransit,
+            "DEPARTED_FACILITY" => ParcelStatus.InTransit,
+            "IN_TRANSIT" => ParcelStatus.InTransit,
+            "ARRIVED_AT_DELIVERY_DEPOT" => ParcelStatus.InTransit,
+            "OUT_FOR_DELIVERY" => ParcelStatus.OutForDelivery,
+            "DELIVERED" => ParcelStatus.Delivered,
+            "DELIVERY_ATTEMPT_FAILED" => ParcelStatus.DeliveryAttemptFailed,
+            "EXCEPTION" => ParcelStatus.Damaged,
+            "LOST_IN_NETWORK" => ParcelStatus.Lost,
+            _ => fallbackStatus
+        };
     }
-
+    
     public async Task<ParcelStatusResponse?> GetParcelStatusAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
         var parcel = await FindParcelAsync(trackingNumber, cancellationToken);
@@ -62,19 +78,71 @@ public class ParcelIntegrationService : IParcelIntegrationService
             return null;
         }
         
-        var response = await _dbContext.Parcels
-            .Where(p => p.TrackingNumber == trackingNumber)
-            .Select(p => new ParcelStatusResponse(p.Status))
-            .FirstOrDefaultAsync(cancellationToken);
-
-        return response;
+        return new ParcelStatusResponse(parcel.Status);
     }
 
     public async Task<ParcelTrackingResponse?> GetParcelTrackingAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
-    }
+        var formattedTrackingNumber = FormatHelper.FormatTrackingNumber(trackingNumber);
+        
+        var parcel = await _dbContext.Parcels
+            .Select(p => new { p.TrackingNumber, p.Status })
+            .FirstOrDefaultAsync(p => p.TrackingNumber == formattedTrackingNumber, cancellationToken);
+        
+        if (parcel == null)
+        {
+            return null; 
+        }
 
+        var filePath = Path.Combine(AppContext.BaseDirectory, "Integration", "Mocks", "eurotrack_mock.json");
+        var jsonString = await File.ReadAllTextAsync(filePath, cancellationToken);
+        var mockApiData = JsonSerializer.Deserialize<EuroTrackResponseDto>(jsonString);
+
+        var shipmentData = mockApiData?.Shipments.FirstOrDefault(s => 
+            FormatHelper.FormatTrackingNumber(s.TrackingNumber) == formattedTrackingNumber);
+
+        var trackingHistory = new List<TrackingHistoryDto>();
+        LocationDto? currentLocation = null;
+        
+        var currentParcelStatus = shipmentData != null 
+            ? MapEuroTrackStatus(shipmentData.CurrentStatus, parcel.Status) 
+            : parcel.Status;
+        
+        if (shipmentData != null && shipmentData.Events.Any())
+        {
+            var sortedEvents = shipmentData.Events.OrderBy(e => e.Timestamp).ToList();
+
+            foreach (var e in sortedEvents)
+            {
+                var eventLocation = new LocationDto(
+                    Facility: e.Location.Facility,
+                    City: e.Location.City ?? "Unknown",
+                    CountryCode: e.Location.CountryCode ?? "Unknown",
+                    PostalCode: e.Location.PostalCode ?? "Unknown",
+                    Lat: e.Location.Lat ?? 0.0,
+                    Lon: e.Location.Lon ?? 0.0
+                );
+
+                trackingHistory.Add(new TrackingHistoryDto(
+                    Timestamp: e.Timestamp,
+                    ParcelStatus: MapEuroTrackStatus(e.StatusCode, parcel.Status), 
+                    Description: e.Description,
+                    Location: eventLocation
+                ));
+            }
+
+            currentLocation = trackingHistory.Last().Location;
+        }
+
+        currentLocation ??= new LocationDto(null, "Unknown", "Unknown", "Unknown", 0.0, 0.0);
+
+        return new ParcelTrackingResponse(
+            ParcelStatus: currentParcelStatus, 
+            Location: currentLocation,
+            TrackingHistory: trackingHistory
+        );
+    }
+     
     public async Task<DeliveryEstimateResponse?> GetDeliveryEstimateAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
         var parcelExists = await _dbContext.Parcels
@@ -90,8 +158,16 @@ public class ParcelIntegrationService : IParcelIntegrationService
         return estimate;
     }
 
-    public async Task<List<CustomerParcelDto>> GetCustomerParcelsAsync(string customerEmail, CancellationToken cancellationToken = default)
+    public async Task<List<CustomerParcelDto>?> GetCustomerParcelsAsync(string customerEmail, CancellationToken cancellationToken = default)
     {
+        var customerExists = await _dbContext.Customers
+            .AnyAsync(c => c.Email == customerEmail, cancellationToken);
+
+        if (!customerExists)
+        {
+            return null;
+        }
+        
         var parcels = await _dbContext.Parcels
             .Where(p => p.Customer.Email == customerEmail)
             .Select(p => new CustomerParcelDto(
@@ -130,12 +206,17 @@ public class ParcelIntegrationService : IParcelIntegrationService
         var now = DateTime.UtcNow;
     
         var trackingNumber = await GenerateTrackingNumberAsync(now, cancellationToken);
-        var customerId = await FindCustomerIdByEmail(trackingNumber, cancellationToken);
+        var customerId = await FindCustomerIdByEmail(request.Sender.Email, cancellationToken);
 
+        if (customerId == null)
+        {
+            return null;
+        }
+        
         var newParcel = new Parcel
         {
             TrackingNumber = trackingNumber,
-            CustomerId = customerId,
+            CustomerId = customerId.Value,
             RecipientName = request.Recipient.Name,
             Weight = request.Parcel.Weight,
             Width = request.Parcel.Width,

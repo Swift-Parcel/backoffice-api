@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SwiftParcel.Application.Helpers;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
 using SwiftParcel.Infrastructure.Parsers;
@@ -48,7 +49,7 @@ public class ParcelSeeder : IEntitySeeder
             var newParcel = new Parcel
             {
                 Id = StringParserHelper.ExtractIntegerId(legacyParcel.id),
-                TrackingNumber = legacyParcel.tracking_number ?? string.Empty,
+                TrackingNumber = FormatHelper.FormatTrackingNumber(legacyParcel.tracking_number ?? string.Empty),
                 CustomerId = customerId,
                 RecipientName = legacyParcel.recipient_name ?? string.Empty,
                 RecipientAddressId = addressLookup.GetValueOrDefault(addressKey),
