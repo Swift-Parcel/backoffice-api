@@ -58,7 +58,7 @@ public class CaseIntegrationService : ICaseIntegrationService
 
         var lastcase = await _dbcontext.Cases.OrderByDescending(c => c.CaseNumber).FirstOrDefaultAsync(cancellationToken);
         int nextSequence = 1;
-        var currentYear = DateTime.UtcNow.Year.ToString(); // "2026" (vagy amilyen év van)
+        var currentYear = DateTime.UtcNow.Year.ToString();
 
         if (lastcase is not null && !string.IsNullOrEmpty(lastcase.CaseNumber))
         {
@@ -107,9 +107,29 @@ public class CaseIntegrationService : ICaseIntegrationService
 
     }
 
-    public Task AddCaseNoteAsync(string caseNumber, AddCaseNoteRequest request, CancellationToken cancellationToken = default)
+    public async Task AddCaseNoteAsync(string caseNumber, AddCaseNoteRequest request, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var caseEntity = await _dbcontext.Cases.FirstOrDefaultAsync(c => c.CaseNumber == caseNumber, cancellationToken);
+        
+        if (caseEntity == null)
+            return;
+        
+        var now =  DateTime.UtcNow;
+
+        var note = new CaseNote
+        {
+            CaseId = caseEntity.Id,
+            NoteText = request.Message,
+            CreatedDate = now,
+            IsInternal = false,
+            Attachment = string.Empty,
+            AuthorId = 1
+        };
+        
+        _dbcontext.CaseNotes.Add(note);
+        caseEntity.UpdatedDate = now;
+        
+        await _dbcontext.SaveChangesAsync(cancellationToken);
     }
 
     public Task AddCaseFeedbackAsync(string caseNumber, AddCaseFeedbackRequest request,
