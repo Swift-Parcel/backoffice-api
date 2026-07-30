@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using SwiftParcel.Domain.Enums;
 
-namespace SwiftParcel.Application.Integration.Models;
+namespace SwiftParcel.Application.DTO.Parcels;
 
 public record TrackingHistoryDto(
     [property: JsonPropertyName("timestamp")] DateTime Timestamp,

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SwiftParcel.Application.Integration.Models;
+namespace SwiftParcel.Application.DTO.Parcels;
 
 public record LocationDto(
     [property: JsonPropertyName("facility")] string? Facility,

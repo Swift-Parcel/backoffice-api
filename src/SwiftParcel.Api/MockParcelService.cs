@@ -1,3 +1,4 @@
+using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Integration.Models;
 using SwiftParcel.Domain.Enums;
