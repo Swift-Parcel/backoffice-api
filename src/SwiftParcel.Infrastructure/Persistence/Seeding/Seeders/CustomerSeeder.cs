@@ -49,6 +49,26 @@ public class CustomerSeeder : IEntitySeeder
             
             newCustomers.Add(newCustomer);
         }
+        
+        var legacyOrphanCustomers = await oldDbContext.Database
+            .SqlQueryRaw<LegacyCaseDto>(@"SELECT customer_name, customer_email, customer_phone FROM cases
+                                          WHERE customer_name not in (select name from customers)
+                                          AND customer_email not in (select email from customers)
+                                          AND  customer_phone not in (select phone from customers)")
+            .ToListAsync(cancellationToken);
+
+        foreach (var legacyOrphanCustomer in legacyOrphanCustomers)
+        {
+            var newCustomer = new Customer
+            {
+                Name = legacyOrphanCustomer.customer_name,
+                Email = StringParserHelper.NormalizeEmailOrDefault(legacyOrphanCustomer.customer_email),
+                Phone = StringParserHelper.NormalizePhoneNumberOrDefault(legacyOrphanCustomer.customer_phone),
+            };
+            
+            newCustomers.Add(newCustomer);
+        }
+        
         await dbContext.Customers.AddRangeAsync(newCustomers, cancellationToken);
     }
     
@@ -61,4 +81,9 @@ public class CustomerSeeder : IEntitySeeder
         string registered_date,
         string vip,
         string? notes);
+
+    private record LegacyCaseDto(
+        string customer_name,
+        string customer_email,
+        string customer_phone);
 }

@@ -15,8 +15,8 @@ using SwiftParcel.Infrastructure.Persistence;
 namespace SwiftParcel.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260729103500_FixShadowProperties")]
-    partial class FixShadowProperties
+    [Migration("20260729195857_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,8 +26,8 @@ namespace SwiftParcel.Infrastructure.Migrations
                 .HasAnnotation("ProductVersion", "10.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "enum_action", new[] { "assign", "create", "delete", "escalate", "login_failed", "login_succeeded", "node_add", "permission_grant", "role_change", "status_change", "update" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "enum_action", "audit_action", new[] { "create", "status_change", "assign", "update", "permission_grant", "login_failed", "login_succeeded", "role_change", "delete", "escalate", "node_add" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "enum_action", new[] { "assign", "create", "delete", "escalate", "login_failed", "login_succeeded", "note_add", "permission_grant", "role_change", "status_change", "update" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "enum_action", "audit_action", new[] { "create", "status_change", "assign", "update", "permission_grant", "login_failed", "login_succeeded", "role_change", "delete", "escalate", "note_add" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "enum_case_status", new[] { "awaiting_customer", "cancelled", "closed", "escalated", "in_progress", "open", "resolved" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "enum_case_status", "case_status", new[] { "open", "in_progress", "awaiting_customer", "resolved", "closed", "escalated", "cancelled" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "enum_case_type", new[] { "billing", "damaged", "delayed", "delivery_change", "lost", "other", "wrong_address" });
@@ -1088,7 +1088,7 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("permission_id");
 
-                    b.Property<DateTime>("Expires")
+                    b.Property<DateTime?>("Expires")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expires");
 
