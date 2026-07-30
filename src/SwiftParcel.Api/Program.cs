@@ -43,6 +43,10 @@ builder.Services.AddControllers()
 builder.Services.AddScoped<IParcelIntegrationService, MockParcelService>();
 builder.Services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
 
+builder.Services.AddScoped<ICaseIntegrationService, MockCaseService>();
+
+builder.Services.AddScoped<ICustomerIntegrationService, MockCustomerService>();
+
 var app = builder.Build();
 
 /*  --- TEMPORARILY COMMENTED OUT UNTIL DATABASE IS READY ---
