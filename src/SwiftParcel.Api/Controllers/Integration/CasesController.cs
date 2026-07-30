@@ -1,0 +1,37 @@
+using Microsoft.AspNetCore.Mvc;
+using SwiftParcel.Application.Integration.Interfaces;
+using SwiftParcel.Application.DTO;
+
+namespace SwiftParcel.Api.Controllers.Integration;
+
+
+[ApiController]
+[Route("api/integration/[controller]")]
+public class CasesController : ControllerBase
+{
+    private readonly ICaseIntegrationService _caseIntegrationService;
+    
+    public CasesController(ICaseIntegrationService caseIntegrationService)
+    {
+        _caseIntegrationService = caseIntegrationService;
+    }
+    
+    /// <summary>
+    /// Return the current status of a case and its resolution.
+    /// </summary>
+    [HttpGet("{caseNumber}/status")]
+    [ProducesResponseType(typeof(CaseStatusResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCaseStatus(string caseNumber, CancellationToken cancellationToken)
+    {
+        var result = await _caseIntegrationService.GetCaseStatusAsync(caseNumber, cancellationToken);
+
+        if (result is null)
+        {
+            return NotFound(new { message = $"Case with number '{caseNumber}' was not found." });
+        }
+
+        return Ok(result);
+    }
+    
+}
