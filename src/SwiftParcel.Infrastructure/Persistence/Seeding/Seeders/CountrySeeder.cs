@@ -1,6 +1,7 @@
 using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Domain.Entities;
+using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
