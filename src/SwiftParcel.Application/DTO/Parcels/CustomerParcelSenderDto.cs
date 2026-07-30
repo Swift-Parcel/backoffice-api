@@ -5,5 +5,5 @@ namespace SwiftParcel.Application.DTO.Parcels;
 
 public record CustomerParcelSenderDto(
     [property: JsonPropertyName("email")] string Email,
-    [property: JsonPropertyName("recipient_address")] AddressDto RecipientAddress
+    [property: JsonPropertyName("customer_address")] AddressDto CustomerAddress
 );

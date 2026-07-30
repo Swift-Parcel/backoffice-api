@@ -4,7 +4,6 @@ using SwiftParcel.Application.Integration.Models;
 namespace SwiftParcel.Application.DTO.Parcels;
 
 public record CustomerParcelRecipientDto(
-    [property: JsonPropertyName("email")] string Email,
     [property: JsonPropertyName("name")] string Name,
     [property: JsonPropertyName("recipient_address")] AddressDto RecipientAddress
 );
