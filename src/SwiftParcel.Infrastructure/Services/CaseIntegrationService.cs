@@ -24,5 +24,9 @@ public class CaseIntegrationService : ICaseIntegrationService
     {
         throw new NotImplementedException();
     }
-    
+
+    public Task AddCaseNoteAsync(string caseNumber, AddCaseNoteRequest request, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 }

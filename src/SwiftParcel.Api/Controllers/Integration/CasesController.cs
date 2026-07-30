@@ -45,4 +45,23 @@ public class CasesController : ControllerBase
         var result = await _caseIntegrationService.CreateCaseAsync(request, cancellationToken);
         return StatusCode(StatusCodes.Status201Created, result);
     }
+
+    /// <summary>
+    /// Accept a customer-visible note/message added to an existing case.
+    /// </summary>
+    [HttpPost("{caseNumber}/notes")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AddCaseNote(
+        [FromRoute] string caseNumber,
+        [FromBody] AddCaseNoteRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Message))
+            return BadRequest(new { message = "Message content cannot be empty." });
+
+        await _caseIntegrationService.AddCaseNoteAsync(caseNumber, request, cancellationToken);
+        return Ok();
+    }
 }

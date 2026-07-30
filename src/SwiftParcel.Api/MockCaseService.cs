@@ -30,4 +30,9 @@ public class MockCaseService : ICaseIntegrationService
         var randomCaseNumber = $"CASE-{Random.Shared.Next(10000, 99999)}";
         return Task.FromResult(new CreateCaseResponse(randomCaseNumber));
     }
+
+    public Task AddCaseNoteAsync(string caseNumber, AddCaseNoteRequest request, CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
 }
