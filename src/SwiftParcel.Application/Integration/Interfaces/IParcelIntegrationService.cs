@@ -15,7 +15,7 @@ public interface IParcelIntegrationService
     Task<DeliveryEstimateResponse?> GetDeliveryEstimateAsync(string trackingNumber, CancellationToken cancellationToken = default);
     
     // GET /api/integration/parcel?{customerEmail}=...
-    Task<CustomerParcelDto?> GetCustomerParcelAsync(string trackingNumber, CancellationToken cancellationToken = default);
+    Task<List<CustomerParcelDto>> GetCustomerParcelsAsync(string trackingNumber, CancellationToken cancellationToken = default);
     
     // POST /api/integration/parcels
     Task<CreateParcelRequest?> GetCreateParcelRequestAsync(string trackingNumber, CancellationToken cancellationToken = default);

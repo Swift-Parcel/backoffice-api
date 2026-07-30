@@ -32,7 +32,7 @@ public class MockParcelService : IParcelIntegrationService
         throw new NotImplementedException();
     }
 
-    public Task<CustomerParcelDto?> GetCustomerParcelAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public Task<List<CustomerParcelDto>> GetCustomerParcelsAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
