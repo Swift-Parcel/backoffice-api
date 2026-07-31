@@ -30,7 +30,13 @@ public class WebhookClient : IWebhookClient
         var payload = new ParcelStatusWebhookRequest(trackingNumber, status);
         await SendWebhookAsync("/api/webhooks/parcels/status", payload, cancellationToken);
     }
-    
+
+    public async Task NotifyCaseStatusChangedAsync(string caseNumber, CaseStatus status, CancellationToken cancellationToken = default)
+    {
+        var payload = new CaseStatusWebhookRequestDto(caseNumber, status);
+        await  SendWebhookAsync("/api/webhooks/case/status", payload, cancellationToken);
+    }
+
     private async Task SendWebhookAsync<T>(string endpoint, T payload, CancellationToken cancellationToken)
     {
         try
