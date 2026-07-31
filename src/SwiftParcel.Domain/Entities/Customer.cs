@@ -14,7 +14,7 @@ public class Customer
     
     public DateTime RegisteredDate { get; set; }
     public bool Vip { get; set; }
-    public string Notes { get; set; } = string.Empty;
+    public string? Notes { get; set; }
 
     public ICollection<Parcel> Parcels { get; set; } = new List<Parcel>();
     public ICollection<Case> Cases { get; set; } = new List<Case>();

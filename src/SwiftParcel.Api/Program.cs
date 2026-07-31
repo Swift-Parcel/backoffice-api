@@ -69,7 +69,6 @@ builder.Services.AddHttpClient<IWebhookClient, WebhookClient>(client =>
 
 var app = builder.Build();
 
-/*  --- TEMPORARILY COMMENTED OUT UNTIL DATABASE IS READY ---
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -87,7 +86,7 @@ using (var scope = app.Services.CreateScope())
         throw;
     }
 }
-*/
+
 
 app.UseHttpsRedirection();
 app.MapControllers();

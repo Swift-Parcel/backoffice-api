@@ -4,6 +4,7 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SwiftParcel.Domain.Enums;
@@ -14,9 +15,11 @@ using SwiftParcel.Infrastructure.Persistence;
 namespace SwiftParcel.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260731082500_UpdateEntities")]
+    partial class UpdateEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -295,10 +298,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("handler_id");
 
-                    b.Property<bool>("IsEscalated")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_escalated");
-
                     b.Property<Priority>("Priority")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("enum_priority")
@@ -310,6 +309,7 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasColumnName("region_id");
 
                     b.Property<string>("Resolution")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("resolution");
 
@@ -449,6 +449,7 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasColumnName("name");
 
                     b.Property<string>("Notes")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("notes");
 

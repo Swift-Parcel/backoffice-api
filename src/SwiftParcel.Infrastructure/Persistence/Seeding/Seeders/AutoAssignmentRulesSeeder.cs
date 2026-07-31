@@ -1,9 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Domain.Entities;
-using SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
-using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
-
-namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
 public class AutoAssignmentRuleSeeder : IEntitySeeder
 {
