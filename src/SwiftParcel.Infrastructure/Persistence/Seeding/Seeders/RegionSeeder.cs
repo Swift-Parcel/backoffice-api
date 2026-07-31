@@ -47,7 +47,7 @@ public class RegionSeeder : IEntitySeeder
 
             var newRegion = new Region
             {
-                Id = StringParserHelper.ExtractIntegerId(oldRegion.id),
+                Id = StringParserHelper.ExtractInteger(oldRegion.id),
                 Name = oldRegion.region_name ?? string.Empty,
                 CountryCode = oldRegion.country_code ?? string.Empty,
                 Country = country!,

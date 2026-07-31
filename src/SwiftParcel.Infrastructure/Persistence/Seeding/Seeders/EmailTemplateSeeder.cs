@@ -67,7 +67,7 @@ public class EmailTemplateSeeder : IEntitySeeder
 
             var newTemplate = new EmailTemplate
             {
-                Id = StringParserHelper.ExtractIntegerId(oldTemplate.id),
+                Id = StringParserHelper.ExtractInteger(oldTemplate.id),
                 TemplateName = oldTemplate.template_name ?? string.Empty,
                 Language = oldTemplate.language ?? string.Empty,
                 RegionId = regionId,

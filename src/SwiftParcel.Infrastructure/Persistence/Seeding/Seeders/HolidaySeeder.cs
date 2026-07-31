@@ -40,7 +40,7 @@ public class HolidaySeeder : IEntitySeeder
 
             var newHoliday = new Holiday
             {
-                Id = StringParserHelper.ExtractIntegerId(oldHoliday.id),
+                Id = StringParserHelper.ExtractInteger(oldHoliday.id),
                 HolidayName = oldHoliday.holiday_name ?? string.Empty,
                 StartDate = startDate,
                 EndDate = endDate,

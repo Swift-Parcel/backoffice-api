@@ -76,7 +76,7 @@ public class CaseSeeder : IEntitySeeder
 
             var newCase = new Case
             {
-                Id = StringParserHelper.ExtractIntegerId(oldCase.id),
+                Id = StringParserHelper.ExtractInteger(oldCase.id),
                 CaseNumber = oldCase.case_number,
                 Title = oldCase.title,
                 Description = oldCase.description,

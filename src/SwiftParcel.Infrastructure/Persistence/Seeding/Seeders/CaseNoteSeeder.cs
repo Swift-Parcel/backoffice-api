@@ -41,7 +41,7 @@ public class CaseNoteSeeder : IEntitySeeder
             }
             else if (!string.IsNullOrWhiteSpace(oldNote.case_id))
             {
-                var rawId = StringParserHelper.ExtractIntegerId(oldNote.case_id);
+                var rawId = StringParserHelper.ExtractInteger(oldNote.case_id);
                 if (casesByNumber.ContainsValue(rawId))
                 {
                     caseId = rawId;
@@ -69,7 +69,7 @@ public class CaseNoteSeeder : IEntitySeeder
 
             var newNote = new CaseNote
             {
-                Id = StringParserHelper.ExtractIntegerId(oldNote.id),
+                Id = StringParserHelper.ExtractInteger(oldNote.id),
                 CaseId = caseId, // Most már garantáltan létező Case.Id
                 AuthorId = authorId,
                 NoteText = oldNote.note_text ?? string.Empty,

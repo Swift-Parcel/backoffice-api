@@ -39,7 +39,7 @@ public class RoleSeeder : IEntitySeeder
 
             var newRole = new Role
             {
-                Id = StringParserHelper.ExtractIntegerId(oldRole.id),
+                Id = StringParserHelper.ExtractInteger(oldRole.id),
                 RoleName = oldRole.role_name ?? string.Empty,
                 Description = oldRole.description ?? string.Empty,
                 CanAccessAllRegions = canAccessAllRegions,

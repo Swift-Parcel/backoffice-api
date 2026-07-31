@@ -55,7 +55,7 @@ public class StatusWorkflowSeeder : IEntitySeeder
 
             var newWorkflow = new StatusWorkflow
             {
-                Id = StringParserHelper.ExtractIntegerId(oldWorkflow.id),
+                Id = StringParserHelper.ExtractInteger(oldWorkflow.id),
                 FromStatus = fromStatus,
                 ToStatus = toStatus,
                 RequireNote = requireNote,

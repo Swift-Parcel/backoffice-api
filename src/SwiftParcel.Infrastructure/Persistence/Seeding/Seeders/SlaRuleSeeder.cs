@@ -41,7 +41,7 @@ public partial class SlaRuleSeeder : IEntitySeeder
             .Select(group => group
                 .Where(x => x.IsOriginallyActive)
                 .OrderByDescending(x => x.CreatedDate)
-                .ThenByDescending(x => StringParserHelper.ExtractIntegerId(x.RawId))
+                .ThenByDescending(x => StringParserHelper.ExtractInteger(x.RawId))
                 .FirstOrDefault()?.RawId)
             .Where(rawId => rawId != null)
             .ToHashSet()!;
@@ -92,7 +92,7 @@ public partial class SlaRuleSeeder : IEntitySeeder
             
             var newRule = new SlaRule
             {
-                Id = StringParserHelper.ExtractIntegerId(legacySlaRule.id),
+                Id = StringParserHelper.ExtractInteger(legacySlaRule.id),
                 Name = CleanRuleName(legacySlaRule.rule_name),
                 CaseType = validCaseType ? newCaseType : null,
                 Priority = validPriority ? newPriority : null,

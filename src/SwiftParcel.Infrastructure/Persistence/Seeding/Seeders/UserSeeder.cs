@@ -36,7 +36,7 @@ public class UserSeeder : IEntitySeeder
         
         foreach (var oldUser in legacyUsers)
         {
-            int userId = StringParserHelper.ExtractIntegerId(oldUser.id);
+            int userId = StringParserHelper.ExtractInteger(oldUser.id);
 
             string rawEmail = (oldUser.email ?? string.Empty).Trim();
             string finalEmail;
@@ -62,7 +62,7 @@ public class UserSeeder : IEntitySeeder
                 var roleIdStrings = StringParserHelper.ParseCsvString(oldUser.role_id);
                 foreach (var rIdStr in roleIdStrings)
                 {
-                    int parsedId = StringParserHelper.ExtractIntegerId(rIdStr);
+                    int parsedId = StringParserHelper.ExtractInteger(rIdStr);
                     if (rolesById.ContainsKey(parsedId))
                     {
                         roleId = parsedId;

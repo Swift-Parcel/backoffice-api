@@ -51,7 +51,7 @@ public class AuditLogSeeder : IEntitySeeder
 
             if (!string.IsNullOrWhiteSpace(oldLog.user_id))
             {
-                int parsedUserId = StringParserHelper.ExtractIntegerId(oldLog.user_id);
+                int parsedUserId = StringParserHelper.ExtractInteger(oldLog.user_id);
                 if (usersById.ContainsKey(parsedUserId))
                 {
                     userId = parsedUserId;
@@ -94,7 +94,7 @@ public class AuditLogSeeder : IEntitySeeder
 
             var newLog = new AuditLog
             {
-                Id = StringParserHelper.ExtractIntegerId(oldLog.id),
+                Id = StringParserHelper.ExtractInteger(oldLog.id),
                 AuditAction = action,
                 EntityType = entityType,
                 EntityId = oldLog.entity_id,

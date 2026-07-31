@@ -51,7 +51,7 @@ public class AutoAssignmentRuleSeeder : IEntitySeeder
             // 1. Try by ID
             if (!string.IsNullOrWhiteSpace(oldRule.assign_to_handler_id))
             {
-                int parsedId = StringParserHelper.ExtractIntegerId(oldRule.assign_to_handler_id);
+                int parsedId = StringParserHelper.ExtractInteger(oldRule.assign_to_handler_id);
                 if (usersById.ContainsKey(parsedId))
                     handlerId = parsedId;
             }
@@ -69,7 +69,7 @@ public class AutoAssignmentRuleSeeder : IEntitySeeder
 
             var newRule = new AutoAssignmentRule
             {
-                Id = StringParserHelper.ExtractIntegerId(oldRule.id),
+                Id = StringParserHelper.ExtractInteger(oldRule.id),
                 RuleName = oldRule.rule_name ?? string.Empty,
                 Priority = priority,
                 Conditions = oldRule.conditions ?? string.Empty,
