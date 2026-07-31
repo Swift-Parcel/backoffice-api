@@ -32,8 +32,6 @@ public class CaseSeeder : IEntitySeeder
             .ToListAsync(cancellationToken);
 
         var newCases = new List<Case>();
-
-        var regionLookup = await SeedingLookupHelper.GetRegionLookupByNameAsync(dbContext, cancellationToken);
         
         foreach (var oldCase in legacyCases)
         {
@@ -77,7 +75,7 @@ public class CaseSeeder : IEntitySeeder
                 Channel = channel,
                 CustomerId = customerId,
                 HandlerId = StringParserHelper.ExtractInteger(oldCase.handler_id),
-                RegionId = regionLookup[oldCase.region],
+                RegionId = regionId,
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldCase.created_date),
                 UpdatedDate = TimestampParserHelper.ParseOrFallback(oldCase.updated_date),
                 IsEscalated = StringParserHelper.ParseBoolean(oldCase.is_escalated),
@@ -126,7 +124,6 @@ public class CaseSeeder : IEntitySeeder
 
         var trimmed = rawRegion.Trim();
 
-        // Egyedi név-eltérés lekezelése (Vienna -> Wien)
         if (trimmed.Equals("Vienna", StringComparison.OrdinalIgnoreCase))
         {
             return "Wien";
@@ -154,7 +151,7 @@ public class CaseSeeder : IEntitySeeder
         string sla_deadline,
         string region,
         string channel,
-        string tags,
+        string tags,    
         string is_escalated,
         string? escalated_to,
         string? resolution,
