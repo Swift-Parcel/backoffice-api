@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SwiftParcel.Application.Helpers;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
 using SwiftParcel.Infrastructure.Parsers;
@@ -48,7 +49,7 @@ public class ParcelSeeder : IEntitySeeder
             var newParcel = new Parcel
             {
                 Id = StringParserHelper.ExtractIntegerId(legacyParcel.id),
-                TrackingNumber = legacyParcel.tracking_number ?? string.Empty,
+                TrackingNumber = FormatHelper.FormatTrackingNumber(legacyParcel.tracking_number ?? string.Empty),
                 CustomerId = customerId,
                 RecipientName = legacyParcel.recipient_name ?? string.Empty,
                 RecipientAddressId = addressLookup.GetValueOrDefault(addressKey),
@@ -60,7 +61,7 @@ public class ParcelSeeder : IEntitySeeder
                 CreatedDate = TimestampParserHelper.ParseOrFallback(legacyParcel.created_date),
                 DeliveredDate = TimestampParserHelper.ParseOrFallback(legacyParcel.delivered_date, DateTime.MinValue),
                 ServiceType = ParseServiceType(legacyParcel.service_type),
-                DeclaredValueInEuros = StringParserHelpers.ParseEuro(legacyParcel.declared_value) ?? 0
+                DeclaredValueInEuros = (float)StringParserHelper.ExtractDecimal(legacyParcel.declared_value)
             };
 
             newParcels.Add(newParcel);

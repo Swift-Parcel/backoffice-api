@@ -1,4 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using SwiftParcel.Api;
+using SwiftParcel.Application.Integration.Interfaces;
+using SwiftParcel.Application.Services;
 using SwiftParcel.Infrastructure.Persistence; 
 using SwiftParcel.Domain.Enums;
 using SwiftParcel.Infrastructure.Persistence.Seeding;
@@ -43,10 +46,22 @@ foreach (var type in seederTypes)
 
 builder.Services.AddScoped<DataSeederOrchestrator>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
+
+builder.Services.AddScoped<IParcelIntegrationService, MockParcelService>();
+builder.Services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
+
+builder.Services.AddScoped<ICaseIntegrationService, MockCaseService>();
+
+builder.Services.AddScoped<ICustomerIntegrationService, MockCustomerService>();
 
 var app = builder.Build();
 
+/*  --- TEMPORARILY COMMENTED OUT UNTIL DATABASE IS READY ---
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -54,7 +69,7 @@ using (var scope = app.Services.CreateScope())
     {
         var newDbContext = services.GetRequiredService<AppDbContext>();
         await newDbContext.Database.MigrateAsync();
-        
+
         var migrationService = services.GetRequiredService<DataSeederOrchestrator>();
         await migrationService.RunMigrationIfNeededAsync();
     }
@@ -64,6 +79,7 @@ using (var scope = app.Services.CreateScope())
         throw;
     }
 }
+*/
 
 app.UseHttpsRedirection();
 app.MapControllers();

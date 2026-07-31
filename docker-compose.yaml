@@ -33,15 +33,16 @@
       retries: 5
 
   backoffice-api:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__LegacyConnection=Host=legacy-db;Database=LegacySwiftParcelDb;Username=legacydb;Password=password
-      - ConnectionStrings__DefaultConnection=Host=swiftparcel-db;Database=SwiftParcelDb;Username=swiftparceldb;Password=password
+      - DOTNET_SYSTEM_NET_DISABLEIPV6=1
+      - ConnectionStrings__Legacy=Host=legacy-db;Database=LegacySwiftParcelDb;Username=legacydb;Password=password
+      - ConnectionStrings__SwiftParcel=Host=swiftparcel-db;Database=SwiftParcelDb;Username=swiftparceldb;Password=password
     depends_on:
       legacy-db:
         condition: service_healthy
