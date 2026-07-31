@@ -18,8 +18,8 @@ public class TagSeeder : IEntitySeeder
             "multiple_parcels"
         };
 
-        return StringParserHelpers.GetEnumNamesSnakeCase<Tag>()
-            .Union(StringParserHelpers.GetEnumNamesLowercase<Tag>())
+        return EnumParserHelper.GetEnumNamesSnakeCase<Tag>()
+            .Union(EnumParserHelper.GetEnumNamesLowercase<Tag>())
             .Union(otherTags)
             .ToHashSet();
     }

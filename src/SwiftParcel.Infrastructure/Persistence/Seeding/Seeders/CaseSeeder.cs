@@ -33,6 +33,8 @@ public class CaseSeeder : IEntitySeeder
 
         var newCases = new List<Case>();
 
+        var regionLookup = await SeedingLookupHelper.GetRegionLookupByNameAsync(dbContext, cancellationToken);
+        
         foreach (var oldCase in legacyCases)
         {
             
@@ -65,7 +67,7 @@ public class CaseSeeder : IEntitySeeder
 
             var newCase = new Case
             {
-                Id = StringParserHelper.ExtractIntegerId(oldCase.id),
+                Id = StringParserHelper.ExtractInteger(oldCase.id),
                 CaseNumber = oldCase.case_number,
                 Title = oldCase.title,
                 Description = oldCase.description,
@@ -74,15 +76,15 @@ public class CaseSeeder : IEntitySeeder
                 Priority = priority,
                 Channel = channel,
                 CustomerId = customerId,
-                HandlerId = handlerId,
-                RegionId = regionId,
+                HandlerId = StringParserHelper.ExtractInteger(oldCase.handler_id),
+                RegionId = regionLookup[oldCase.region],
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldCase.created_date),
                 UpdatedDate = TimestampParserHelper.ParseOrFallback(oldCase.updated_date),
                 IsEscalated = StringParserHelper.ParseBoolean(oldCase.is_escalated),
                 ResolvedDate = TimestampParserHelper.ParseOrFallback(oldCase.resolved_date),
                 SlaDeadline = TimestampParserHelper.ParseOrFallback(oldCase.sla_deadline),
                 Resolution = oldCase.resolution,
-                SatisfactionScore = int.TryParse(oldCase.satisfaction_score, out var score) ? score : 0
+                SatisfactionScore = StringParserHelper.ExtractInteger(oldCase.satisfaction_score)
             };
 
             // Many-to-Many: Parcels

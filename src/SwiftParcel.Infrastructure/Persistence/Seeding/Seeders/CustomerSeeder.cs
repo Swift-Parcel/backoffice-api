@@ -54,7 +54,7 @@ public class CustomerSeeder : IEntitySeeder
 
             var newCustomer = new Customer
             {
-                Id = StringParserHelper.ExtractIntegerId(legacyCustomer.id),
+                Id = StringParserHelper.ExtractInteger(legacyCustomer.id),
                 Name = legacyCustomer.name,
                 Email = normalizedEmail,
                 Phone = legacyCustomer.phone,
@@ -96,7 +96,7 @@ public class CustomerSeeder : IEntitySeeder
                 Id = nextId++,
                 Name = legacyOrphanCustomer.customer_name,
                 Email = normalizedEmail,
-                Phone = StringParserHelper.NormalizePhoneNumberOrDefault(legacyOrphanCustomer.customer_phone),
+                Phone = ContactInfoParserHelper.NormalizePhoneNumberOrDefault(legacyOrphanCustomer.customer_phone),
                 AddressId = fallbackAddressId
             };
 

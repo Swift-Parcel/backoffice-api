@@ -40,20 +40,20 @@ public class ParcelSeeder : IEntitySeeder
                 parsedAddress.PostalCode,
                 parsedAddress.CountryCode);
 
-            var customerId = StringParserHelper.ExtractIntegerId(legacyParcel.customer_id);
+            var customerId = StringParserHelper.ExtractInteger(legacyParcel.customer_id);
             if (!existingCustomerIds.Contains(customerId))
                 customerId = existingCustomerIds.FirstOrDefault();
 
-            var dimensions = StringParserHelpers.ParseDimensionalValues(legacyParcel.dimensions);
+            var dimensions = ((int Width, int Length, int Height)?)StringParserHelper.ParseDimensions(legacyParcel.dimensions);
 
             var newParcel = new Parcel
             {
-                Id = StringParserHelper.ExtractIntegerId(legacyParcel.id),
+                Id = StringParserHelper.ExtractInteger(legacyParcel.id),
                 TrackingNumber = FormatHelper.FormatTrackingNumber(legacyParcel.tracking_number ?? string.Empty),
                 CustomerId = customerId,
                 RecipientName = legacyParcel.recipient_name ?? string.Empty,
                 RecipientAddressId = addressLookup.GetValueOrDefault(addressKey),
-                Weight = StringParserHelpers.ParseWeight(legacyParcel.weight) ?? 0f,
+                Weight = StringParserHelper.ParseWeight(legacyParcel.weight) ?? 0f,
                 Width = dimensions?.Width ?? 0,
                 Length = dimensions?.Length ?? 0,
                 Height = dimensions?.Height ?? 0,

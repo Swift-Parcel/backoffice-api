@@ -12,10 +12,12 @@ using Persistence;
 public class CaseIntegrationService : ICaseIntegrationService
 {
     private readonly AppDbContext _dbcontext;
+    private readonly IWebhookClient _webhookClient;
 
-    public CaseIntegrationService(AppDbContext dbcontext)
+    public CaseIntegrationService(AppDbContext dbcontext,  IWebhookClient webhookClient)
     {
         _dbcontext = dbcontext;
+        _webhookClient = webhookClient;
     }
 
     public async Task<CaseStatusResponse?> GetCaseStatusAsync(string caseNumber, CancellationToken cancellationToken = default)
@@ -102,6 +104,9 @@ public class CaseIntegrationService : ICaseIntegrationService
         
         _dbcontext.Cases.Add(caseEntity);
         await _dbcontext.SaveChangesAsync(cancellationToken);
+        
+        // Webhook
+        await _webhookClient.NotifyCaseStatusChangedAsync(caseEntity.CaseNumber, caseEntity.Status, cancellationToken);
 
         return new CreateCaseResponse(caseNumber);
 

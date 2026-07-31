@@ -32,7 +32,7 @@ public class HandlerSeeder : IEntitySeeder
             
             var newHandler = new Handler()
             {
-                Id = StringParserHelper.ExtractIntegerId(legacyHandler.id),
+                Id = StringParserHelper.ExtractInteger(legacyHandler.id),
                 UserId = userLookup.GetValueOrDefault(legacyHandler.email),
                 Department = legacyHandler.department,
                 HireDate = TimestampParserHelper.ParseOrFallback(legacyHandler.hire_date),
