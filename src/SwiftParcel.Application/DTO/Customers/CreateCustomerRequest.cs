@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SwiftParcel.Application.DTO;
+namespace SwiftParcel.Application.DTO.Customers;
 
 public record CreateCustomerRequest(
     [property: JsonPropertyName("name")] string Name,
