@@ -53,6 +53,7 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
+builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IParcelIntegrationService, MockParcelService>();
 builder.Services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
@@ -68,6 +69,16 @@ builder.Services.AddHttpClient<IWebhookClient, WebhookClient>(client =>
 });
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+    });
+}
 
 using (var scope = app.Services.CreateScope())
 {
