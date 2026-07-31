@@ -31,7 +31,7 @@ public class RegionSeeder : IEntitySeeder
 
         foreach (var oldRegion in legacyRegions)
         {
-            bool isActive = oldRegion.is_active?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
+            bool isActive = StringParserHelper.ParseBoolean(oldRegion.is_active);
             // TODO: Do we need non-active Regions? if no, delete comment
             // if (!isActive)
             //     continue;

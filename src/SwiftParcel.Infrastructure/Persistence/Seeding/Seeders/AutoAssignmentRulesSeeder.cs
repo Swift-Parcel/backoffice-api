@@ -37,14 +37,6 @@ public class AutoAssignmentRuleSeeder : IEntitySeeder
 
         foreach (var oldRule in legacyRules)
         {
-            // Parse IsActive boolean
-            bool isActive = oldRule.is_active?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
-
-            // Parse Priority integer
-            int priority = 0;
-            if (!string.IsNullOrWhiteSpace(oldRule.priority))
-                int.TryParse(oldRule.priority.Trim(), out priority);
-
             // Resolve AssignToHandler (UserId)
             int handlerId = 0;
 
@@ -71,11 +63,11 @@ public class AutoAssignmentRuleSeeder : IEntitySeeder
             {
                 Id = StringParserHelper.ExtractInteger(oldRule.id),
                 RuleName = oldRule.rule_name ?? string.Empty,
-                Priority = priority,
+                Priority = StringParserHelper.ExtractInteger(oldRule.priority),
                 Conditions = oldRule.conditions ?? string.Empty,
                 AssignToHandler = handlerId,
                 AssignToDepartment = oldRule.assign_to_department ?? string.Empty,
-                IsActive = isActive,
+                IsActive = StringParserHelper.ParseBoolean(oldRule.is_active),
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldRule.created_date),
                 Notes = oldRule.notes ?? string.Empty
             };

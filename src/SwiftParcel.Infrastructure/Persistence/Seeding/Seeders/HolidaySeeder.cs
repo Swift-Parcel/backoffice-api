@@ -35,16 +35,13 @@ public class HolidaySeeder : IEntitySeeder
             // Parse Dates
             var (startDate, endDate) = ParseHolidayDates(oldHoliday.holiday_date);
 
-            // Parse Boolean
-            bool isRecurring = oldHoliday.is_recurring?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
-
             var newHoliday = new Holiday
             {
                 Id = StringParserHelper.ExtractInteger(oldHoliday.id),
                 HolidayName = oldHoliday.holiday_name ?? string.Empty,
                 StartDate = startDate,
                 EndDate = endDate,
-                IsRecurring = isRecurring,
+                IsRecurring = StringParserHelper.ParseBoolean(oldHoliday.is_recurring),
                 Notes = oldHoliday.notes ?? string.Empty
             };
 

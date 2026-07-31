@@ -43,9 +43,6 @@ public class EmailTemplateSeeder : IEntitySeeder
 
         foreach (var oldTemplate in legacyTemplates)
         {
-            // Parse IsActive
-            bool isActive = oldTemplate.is_active?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
-
             // TODO: IsActive in Emails?
             // if (!isActive) continue;
 
@@ -73,7 +70,7 @@ public class EmailTemplateSeeder : IEntitySeeder
                 RegionId = regionId,
                 Subject = oldTemplate.subject ?? string.Empty,
                 Body = oldTemplate.body ?? string.Empty,
-                IsActive = isActive,
+                IsActive = StringParserHelper.ParseBoolean(oldTemplate.is_active),
                 CreatedBy = createdById,
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldTemplate.created_date)
             };
