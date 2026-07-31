@@ -1,9 +1,8 @@
-using SwiftParcel.Application.Integration.Interfaces;
-using SwiftParcel.Application.DTO;
 using SwiftParcel.Application.DTO.Cases;
+using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Domain.Enums;
 
-namespace SwiftParcel.Api;
+namespace SwiftParcel.Infrastructure.Services.Mock;
 
 public class MockCaseService : ICaseIntegrationService
 {

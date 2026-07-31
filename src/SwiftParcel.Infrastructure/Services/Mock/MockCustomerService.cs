@@ -1,8 +1,7 @@
-using SwiftParcel.Application.DTO;
 using SwiftParcel.Application.DTO.Customers;
 using SwiftParcel.Application.Integration.Interfaces;
 
-namespace SwiftParcel.Api;
+namespace SwiftParcel.Infrastructure.Services.Mock;
 
 public class MockCustomerService : ICustomerIntegrationService
 {
