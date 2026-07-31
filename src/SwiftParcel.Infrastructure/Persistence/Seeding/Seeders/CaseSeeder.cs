@@ -35,6 +35,8 @@ public class CaseSeeder : IEntitySeeder
 
         var newCases = new List<Case>();
 
+        var regionLookup = await SeedingLookupHelper.GetRegionLookupByNameAsync(dbContext, cancellationToken);
+        
         foreach (var oldCase in legacyCases)
         {
             int customerId = 0;
@@ -55,20 +57,6 @@ public class CaseSeeder : IEntitySeeder
                 continue; 
             }
 
-            int? handlerId = null;
-            if (int.TryParse(oldCase.handler_id, out var parsedHandlerId) && 
-                validHandlerIds.ContainsKey(parsedHandlerId))
-            {
-                handlerId = parsedHandlerId;
-            }
-
-            int regionId = 0;
-            if (!string.IsNullOrWhiteSpace(oldCase.region) && 
-                regionsByName.TryGetValue(oldCase.region.Trim(), out var parsedRegionId))
-            {
-                regionId = parsedRegionId;
-            }
-
             Enum.TryParse<CaseType>(oldCase.case_type, true, out var caseType);
             Enum.TryParse<CaseStatus>(oldCase.status?.Replace(" ", ""), true, out var status);
             Enum.TryParse<Priority>(oldCase.priority, true, out var priority);
@@ -76,7 +64,7 @@ public class CaseSeeder : IEntitySeeder
 
             var newCase = new Case
             {
-                Id = StringParserHelper.ExtractIntegerId(oldCase.id),
+                Id = StringParserHelper.ExtractInteger(oldCase.id),
                 CaseNumber = oldCase.case_number,
                 Title = oldCase.title,
                 Description = oldCase.description,
@@ -85,14 +73,14 @@ public class CaseSeeder : IEntitySeeder
                 Priority = priority,
                 Channel = channel,
                 CustomerId = customerId,
-                HandlerId = handlerId,
-                RegionId = regionId,
+                HandlerId = StringParserHelper.ExtractInteger(oldCase.handler_id),
+                RegionId = regionLookup[oldCase.region],
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldCase.created_date),
                 UpdatedDate = TimestampParserHelper.ParseOrFallback(oldCase.updated_date),
                 ResolvedDate = TimestampParserHelper.ParseOrFallback(oldCase.resolved_date),
                 SlaDeadline = TimestampParserHelper.ParseOrFallback(oldCase.sla_deadline),
-                Resolution = oldCase.resolution,
-                SatisfactionScore = int.TryParse(oldCase.satisfaction_score, out var score) ? score : 0
+                Resolution = oldCase.resolution ?? "",
+                SatisfactionScore = StringParserHelper.ExtractInteger(oldCase.satisfaction_score)
             };
 
             // Many-to-Many: Parcels

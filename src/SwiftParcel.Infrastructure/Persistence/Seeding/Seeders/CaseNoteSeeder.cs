@@ -41,7 +41,7 @@ public class CaseNoteSeeder : IEntitySeeder
             }
             else if (!string.IsNullOrWhiteSpace(oldNote.case_id))
             {
-                var rawId = StringParserHelper.ExtractIntegerId(oldNote.case_id);
+                var rawId = StringParserHelper.ExtractInteger(oldNote.case_id);
                 if (casesByNumber.ContainsValue(rawId))
                 {
                     caseId = rawId;
@@ -60,21 +60,14 @@ public class CaseNoteSeeder : IEntitySeeder
                 authorId = parsedAuthorId;
             }
 
-            bool isInternal = false;
-            if (!string.IsNullOrWhiteSpace(oldNote.is_internal))
-            {
-                var val = oldNote.is_internal.Trim().ToLowerInvariant();
-                isInternal = val is "yes" or "true" or "1" or "internal";
-            }
-
             var newNote = new CaseNote
             {
-                Id = StringParserHelper.ExtractIntegerId(oldNote.id),
+                Id = StringParserHelper.ExtractInteger(oldNote.id),
                 CaseId = caseId, // Most már garantáltan létező Case.Id
                 AuthorId = authorId,
                 NoteText = oldNote.note_text ?? string.Empty,
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldNote.created_date),
-                IsInternal = isInternal,
+                IsInternal = StringParserHelper.ParseBoolean(oldNote.is_internal),
                 Attachment = oldNote.attachment ?? string.Empty
             };
 

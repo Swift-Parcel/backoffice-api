@@ -51,7 +51,7 @@ public class CustomerSeeder : IEntitySeeder
 
             var newCustomer = new Customer
             {
-                Id = StringParserHelper.ExtractIntegerId(legacyCustomer.id),
+                Id = StringParserHelper.ExtractInteger(legacyCustomer.id),
                 Name = legacyCustomer.name,
                 Email = legacyCustomer.email,
                 Phone = legacyCustomer.phone,
@@ -79,8 +79,8 @@ public class CustomerSeeder : IEntitySeeder
             {
                 Id = nextId++,
                 Name = legacyOrphanCustomer.customer_name,
-                Email = StringParserHelper.NormalizeEmailOrDefault(legacyOrphanCustomer.customer_email),
-                Phone = StringParserHelper.NormalizePhoneNumberOrDefault(legacyOrphanCustomer.customer_phone),
+                Email = ContactInfoParserHelper.NormalizeEmailOrDefault(legacyOrphanCustomer.customer_email),
+                Phone = ContactInfoParserHelper.NormalizePhoneNumberOrDefault(legacyOrphanCustomer.customer_phone),
                 AddressId = fallbackAddressId // Az árva vásárlóknak is kötelező érvényes AddressId-t adni
             };
 
