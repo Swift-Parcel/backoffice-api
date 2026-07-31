@@ -4,7 +4,7 @@ using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Infrastructure.Services.Mock;
 
-public class MockCaseService : ICaseIntegrationService
+public class MockCaseService : ICaseService
 {
     public Task<CaseStatusResponse?> GetCaseStatusAsync(string caseNumber, CancellationToken cancellationToken = default)
     {

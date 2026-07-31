@@ -9,12 +9,12 @@ using Application.Integration.Interfaces;
 using Persistence;
 
 
-public class CaseIntegrationService : ICaseIntegrationService
+public class CaseService : ICaseService
 {
     private readonly AppDbContext _dbcontext;
     private readonly IWebhookClient _webhookClient;
 
-    public CaseIntegrationService(AppDbContext dbcontext,  IWebhookClient webhookClient)
+    public CaseService(AppDbContext dbcontext,  IWebhookClient webhookClient)
     {
         _dbcontext = dbcontext;
         _webhookClient = webhookClient;

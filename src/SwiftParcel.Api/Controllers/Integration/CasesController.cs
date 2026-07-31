@@ -10,11 +10,11 @@ namespace SwiftParcel.Api.Controllers.Integration;
 [Route("api/integration/[controller]")]
 public class CasesController : ControllerBase
 {
-    private readonly ICaseIntegrationService _caseIntegrationService;
+    private readonly ICaseService _caseService;
     
-    public CasesController(ICaseIntegrationService caseIntegrationService)
+    public CasesController(ICaseService caseService)
     {
-        _caseIntegrationService = caseIntegrationService;
+        _caseService = caseService;
     }
 
     private static ErrorResponseDto CreateCaseNotFoundError(string caseNumber)
@@ -40,7 +40,7 @@ public class CasesController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCaseStatus(string caseNumber, CancellationToken cancellationToken)
     {
-        var result = await _caseIntegrationService.GetCaseStatusAsync(caseNumber, cancellationToken);
+        var result = await _caseService.GetCaseStatusAsync(caseNumber, cancellationToken);
 
         if (result is null)
         {
@@ -64,7 +64,7 @@ public class CasesController : ControllerBase
             return BadRequest(CreateValidationError("Customer email query parameter is required."));
         }
 
-        var result = await _caseIntegrationService.GetCustomerCasesAsync(customerEmail, cancellationToken);
+        var result = await _caseService.GetCustomerCasesAsync(customerEmail, cancellationToken);
         
         if (result is null)
         {
@@ -82,7 +82,7 @@ public class CasesController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateCase([FromBody] CreateCaseRequest request, CancellationToken cancellationToken)
     {
-        var result = await _caseIntegrationService.CreateCaseAsync(request, cancellationToken);
+        var result = await _caseService.CreateCaseAsync(request, cancellationToken);
         
         if (result is null)
         {
@@ -109,7 +109,7 @@ public class CasesController : ControllerBase
             return BadRequest(CreateValidationError("Message content cannot be empty."));
         }
 
-        await _caseIntegrationService.AddCaseNoteAsync(caseNumber, request, cancellationToken);
+        await _caseService.AddCaseNoteAsync(caseNumber, request, cancellationToken);
         return Ok();
     }
     
@@ -130,7 +130,7 @@ public class CasesController : ControllerBase
             return BadRequest(CreateValidationError("Score must be between 1 and 5."));
         }
 
-        await _caseIntegrationService.AddCaseFeedbackAsync(caseNumber, request, cancellationToken);
+        await _caseService.AddCaseFeedbackAsync(caseNumber, request, cancellationToken);
         return Ok();
     }
 }

@@ -4,12 +4,12 @@ using SwiftParcel.Domain.Enums;
 namespace SwiftParcel.Application.DTO.Parcels;
 
 public record CreateParcelDetailsDto(
-    [property: JsonPropertyName("weight")] float Weight,
-    [property: JsonPropertyName("height")] int Height,
-    [property: JsonPropertyName("width")] int Width,
-    [property: JsonPropertyName("length")] int Length,
-    [property: JsonPropertyName("service_type")] ServiceType ServiceType,
-    [property: JsonPropertyName("declared_value")] float DeclaredValue,
-    [property: JsonPropertyName("preferred_pickup_date")] DateTime PreferredPickupDate,
-    [property: JsonPropertyName("preferred_pickup_timeslot")] Timeslot PreferredPickupTimeslot
+     float Weight,
+     int Height,
+     int Width,
+     int Length,
+     ServiceType ServiceType,
+     float DeclaredValue,
+     DateTime PreferredPickupDate,
+     Timeslot PreferredPickupTimeslot
 );

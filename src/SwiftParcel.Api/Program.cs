@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Api;
 using SwiftParcel.Application.Integration.Interfaces;
@@ -51,14 +53,16 @@ builder.Services.AddScoped<DataSeederOrchestrator>();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
     });
 builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IParcelIntegrationService, MockParcelService>();
 builder.Services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
 
-builder.Services.AddScoped<ICaseIntegrationService, MockCaseService>();
+builder.Services.AddScoped<ICaseService, MockCaseService>();
 
 builder.Services.AddScoped<ICustomerIntegrationService, MockCustomerService>();
 

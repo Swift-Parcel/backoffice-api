@@ -3,7 +3,7 @@ using SwiftParcel.Application.DTO.Cases;
 
 namespace SwiftParcel.Application.Integration.Interfaces;
 
-public interface ICaseIntegrationService
+public interface ICaseService
 {
     Task<CaseStatusResponse?> GetCaseStatusAsync(string caseNumber, CancellationToken cancellationToken = default);
     Task<CustomerCasesResponse> GetCustomerCasesAsync(string customerEmail, CancellationToken cancellationToken = default);

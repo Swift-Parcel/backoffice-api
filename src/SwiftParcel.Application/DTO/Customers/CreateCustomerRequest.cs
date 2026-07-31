@@ -3,8 +3,8 @@ using System.Text.Json.Serialization;
 namespace SwiftParcel.Application.DTO.Customers;
 
 public record CreateCustomerRequest(
-    [property: JsonPropertyName("name")] string Name,
-    [property: JsonPropertyName("email")] string Email,
-    [property: JsonPropertyName("phone")] string Phone,
-    [property: JsonPropertyName("address")] AddressDto Address
+     string Name,
+     string Email,
+     string Phone,
+     AddressDto Address
 );
