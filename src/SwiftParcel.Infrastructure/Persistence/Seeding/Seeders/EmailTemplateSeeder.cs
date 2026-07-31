@@ -12,7 +12,7 @@ public class EmailTemplateSeeder : IEntitySeeder
 {
     public int Order => 170;
 
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.EmailTemplates.AnyAsync(cancellationToken))
         {
@@ -31,7 +31,7 @@ public class EmailTemplateSeeder : IEntitySeeder
             ? adminId 
             : 1;
 
-        var legacyTemplates = await dbContext.Database
+        var legacyTemplates = await oldDbContext.Database
             .SqlQueryRaw<LegacyEmailTemplateDto>(@"
                 SELECT 
                     id, template_name, language, region, 

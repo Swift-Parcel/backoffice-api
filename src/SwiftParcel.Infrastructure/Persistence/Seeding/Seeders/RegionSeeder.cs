@@ -10,7 +10,7 @@ public class RegionSeeder : IEntitySeeder
 {
     public int Order => 40;
 
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Regions.AnyAsync(cancellationToken))
             return;
@@ -18,7 +18,7 @@ public class RegionSeeder : IEntitySeeder
         var countriesByCode = await dbContext.Countries
             .ToDictionaryAsync(c => c.CountryCode, c => c, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
-        var legacyRegions = await dbContext.Database
+        var legacyRegions = await oldDbContext.Database
             .SqlQueryRaw<LegacyRegionDto>(@"
                 SELECT 
                     id, region_name, country_code, country_name, timezone, 

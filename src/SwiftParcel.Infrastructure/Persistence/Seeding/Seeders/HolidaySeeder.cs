@@ -9,7 +9,7 @@ public class HolidaySeeder : IEntitySeeder
 {
     public int Order => 110; 
 
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Holidays.AnyAsync(cancellationToken))
         {
@@ -21,7 +21,7 @@ public class HolidaySeeder : IEntitySeeder
         var regionsByCode = allRegions
             .ToDictionary(r => r.CountryCode, r => r, StringComparer.OrdinalIgnoreCase);
 
-        var legacyHolidays = await dbContext.Database
+        var legacyHolidays = await oldDbContext.Database
             .SqlQueryRaw<LegacyHolidayDto>(@"
                 SELECT 
                     id, holiday_name, holiday_date, region, is_recurring, notes 

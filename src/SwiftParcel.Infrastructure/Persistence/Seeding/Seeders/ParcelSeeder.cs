@@ -12,7 +12,7 @@ public class ParcelSeeder : IEntitySeeder
 {
     public int Order => 100;
 
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Parcels.AnyAsync(cancellationToken))
             return;
@@ -23,7 +23,7 @@ public class ParcelSeeder : IEntitySeeder
             .Select(c => c.Id)
             .ToHashSetAsync(cancellationToken);
 
-        var legacyParcels = await dbContext.Database
+        var legacyParcels = await oldDbContext.Database
             .SqlQueryRaw<LegacyParcelDto>("SELECT * FROM parcels")
             .ToListAsync(cancellationToken);
 
@@ -108,8 +108,6 @@ public class ParcelSeeder : IEntitySeeder
     private record LegacyParcelDto(
         string? id,
         string? tracking_number,
-        string? sender_name,
-        string? sender_address,
         string? recipient_name,
         string? recipient_address,
         string? weight,

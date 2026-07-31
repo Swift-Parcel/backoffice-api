@@ -7,16 +7,16 @@ namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
 public class SystemConfigSeeder : IEntitySeeder
 {
-    public int Order => 17;
+    public int Order => 170;
     
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.SystemConfigs.AnyAsync(cancellationToken))
         {
             return;
         }
 
-        var legacyConfigs = await dbContext.Database
+        var legacyConfigs = await oldDbContext.Database
             .SqlQueryRaw<LegacyConfigDto>("SELECT id, config_key, config_value, description, updated_by, updated_date FROM system_config")
             .ToListAsync(cancellationToken);
 
@@ -26,13 +26,20 @@ public class SystemConfigSeeder : IEntitySeeder
         
         foreach (var legacyConfig in legacyConfigs)
         {
+            int? updatedById = null;
+            if (!string.IsNullOrWhiteSpace(legacyConfig.updated_by) &&
+                userLookup.TryGetValue(legacyConfig.updated_by.Trim(), out var parsedUserId))
+            {
+                updatedById = parsedUserId;
+            }
+            
             var newConfig = new SystemConfig
             {
                 Id = StringParserHelper.ExtractIntegerId(legacyConfig.id),
                 ConfigKey = legacyConfig.config_key,
                 ConfigValue = StringParserHelper.ParseJsonDocument(legacyConfig.config_value),
                 Description = legacyConfig.description,
-                UpdatedById = userLookup[legacyConfig.updated_by],
+                UpdatedById = updatedById??1,
                 UpdatedDate = TimestampParserHelper.ParseOrFallback(legacyConfig.updated_date)
             };
 
@@ -40,7 +47,6 @@ public class SystemConfigSeeder : IEntitySeeder
         }
 
         await dbContext.SystemConfigs.AddRangeAsync(newConfigs, cancellationToken);
-        await dbContext.SaveChangesAsync(cancellationToken); 
     }
 
     private record LegacyConfigDto(

@@ -10,7 +10,7 @@ namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
 public partial class SlaRuleSeeder : IEntitySeeder
 {
-    public int Order => 13;
+    public int Order => 130;
 
     [GeneratedRegex(@"\s*[\-\–]\s*(updated|disabled|deprecated|old|v\d+).*", RegexOptions.IgnoreCase)]
     private static partial Regex RuleNameCleanerRegex();
@@ -47,14 +47,14 @@ public partial class SlaRuleSeeder : IEntitySeeder
             .ToHashSet()!;
     }
     
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.SlaRules.AnyAsync(cancellationToken))
         {
             return;
         }
         
-        var legacySlaRules = await dbContext.Database
+        var legacySlaRules = await oldDbContext.Database
             .SqlQueryRaw<LegacySlaRuleDto>("SELECT * FROM sla_rules")
             .ToListAsync(cancellationToken);
         

@@ -11,7 +11,7 @@ public class AuditLogSeeder : IEntitySeeder
 {
     public int Order => 190;
 
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.AuditLogs.AnyAsync(cancellationToken))
             return;
@@ -31,18 +31,20 @@ public class AuditLogSeeder : IEntitySeeder
             ? adminId 
             : usersById.Keys.FirstOrDefault();
 
-        var legacyLogs = await dbContext.Database
+        var legacyLogs = await oldDbContext.Database
             .SqlQueryRaw<LegacyAuditLogDto>(@"
                 SELECT 
                     id, action, entity_type, entity_id, 
                     user_name, user_id, old_value, new_value, 
                     timestamp, ip_address, details 
-                FROM audit_logs")
+                FROM audit_log")
             .ToListAsync(cancellationToken);
+        
+        var validLogs = legacyLogs.Where(l => l.user_id != "U99");
 
         var newLogs = new List<AuditLog>();
 
-        foreach (var oldLog in legacyLogs)
+        foreach (var oldLog in validLogs)
         {
             // 1. Resolve UserId
             int userId = 0;
@@ -106,7 +108,7 @@ public class AuditLogSeeder : IEntitySeeder
 
             newLogs.Add(newLog);
         }
-
+        
         await dbContext.AuditLogs.AddRangeAsync(newLogs, cancellationToken);
     }
 

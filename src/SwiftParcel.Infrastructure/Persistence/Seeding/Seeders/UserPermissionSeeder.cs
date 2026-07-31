@@ -9,18 +9,21 @@ public class UserPermissionSeeder : IEntitySeeder
 {
     public int Order => 45;
     
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.UserPermissions.AnyAsync(cancellationToken))
         {
             return;
         }
         
-        var legacyUserPermissions = await dbContext.Database
-            .SqlQueryRaw<LegacyUserPermissionDto>("SELECT * UserPermissions FROM user_permission")
+        var legacyUserPermissions = await oldDbContext.Database
+            .SqlQueryRaw<LegacyUserPermissionDto>("SELECT * FROM user_permissions")
             .ToListAsync(cancellationToken);
 
         var userLookup = await SeedingLookupHelper.GetUserLookupByUsernameAsync(dbContext, cancellationToken);
+        
+        var permissionLookup = await dbContext.Permissions
+            .ToDictionaryAsync(p => p.Name, p => p.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
         
         var newUserPermissions = new List<UserPermission>();
         
@@ -49,18 +52,29 @@ public class UserPermissionSeeder : IEntitySeeder
             }
 
             int userId;
-            if (legacyUserPermission.user_id != null && legacyUserPermission.user_id != "")
+            if (!string.IsNullOrWhiteSpace(legacyUserPermission.user_id) && 
+                int.TryParse(legacyUserPermission.user_id, out var parsedUserId))
             {
-                userId = StringParserHelper.ExtractIntegerId(legacyUserPermission.user_id);
+                userId = parsedUserId;
+            }
+            else if (userLookup.TryGetValue(legacyUserPermission.user_id, out var idFromLookup))
+            {
+                userId = idFromLookup;
             }
             else
             {
-                userId = userLookup[legacyUserPermission.user_id]; // it cant be null (I hope)
+                continue; 
+            }
+                
+            if (!permissionLookup.TryGetValue(legacyUserPermission.permission, out var permissionId))
+            {
+                continue;
             }
                 
             var newUserPermission = new UserPermission
             {
                 UserId = userId,
+                PermissionId = permissionId,
                 Expires = expires
             };
             
@@ -74,5 +88,5 @@ public class UserPermissionSeeder : IEntitySeeder
         string user_id,
         string permission,
         string grant_type,
-        string expires);
+        string? expires);
 }

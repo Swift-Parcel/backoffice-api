@@ -7,7 +7,7 @@ namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
 public class TagSeeder : IEntitySeeder
 {
-    public int Order => 8;
+    public int Order => 80;
     
     private static readonly HashSet<string> BannedTags = LoadBannedTags();
     private static HashSet<string> LoadBannedTags()
@@ -37,14 +37,14 @@ public class TagSeeder : IEntitySeeder
         return cleanedTags;
     }
     
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Tags.AnyAsync(cancellationToken))
         {
             return;
         }
         
-        var legacyTags = await dbContext.Database
+        var legacyTags = await oldDbContext.Database
             .SqlQueryRaw<LegacyTagDto>("SELECT tags FROM cases")
             .ToListAsync(cancellationToken);
         

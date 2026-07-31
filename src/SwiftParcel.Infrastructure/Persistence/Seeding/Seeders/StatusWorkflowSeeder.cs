@@ -10,7 +10,7 @@ public class StatusWorkflowSeeder : IEntitySeeder
 {
     public int Order => 150;
 
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.StatusWorkflows.AnyAsync(cancellationToken))
         {
@@ -21,12 +21,12 @@ public class StatusWorkflowSeeder : IEntitySeeder
         var rolesByName = await dbContext.Roles
             .ToDictionaryAsync(r => r.RoleName, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
-        var legacyWorkflows = await dbContext.Database
+        var legacyWorkflows = await oldDbContext.Database
             .SqlQueryRaw<LegacyStatusWorkflowDto>(@"
                 SELECT 
                     id, from_status, to_status, require_note, 
                     require_resolution, allowed_roles, is_active 
-                FROM status_workflows")
+                FROM status_workflow")
             .ToListAsync(cancellationToken);
 
         var newWorkflows = new List<StatusWorkflow>();

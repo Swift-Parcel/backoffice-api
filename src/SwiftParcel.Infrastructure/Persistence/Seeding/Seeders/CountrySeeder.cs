@@ -8,24 +8,29 @@ public class CountrySeeder : IEntitySeeder
 {
     public int Order => 10;
 
-    public async Task SeedAsync(AppDbContext dbContext, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
     {
         if (await dbContext.Countries.AnyAsync(cancellationToken))
             return;
 
-        var legacyRegions = await dbContext.Database
+        var legacyRegions = await oldDbContext.Database
             .SqlQueryRaw<string>("SELECT DISTINCT region FROM handlers WHERE region IS NOT NULL AND region != ''")
             .ToListAsync(cancellationToken);
 
-        var legacyAddresses = await dbContext.Database
+        var customerAddresses = await oldDbContext.Database
             .SqlQueryRaw<string>("SELECT address FROM customers WHERE address IS NOT NULL AND address != ''")
-            .Concat(dbContext.Database.SqlQueryRaw<string>("SELECT recipient_address FROM parcels WHERE recipient_address IS NOT NULL AND recipient_address != ''"))
             .ToListAsync(cancellationToken);
 
-        var allLocationTexts = legacyRegions
-            .Concat(legacyAddresses)
-            .Distinct(StringComparer.OrdinalIgnoreCase);
+        var parcelAddresses = await oldDbContext.Database
+            .SqlQueryRaw<string>("SELECT recipient_address FROM parcels WHERE recipient_address IS NOT NULL AND recipient_address != ''")
+            .ToListAsync(cancellationToken);
 
+        //concatting three lists in memory
+        var allLocationTexts = legacyRegions
+            .Concat(customerAddresses)
+            .Concat(parcelAddresses)
+            .Distinct(StringComparer.OrdinalIgnoreCase);
+        
         var detectedCountries = new Dictionary<string, (string Name, string Timezone)>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var text in allLocationTexts)
@@ -45,6 +50,10 @@ public class CountrySeeder : IEntitySeeder
             if (ContainsAny(text, "Warszawa", "Warsaw", "Kraków", "Gdańsk", "Poland", "PL"))
             {
                 detectedCountries["PL"] = ("Poland", "Europe/Warsaw");
+            }
+            else
+            {
+                detectedCountries["SK"] = ("Slovakia", "Europe/Budapest");
             }
         }
 
