@@ -48,19 +48,14 @@ public class StatusWorkflowSeeder : IEntitySeeder
                 toStatus = parsedTo;
             }
 
-            // Parse Booleans
-            bool requireNote = oldWorkflow.require_note?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
-            bool requireResolution = oldWorkflow.require_resolution?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
-            bool isActive = oldWorkflow.is_active?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
-
             var newWorkflow = new StatusWorkflow
             {
-                Id = StringParserHelper.ExtractIntegerId(oldWorkflow.id),
+                Id = StringParserHelper.ExtractInteger(oldWorkflow.id),
                 FromStatus = fromStatus,
                 ToStatus = toStatus,
-                RequireNote = requireNote,
-                RequireResolution = requireResolution,
-                IsActive = isActive
+                RequireNote = StringParserHelper.ParseBoolean(oldWorkflow.require_note),
+                RequireResolution = StringParserHelper.ParseBoolean(oldWorkflow.require_resolution),
+                IsActive = StringParserHelper.ParseBoolean(oldWorkflow.is_active),
             };
 
             // Process AllowedRoles (Many-to-Many)

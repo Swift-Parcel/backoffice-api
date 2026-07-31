@@ -34,16 +34,13 @@ public class RoleSeeder : IEntitySeeder
             if (oldRole.id == "ROLE06")
                 continue;
             
-            bool canAccessAllRegions = oldRole.can_access_all_regions?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
-            bool isActive = oldRole.is_active?.Trim().ToLowerInvariant() is "yes" or "true" or "1";
-
             var newRole = new Role
             {
-                Id = StringParserHelper.ExtractIntegerId(oldRole.id),
+                Id = StringParserHelper.ExtractInteger(oldRole.id),
                 RoleName = oldRole.role_name ?? string.Empty,
                 Description = oldRole.description ?? string.Empty,
-                CanAccessAllRegions = canAccessAllRegions,
-                IsActive = isActive,
+                CanAccessAllRegions = StringParserHelper.ParseBoolean(oldRole.permissions),
+                IsActive = StringParserHelper.ParseBoolean(oldRole.is_active),
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldRole.created_date)
             };
 
