@@ -16,20 +16,22 @@ public class AuditLogSeeder : IEntitySeeder
         if (await dbContext.AuditLogs.AnyAsync(cancellationToken))
             return;
 
+        var usersList = await dbContext.Users.ToListAsync(cancellationToken);
+        
         // Cache existing users for fast ID lookups
-        var usersById = await dbContext.Users
-            .ToDictionaryAsync(u => u.Id, cancellationToken);
+        var usersById = usersList.ToDictionary(u => u.Id);
 
-        var usersByUsername = await dbContext.Users
-            .ToDictionaryAsync(u => u.Username, u => u.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
-
-        var usersByName = await dbContext.Users
-            .ToDictionaryAsync(u => u.FullName, u => u.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
-
-        // Fallback user ID for system/unknown entries (e.g., System or U99)
+        var usersByUsername = usersList
+            .ToDictionary(u => u.Username, u => u.Id, StringComparer.OrdinalIgnoreCase);
+        
+        var usersByName = usersList
+            .Where(u => !string.IsNullOrWhiteSpace(u.FullName))
+            .GroupBy(u => u.FullName, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First().Id, StringComparer.OrdinalIgnoreCase);
+        
         int defaultAdminUserId = usersByUsername.TryGetValue("admin", out var adminId) 
             ? adminId 
-            : usersById.Keys.FirstOrDefault();
+            : (usersById.Keys.FirstOrDefault());
 
         var legacyLogs = await oldDbContext.Database
             .SqlQueryRaw<LegacyAuditLogDto>(@"
