@@ -112,4 +112,26 @@ public static partial class StringParserHelper
             _ => value // Default to kg
         };
     }
+    
+    /// <summary>
+    /// Normalizes email address by removing spaces, converting to lower case,
+    /// and filtering out missing or invalid values.
+    /// </summary>
+    public static string? NormalizeEmailOrDefault(string? email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return null;
+
+        var cleaned = email.Trim().ToLowerInvariant();
+
+        // Filter out placeholder text from legacy database
+        if (cleaned is "not provided" or "n/a" or "na" or "none" or "null" or "-")
+            return null;
+
+        // Ensure it contains basic email format (something@something.something)
+        if (!cleaned.Contains('@') || !cleaned.Contains('.'))
+            return null;
+
+        return cleaned;
+    }
 }
