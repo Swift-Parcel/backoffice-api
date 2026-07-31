@@ -9,6 +9,7 @@ namespace SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
 public static partial class StringParserHelper
 {
     private static readonly Regex DigitsRegex = new(@"\d+", RegexOptions.Compiled);
+    private static readonly Regex IntegerRegex = new Regex(@"-?\d+", RegexOptions.Compiled);
     private static readonly Regex DecimalRegex = new(@"\d+(\.\d+)?", RegexOptions.Compiled);
 
     /// <summary>
@@ -54,8 +55,6 @@ public static partial class StringParserHelper
             : 0m;
     }
     
-    private static readonly Regex IntegerRegex = new Regex(@"-?\d+", RegexOptions.Compiled);
-
     /// <summary>
     /// Extracts an integer number from formatted strings ("15 kg", "€50", "-10 pcs").
     /// </summary>
@@ -97,34 +96,20 @@ public static partial class StringParserHelper
 
     public static float? ParseWeight(string? rawInput)
     {
-        if (string.IsNullOrWhiteSpace(rawInput))
-        {
-            Console.WriteLine("Some parcel doesnt have a weight value, returned null.");
-            return null;
-        }
+        if (string.IsNullOrWhiteSpace(rawInput)) return null;
 
         string cleaned = rawInput.ToLowerInvariant().Replace(" ", "");
+        var match = Regex.Match(cleaned, @"^(\d+(?:\.\d+)?)(?:kg|g|gramm|gram|kilo|kilogramm|t|tonna|ton|lb|lbs|font)?$");
 
-        var match = Regex.Match(cleaned, @"^(\d+(?:\.\d+)?)(?:kg)?");
-
-        if (!match.Success)
-        {
-            Console.WriteLine("Some parcel doesnt have a weight value with correct format, " +
-                              "returned null.");
+        if (!match.Success || !float.TryParse(match.Groups[1].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
             return null;
-        }
 
-        var value = float.Parse(match.Groups[1].Value);
-
-        var unit = match.Groups[2].Value;
-
-        return unit switch
+        return match.Groups[2].Value switch
         {
             "g" or "gramm" or "gram" => value / 1000,
-            "kg" or "kilo" or "kilogramm" or "" => value,
             "t" or "tonna" or "ton" => value * 1000,
             "lb" or "lbs" or "font" => value * 0.45359237f,
-            _ => null
+            _ => value // Default to kg
         };
     }
 }
