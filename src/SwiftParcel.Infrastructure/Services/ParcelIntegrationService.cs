@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.DTO;
+using SwiftParcel.Application.DTO.Cases;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Helpers;
 using SwiftParcel.Application.Integration.Interfaces;
@@ -17,17 +18,20 @@ public class ParcelIntegrationService : IParcelIntegrationService
     private readonly AppDbContext _dbContext;
     private readonly IDeliveryEstimationService _estimationService;
     private readonly IWebhookClient  _webhookClient;
+    private readonly ICaseIntegrationService _caseService;
 
-    public ParcelIntegrationService(AppDbContext dbContext, IDeliveryEstimationService estimationService,  IWebhookClient webhookClient)
+    public ParcelIntegrationService(AppDbContext dbContext, IDeliveryEstimationService estimationService,  IWebhookClient webhookClient, ICaseIntegrationService _caseService)
     {
         _dbContext = dbContext;
         _estimationService = estimationService;
         _webhookClient = webhookClient;
+        _caseService = _caseService;
     }
 
     private async Task<Parcel?> FindParcelAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Parcels
+            .Include(p => p.Customer)
             .FirstOrDefaultAsync(p => p.TrackingNumber == trackingNumber, cancellationToken);
     }
 
@@ -262,9 +266,37 @@ public class ParcelIntegrationService : IParcelIntegrationService
         
         // Create a delivery_change request
         
-        // TODO: Create a delivery_change request logic
-        // var outcome = isApproved ? DeliveryChangeOutcome.Approved : DeliveryChangeOutcome.Rejected;
-        // await _webhookClient.NotifyDeliveryChangeOutcomeAsync(createdCase.CaseNumber, outcome, cancellationToken);
+        var countryCode = await _dbContext.Customers
+            .Where(c => c.Id == parcel.CustomerId)
+            .Select(c => c.Address.CountryCode)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var regionId = await _dbContext.Regions
+            .Where(r => r.CountryCode == countryCode && r.IsActive)
+            .Select(r => r.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+        
+        var caserequest = new CreateCaseRequest
+        (
+            CustomerEmail : parcel.Customer.Email,
+            TrackingNumbers : [trackingNumber],
+            CaseType : CaseType.DeliveryChange,
+            CaseTitle : "Delivery Change",
+            RegionId : regionId,
+            Channel :  Channel.Email,
+            Description : $"{request.Date} : {request.Timeslot}"
+        );
+        
+        var caseResponse = await _caseService.CreateCaseAsync(caserequest, cancellationToken);
+        
+        if (caseResponse is null)
+            return null;
+        
+        await _webhookClient.NotifyDeliveryChangeOutcomeAsync(
+            caseResponse.CaseNumber, 
+            DeliveryChangeOutcome.Approved, 
+            cancellationToken
+        );
         
         return null;
     }
