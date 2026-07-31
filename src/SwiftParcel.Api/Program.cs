@@ -6,6 +6,7 @@ using SwiftParcel.Infrastructure.Persistence;
 using SwiftParcel.Domain.Enums;
 using SwiftParcel.Infrastructure.Persistence.Seeding;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
+using SwiftParcel.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +59,12 @@ builder.Services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService
 builder.Services.AddScoped<ICaseIntegrationService, MockCaseService>();
 
 builder.Services.AddScoped<ICustomerIntegrationService, MockCustomerService>();
+
+// Webhook
+builder.Services.AddHttpClient<IWebhookClient, WebhookClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["JavaBackend:BaseUrl"]);
+});
 
 var app = builder.Build();
 

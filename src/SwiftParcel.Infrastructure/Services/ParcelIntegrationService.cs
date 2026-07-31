@@ -16,11 +16,13 @@ public class ParcelIntegrationService : IParcelIntegrationService
 {
     private readonly AppDbContext _dbContext;
     private readonly IDeliveryEstimationService _estimationService;
+    private readonly IWebhookClient  _webhookClient;
 
-    public ParcelIntegrationService(AppDbContext dbContext, IDeliveryEstimationService estimationService)
+    public ParcelIntegrationService(AppDbContext dbContext, IDeliveryEstimationService estimationService,  IWebhookClient webhookClient)
     {
         _dbContext = dbContext;
         _estimationService = estimationService;
+        _webhookClient = webhookClient;
     }
 
     private async Task<Parcel?> FindParcelAsync(string trackingNumber, CancellationToken cancellationToken = default)
@@ -241,6 +243,9 @@ public class ParcelIntegrationService : IParcelIntegrationService
         _dbContext.Parcels.Add(newParcel);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+        
+        // Webhook
+        await _webhookClient.NotifyParcelStatusChangedAsync(newParcel.TrackingNumber, newParcel.Status, cancellationToken);
 
         return new CreateParcelResponse(newParcel.TrackingNumber, newParcel.Status);
     }
@@ -272,6 +277,9 @@ public class ParcelIntegrationService : IParcelIntegrationService
         parcel.DeliveredDate = DateTime.UtcNow;
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+        
+        // Webhook
+        await _webhookClient.NotifyParcelStatusChangedAsync(parcel.TrackingNumber, parcel.Status, cancellationToken);
         return true;
     }
 }
