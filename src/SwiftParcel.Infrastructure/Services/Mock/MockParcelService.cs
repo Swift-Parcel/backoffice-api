@@ -100,7 +100,7 @@ public class MockParcelService : IParcelIntegrationService
 
     public Task<CreateParcelResponse?> CreateParcelAsync(CreateParcelRequest request, CancellationToken cancellationToken = default)
     {
-        if (request?.Sender?.Email == "notfound@example.com")
+        if (request?.Sender?.Email == "error@example.com")
         {
             return Task.FromResult<CreateParcelResponse?>(null);
         }
