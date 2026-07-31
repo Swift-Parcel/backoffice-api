@@ -8,8 +8,9 @@ namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 public class SystemConfigSeeder : IEntitySeeder
 {
     public int Order => 170;
-    
-    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
+
+    public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext,
+        CancellationToken cancellationToken = default)
     {
         if (await dbContext.SystemConfigs.AnyAsync(cancellationToken))
         {
@@ -17,14 +18,21 @@ public class SystemConfigSeeder : IEntitySeeder
         }
 
         var legacyConfigs = await oldDbContext.Database
-            .SqlQueryRaw<LegacyConfigDto>("SELECT id, config_key, config_value, description, updated_by, updated_date FROM system_config")
+            .SqlQueryRaw<LegacyConfigDto>(
+                "SELECT id, config_key, config_value, description, updated_by, updated_date FROM system_config")
             .ToListAsync(cancellationToken);
 
         var newConfigs = new List<SystemConfig>();
 
         var userLookup = await SeedingLookupHelper.GetUserLookupByUsernameAsync(dbContext, cancellationToken);
-        
-        foreach (var legacyConfig in legacyConfigs)
+
+        var uniqueLegacyConfigs = legacyConfigs
+            .Where(c => !string.IsNullOrWhiteSpace(c.config_key))
+            .GroupBy(c => c.config_key.Trim(), StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .ToList();
+
+        foreach (var legacyConfig in uniqueLegacyConfigs)
         {
             int? updatedById = null;
             if (!string.IsNullOrWhiteSpace(legacyConfig.updated_by) &&
@@ -32,14 +40,14 @@ public class SystemConfigSeeder : IEntitySeeder
             {
                 updatedById = parsedUserId;
             }
-            
+
             var newConfig = new SystemConfig
             {
                 Id = StringParserHelper.ExtractIntegerId(legacyConfig.id),
                 ConfigKey = legacyConfig.config_key,
                 ConfigValue = StringParserHelper.ParseJsonDocument(legacyConfig.config_value),
                 Description = legacyConfig.description,
-                UpdatedById = updatedById??1,
+                UpdatedById = updatedById ?? 1,
                 UpdatedDate = TimestampParserHelper.ParseOrFallback(legacyConfig.updated_date)
             };
 
@@ -50,10 +58,10 @@ public class SystemConfigSeeder : IEntitySeeder
     }
 
     private record LegacyConfigDto(
-       string id,
-       string config_key,
-       string config_value,
-       string description,
-       string updated_by,
-       string updated_date);
+        string id,
+        string config_key,
+        string config_value,
+        string description,
+        string updated_by,
+        string updated_date);
 }
