@@ -64,6 +64,8 @@ public class CustomerSeeder : IEntitySeeder
             newCustomers.Add(newCustomer);
         }
 
+        int nextId = newCustomers.Count > 0 ? newCustomers.Max(c => c.Id) + 1 : 1;
+        
         var legacyOrphanCustomers = await oldDbContext.Database
             .SqlQueryRaw<LegacyCaseDto>(@"SELECT customer_name, customer_email, customer_phone FROM cases
                                           WHERE customer_name not in (select name from customers)
@@ -75,6 +77,7 @@ public class CustomerSeeder : IEntitySeeder
         {
             var newCustomer = new Customer
             {
+                Id = nextId++,
                 Name = legacyOrphanCustomer.customer_name,
                 Email = StringParserHelper.NormalizeEmailOrDefault(legacyOrphanCustomer.customer_email),
                 Phone = StringParserHelper.NormalizePhoneNumberOrDefault(legacyOrphanCustomer.customer_phone),
