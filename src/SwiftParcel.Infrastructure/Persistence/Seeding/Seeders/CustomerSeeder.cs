@@ -18,13 +18,8 @@ public class CustomerSeeder : IEntitySeeder
         }
 
         var addressLookup = await SeedingLookupHelper.GetAddressLookupAsync(dbContext, cancellationToken);
+        
 
-        if (addressLookup.Count == 0)
-        {
-            throw new InvalidOperationException("Nem található egyetlen cím sem az addressLookup-ban. Az AddressSeeder-nek előbb kell lefutnia!");
-        }
-
-        // Első elérhető cím ID-ja tartalékként (biztosan létezik az adatbázisban)
         int fallbackAddressId = addressLookup.Values.First();
 
         var legacyCustomers = await oldDbContext.Database
@@ -33,8 +28,17 @@ public class CustomerSeeder : IEntitySeeder
 
         var newCustomers = new List<Customer>();
 
+        var processedEmails = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        
         foreach (var legacyCustomer in legacyCustomers)
         {
+            var normalizedEmail = StringParserHelper.NormalizeEmailOrDefault(legacyCustomer.email);
+            
+            if (string.IsNullOrEmpty(normalizedEmail) || !processedEmails.Add(normalizedEmail))
+            {
+                continue;
+            }
+            
             var parsedAddress = AddressParserHelper.SplitStringAddress(legacyCustomer.address);
 
             var addressKey = SeedingLookupHelper.GenerateAddressKey(
@@ -44,7 +48,6 @@ public class CustomerSeeder : IEntitySeeder
                 parsedAddress.PostalCode, 
                 parsedAddress.CountryCode);
 
-            // Ha nem találja a szótárban, a fallback cím ID-ját kapja (0 helyett)
             int addressId = addressLookup.TryGetValue(addressKey, out var foundAddressId) 
                 ? foundAddressId 
                 : fallbackAddressId;
@@ -53,7 +56,7 @@ public class CustomerSeeder : IEntitySeeder
             {
                 Id = StringParserHelper.ExtractIntegerId(legacyCustomer.id),
                 Name = legacyCustomer.name,
-                Email = legacyCustomer.email,
+                Email = normalizedEmail,
                 Phone = legacyCustomer.phone,
                 AddressId = addressId,
                 RegisteredDate = TimestampParserHelper.ParseOrFallback(legacyCustomer.registered_date),
@@ -67,21 +70,34 @@ public class CustomerSeeder : IEntitySeeder
         int nextId = newCustomers.Count > 0 ? newCustomers.Max(c => c.Id) + 1 : 1;
         
         var legacyOrphanCustomers = await oldDbContext.Database
-            .SqlQueryRaw<LegacyCaseDto>(@"SELECT customer_name, customer_email, customer_phone FROM cases
-                                          WHERE customer_name not in (select name from customers)
-                                          AND customer_email not in (select email from customers)
-                                          AND customer_phone not in (select phone from customers)")
+            .SqlQueryRaw<LegacyCaseDto>(@"
+                SELECT 
+                    customer_email,
+                    MAX(customer_name) AS customer_name,
+                    MAX(customer_phone) AS customer_phone
+                FROM cases
+                WHERE customer_email IS NOT NULL 
+                  AND TRIM(customer_email) <> ''
+                  AND customer_email NOT IN (SELECT email FROM customers WHERE email IS NOT NULL)
+                GROUP BY customer_email")
             .ToListAsync(cancellationToken);
 
         foreach (var legacyOrphanCustomer in legacyOrphanCustomers)
         {
+            var normalizedEmail = StringParserHelper.NormalizeEmailOrDefault(legacyOrphanCustomer.customer_email);
+            
+            if (string.IsNullOrEmpty(normalizedEmail) || !processedEmails.Add(normalizedEmail))
+            {
+                continue;
+            }
+            
             var newCustomer = new Customer
             {
                 Id = nextId++,
                 Name = legacyOrphanCustomer.customer_name,
-                Email = StringParserHelper.NormalizeEmailOrDefault(legacyOrphanCustomer.customer_email),
+                Email = normalizedEmail,
                 Phone = StringParserHelper.NormalizePhoneNumberOrDefault(legacyOrphanCustomer.customer_phone),
-                AddressId = fallbackAddressId // Az árva vásárlóknak is kötelező érvényes AddressId-t adni
+                AddressId = fallbackAddressId
             };
 
             newCustomers.Add(newCustomer);

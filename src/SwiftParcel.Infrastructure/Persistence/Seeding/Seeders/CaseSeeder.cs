@@ -16,8 +16,6 @@ public class CaseSeeder : IEntitySeeder
             return;
 
         var customersByEmail = await SeedingLookupHelper.GetCustomerLookupByEmailAsync(dbContext, cancellationToken);
-        var customersByPhone = await SeedingLookupHelper.GetCustomerLookupByPhoneAsync(dbContext, cancellationToken);
-        var customersByName = await SeedingLookupHelper.GetCustomerLookupByNameAsync(dbContext, cancellationToken);
         var regionsByName = await SeedingLookupHelper.GetRegionLookupByNameAsync(dbContext, cancellationToken);
         var validHandlerIds = await SeedingLookupHelper.GetHandlerIdLookupAsync(dbContext, cancellationToken);
         var parcelsByTrackingNumber = await SeedingLookupHelper.GetTrackedParcelLookupByTrackingNumberAsync(dbContext, cancellationToken);
@@ -37,20 +35,9 @@ public class CaseSeeder : IEntitySeeder
 
         foreach (var oldCase in legacyCases)
         {
-            int customerId = 0;
-            if (!string.IsNullOrWhiteSpace(oldCase.customer_email) && customersByEmail.TryGetValue(oldCase.customer_email, out var idByEmail))
-            {
-                customerId = idByEmail;
-            }
-            else if (!string.IsNullOrWhiteSpace(oldCase.customer_phone) && customersByPhone.TryGetValue(oldCase.customer_phone, out var idByPhone))
-            {
-                customerId = idByPhone;
-            }
-            else if (!string.IsNullOrWhiteSpace(oldCase.customer_name) && customersByName.TryGetValue(oldCase.customer_name.Trim(), out var idByName))
-            {
-                customerId = idByName;
-            }
-            else
+            
+            var normalizedEmail = StringParserHelper.NormalizeEmailOrDefault(oldCase.customer_email);
+            if (string.IsNullOrEmpty(normalizedEmail) || !customersByEmail.TryGetValue(normalizedEmail, out var customerId))
             {
                 continue; 
             }
@@ -62,9 +49,11 @@ public class CaseSeeder : IEntitySeeder
                 handlerId = parsedHandlerId;
             }
 
-            int regionId = 0;
-            if (!string.IsNullOrWhiteSpace(oldCase.region) && 
-                regionsByName.TryGetValue(oldCase.region.Trim(), out var parsedRegionId))
+            int regionId = 1;
+            var normalizedRegionName = NormalizeRegionName(oldCase.region);
+
+            if (!string.IsNullOrEmpty(normalizedRegionName) && 
+                regionsByName.TryGetValue(normalizedRegionName, out var parsedRegionId))
             {
                 regionId = parsedRegionId;
             }
@@ -89,6 +78,7 @@ public class CaseSeeder : IEntitySeeder
                 RegionId = regionId,
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldCase.created_date),
                 UpdatedDate = TimestampParserHelper.ParseOrFallback(oldCase.updated_date),
+                IsEscalated = StringParserHelper.ParseBoolean(oldCase.is_escalated),
                 ResolvedDate = TimestampParserHelper.ParseOrFallback(oldCase.resolved_date),
                 SlaDeadline = TimestampParserHelper.ParseOrFallback(oldCase.sla_deadline),
                 Resolution = oldCase.resolution,
@@ -125,6 +115,22 @@ public class CaseSeeder : IEntitySeeder
         }
 
         await dbContext.Cases.AddRangeAsync(newCases, cancellationToken);
+    }
+    
+    private static string NormalizeRegionName(string? rawRegion)
+    {
+        if (string.IsNullOrWhiteSpace(rawRegion))
+            return string.Empty;
+
+        var trimmed = rawRegion.Trim();
+
+        // Egyedi név-eltérés lekezelése (Vienna -> Wien)
+        if (trimmed.Equals("Vienna", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Wien";
+        }
+
+        return trimmed;
     }
 
     private record LegacyCaseDto(
