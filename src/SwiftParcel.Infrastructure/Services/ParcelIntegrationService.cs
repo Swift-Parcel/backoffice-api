@@ -261,6 +261,11 @@ public class ParcelIntegrationService : IParcelIntegrationService
         }
         
         // Create a delivery_change request
+        
+        // TODO: Create a delivery_change request logic
+        // var outcome = isApproved ? DeliveryChangeOutcome.Approved : DeliveryChangeOutcome.Rejected;
+        // await _webhookClient.NotifyDeliveryChangeOutcomeAsync(createdCase.CaseNumber, outcome, cancellationToken);
+        
         return null;
     }
 
