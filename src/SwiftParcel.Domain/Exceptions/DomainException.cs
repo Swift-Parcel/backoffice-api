@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace SwiftParcel.Domain.Exceptions;
 
 /// <summary>
@@ -7,9 +9,10 @@ namespace SwiftParcel.Domain.Exceptions;
 public abstract class DomainException : Exception
 {
     public string Code { get; }
-    public int StatusCode { get; }
+    public HttpStatusCode StatusCode { get; }
     
-    protected DomainException(string code, string message, int statusCode) 
+    protected DomainException(string code, string message, 
+        HttpStatusCode statusCode = HttpStatusCode.BadRequest) 
         : base(message)
     {
         Code = code;
