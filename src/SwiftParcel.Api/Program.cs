@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Api.Middleware;
 using SwiftParcel.Application;
+using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Services;
 using SwiftParcel.Infrastructure.Persistence;
@@ -37,6 +38,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         })
         .UseSnakeCaseNamingConvention()
 );
+
+builder.Services.AddScoped<IAppDbContext>(
+    sp => sp.GetRequiredService<AppDbContext>());
 
 var legacyConnectionString = builder.Configuration.GetConnectionString("LegacyConnection");
 builder.Services.AddDbContext<LegacyDbContext>(options =>
