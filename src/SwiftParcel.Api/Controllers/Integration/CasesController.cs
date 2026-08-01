@@ -1,13 +1,15 @@
+using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.Integration.Interfaces;
-using SwiftParcel.Application.DTO;
 using SwiftParcel.Application.DTO.Cases;
+using SwiftParcel.Application.Exceptions;
 using SwiftParcel.Application.Integration.Models;
 
 namespace SwiftParcel.Api.Controllers.Integration;
 
 [ApiController]
 [Route("api/integration/[controller]")]
+[Produces(MediaTypeNames.Application.Json)]
 public class CasesController : ControllerBase
 {
     private readonly ICaseService _caseService;
@@ -16,17 +18,7 @@ public class CasesController : ControllerBase
     {
         _caseService = caseService;
     }
-
-    private static ErrorResponseDto CreateCaseNotFoundError(string caseNumber)
-    {
-        return new ErrorResponseDto($"Case with number '{caseNumber}' was not found.");
-    }
     
-    private static ErrorResponseDto CreateEmailNotFoundError(string email)
-    {
-        return new ErrorResponseDto($"Customer with email '{email}' was not found.");
-    }
-
     private static ErrorResponseDto CreateValidationError(string message)
     {
         return new ErrorResponseDto(message);
@@ -37,15 +29,10 @@ public class CasesController : ControllerBase
     /// </summary>
     [HttpGet("{caseNumber}/status")]
     [ProducesResponseType(typeof(CaseStatusResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCaseStatus(string caseNumber, CancellationToken cancellationToken)
     {
         var result = await _caseService.GetCaseStatusAsync(caseNumber, cancellationToken);
-
-        if (result is null)
-        {
-            return NotFound(CreateCaseNotFoundError(caseNumber));
-        }
 
         return Ok(result);
     }
@@ -55,21 +42,21 @@ public class CasesController : ControllerBase
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(CustomerCasesResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCustomerCases([FromQuery] string customerEmail, CancellationToken cancellationToken)
     {
+        var errors = new Dictionary<string, string[]>();
+        
         if (string.IsNullOrWhiteSpace(customerEmail))
         {
-            return BadRequest(CreateValidationError("Customer email query parameter is required."));
+            errors.Add(nameof(customerEmail), new[] { "Customer email is required." });
         }
+        
+        if (errors.Count > 0)
+            throw new ValidationException(errors);
 
         var result = await _caseService.GetCustomerCasesAsync(customerEmail, cancellationToken);
-        
-        if (result is null)
-        {
-            return NotFound(CreateEmailNotFoundError(customerEmail));
-        }
         
         return Ok(result);
     }
@@ -79,15 +66,10 @@ public class CasesController : ControllerBase
     /// </summary>
     [HttpPost]
     [ProducesResponseType(typeof(CreateCaseResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateCase([FromBody] CreateCaseRequest request, CancellationToken cancellationToken)
     {
         var result = await _caseService.CreateCaseAsync(request, cancellationToken);
-        
-        if (result is null)
-        {
-            return BadRequest(CreateValidationError("Invalid request or customer not found."));
-        }
         
         return StatusCode(StatusCodes.Status201Created, result);
     }
@@ -96,18 +78,14 @@ public class CasesController : ControllerBase
     /// Accept a customer-visible note/message added to an existing case.
     /// </summary>
     [HttpPost("{caseNumber}/notes")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddCaseNote(
         [FromRoute] string caseNumber,
         [FromBody] AddCaseNoteRequest request,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.Message))
-        {
-            return BadRequest(CreateValidationError("Message content cannot be empty."));
-        }
 
         await _caseService.AddCaseNoteAsync(caseNumber, request, cancellationToken);
         return Ok();
@@ -117,9 +95,9 @@ public class CasesController : ControllerBase
     /// Accept a satisfaction score (1–5) and optional comment after case resolution.
     /// </summary>
     [HttpPost("{caseNumber}/feedback")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddCaseFeedback(
         [FromRoute] string caseNumber, 
         [FromBody] AddCaseFeedbackRequest request, 
