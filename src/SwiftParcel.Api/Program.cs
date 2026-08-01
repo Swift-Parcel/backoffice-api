@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Api;
+using SwiftParcel.Api.Middleware;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Services;
 using SwiftParcel.Infrastructure.Persistence; 
@@ -10,6 +11,9 @@ using SwiftParcel.Infrastructure.Services;
 using SwiftParcel.Infrastructure.Services.Mock;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddExceptionHandler<GlobalExcpetionHandler>();
+builder.Services.AddProblemDetails();
 
 //dbContext registration
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -68,6 +72,7 @@ builder.Services.AddHttpClient<IWebhookClient, WebhookClient>(client =>
 });
 
 var app = builder.Build();
+app.UseExceptionHandler();
 
 using (var scope = app.Services.CreateScope())
 {
