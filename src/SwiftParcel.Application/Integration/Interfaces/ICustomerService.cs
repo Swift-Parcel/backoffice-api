@@ -3,7 +3,7 @@ using SwiftParcel.Application.DTO.Customers;
 
 namespace SwiftParcel.Application.Integration.Interfaces;
 
-public interface ICustomerIntegrationService
+public interface ICustomerService
 {
     Task<CreateCustomerResponse> CreateCustomerAsync(CreateCustomerRequest request, CancellationToken cancellationToken = default);
 }

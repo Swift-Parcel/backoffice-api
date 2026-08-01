@@ -9,11 +9,11 @@ namespace SwiftParcel.Api.Controllers.Integration;
 [Route("api/integration/[controller]")]
 public class CustomersController : ControllerBase
 {
-    private readonly ICustomerIntegrationService _customerIntegrationService;
+    private readonly ICustomerService _customerService;
 
-    public CustomersController(ICustomerIntegrationService customerIntegrationService)
+    public CustomersController(ICustomerService customerService)
     {
-        _customerIntegrationService = customerIntegrationService;
+        _customerService = customerService;
     }
 
     /// <summary>
@@ -24,7 +24,7 @@ public class CustomersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateCustomer([FromBody] CreateCustomerRequest request, CancellationToken cancellationToken)
     {
-        var result = await _customerIntegrationService.CreateCustomerAsync(request, cancellationToken);
+        var result = await _customerService.CreateCustomerAsync(request, cancellationToken);
         return StatusCode(StatusCodes.Status201Created, result);
     }
 }

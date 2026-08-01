@@ -59,12 +59,12 @@ builder.Services.AddControllers()
     });
 builder.Services.AddOpenApi();
 
-builder.Services.AddScoped<IParcelIntegrationService, MockParcelService>();
+builder.Services.AddScoped<IParcelService, MockParcelService>();
 builder.Services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
 
 builder.Services.AddScoped<ICaseService, MockCaseService>();
 
-builder.Services.AddScoped<ICustomerIntegrationService, MockCustomerService>();
+builder.Services.AddScoped<ICustomerService, MockCustomerService>();
 
 // Webhook
 builder.Services.AddHttpClient<IWebhookClient, WebhookClient>(client =>

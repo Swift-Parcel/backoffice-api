@@ -9,11 +9,11 @@ namespace SwiftParcel.Api.Controllers.Integration;
 [Route("api/integration/parcels")]
 public class ParcelsController : ControllerBase
 {
-    private readonly IParcelIntegrationService _parcelIntegrationService;
+    private readonly IParcelService _parcelService;
 
-    public ParcelsController(IParcelIntegrationService parcelIntegrationService)
+    public ParcelsController(IParcelService parcelService)
     {
-        _parcelIntegrationService = parcelIntegrationService;
+        _parcelService = parcelService;
     }
 
     private static ErrorResponseDto CreateTrackingNumberNotFoundError(string trackingNumber)
@@ -34,7 +34,7 @@ public class ParcelsController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetTracking(string trackingNumber, CancellationToken cancellationToken)
     {
-        var result = await _parcelIntegrationService.GetParcelTrackingAsync(trackingNumber, cancellationToken);
+        var result = await _parcelService.GetParcelTrackingAsync(trackingNumber, cancellationToken);
 
         if (result is null)
         {
@@ -49,7 +49,7 @@ public class ParcelsController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetStatus(string trackingNumber, CancellationToken cancellationToken)
     {
-        var result = await _parcelIntegrationService.GetParcelStatusAsync(trackingNumber, cancellationToken);
+        var result = await _parcelService.GetParcelStatusAsync(trackingNumber, cancellationToken);
 
         if (result is null)
         {
@@ -64,7 +64,7 @@ public class ParcelsController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetDeliveryEstimate(string trackingNumber, CancellationToken cancellationToken)
     {
-        var result = await _parcelIntegrationService.GetDeliveryEstimateAsync(trackingNumber, cancellationToken);
+        var result = await _parcelService.GetDeliveryEstimateAsync(trackingNumber, cancellationToken);
 
         if (result is null)
         {
@@ -78,7 +78,7 @@ public class ParcelsController : ControllerBase
     [ProducesResponseType(typeof(List<CustomerParcelDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCustomerParcels([FromQuery] string customerEmail, CancellationToken cancellationToken)
     {
-        var result = await _parcelIntegrationService.GetCustomerParcelsAsync(customerEmail, cancellationToken);
+        var result = await _parcelService.GetCustomerParcelsAsync(customerEmail, cancellationToken);
         
         if (result is null)
         {
@@ -92,7 +92,7 @@ public class ParcelsController : ControllerBase
     [ProducesResponseType(typeof(CreateParcelResponse), StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateParcel([FromBody] CreateParcelRequest request, CancellationToken cancellationToken)
     {
-        var result = await _parcelIntegrationService.CreateParcelAsync(request, cancellationToken);
+        var result = await _parcelService.CreateParcelAsync(request, cancellationToken);
         
         if (result is null)
         {
@@ -107,7 +107,7 @@ public class ParcelsController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ChangeDelivery(string trackingNumber, [FromBody] DeliveryChangeRequest request, CancellationToken cancellationToken)
     {
-        var result = await _parcelIntegrationService.ChangeDeliveryAsync(trackingNumber, request, cancellationToken);
+        var result = await _parcelService.ChangeDeliveryAsync(trackingNumber, request, cancellationToken);
 
         if (result is null)
         {
@@ -122,7 +122,7 @@ public class ParcelsController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponseDto), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ConfirmDelivery(string trackingNumber, CancellationToken cancellationToken)
     {
-        var success = await _parcelIntegrationService.ConfirmDeliveryAsync(trackingNumber, cancellationToken);
+        var success = await _parcelService.ConfirmDeliveryAsync(trackingNumber, cancellationToken);
 
         if (!success)
         {
