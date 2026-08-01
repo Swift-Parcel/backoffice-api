@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Api;
 using SwiftParcel.Api.Middleware;
@@ -55,15 +57,18 @@ builder.Services.AddScoped<DataSeederOrchestrator>();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
     });
+builder.Services.AddOpenApi();
 
-builder.Services.AddScoped<IParcelIntegrationService, MockParcelService>();
+builder.Services.AddScoped<IParcelService, MockParcelService>();
 builder.Services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
 
-builder.Services.AddScoped<ICaseIntegrationService, MockCaseService>();
+builder.Services.AddScoped<ICaseService, MockCaseService>();
 
-builder.Services.AddScoped<ICustomerIntegrationService, MockCustomerService>();
+builder.Services.AddScoped<ICustomerService, MockCustomerService>();
 
 // Webhook
 builder.Services.AddHttpClient<IWebhookClient, WebhookClient>(client =>
@@ -73,6 +78,16 @@ builder.Services.AddHttpClient<IWebhookClient, WebhookClient>(client =>
 
 var app = builder.Build();
 app.UseExceptionHandler();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+    });
+}
 
 using (var scope = app.Services.CreateScope())
 {

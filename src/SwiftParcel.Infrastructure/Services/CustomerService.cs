@@ -7,11 +7,11 @@ using SwiftParcel.Domain.Entities;
 
 namespace SwiftParcel.Infrastructure.Services;
 
-public class CustomerIntegrationService : ICustomerIntegrationService
+public class CustomerService : ICustomerService
 {
     private readonly AppDbContext _dbContext;
 
-    public CustomerIntegrationService(AppDbContext dbContext)
+    public CustomerService(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }

@@ -3,7 +3,7 @@ using SwiftParcel.Application.Integration.Models;
 
 namespace SwiftParcel.Application.Integration.Interfaces;
 
-public interface IParcelIntegrationService
+public interface IParcelService
 {
     // GET /api/integration/parcels/{trackingNumber}/status  
     Task<ParcelStatusResponse?> GetParcelStatusAsync(string trackingNumber, CancellationToken cancellationToken = default);

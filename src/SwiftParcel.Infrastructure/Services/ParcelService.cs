@@ -12,13 +12,13 @@ using SwiftParcel.Infrastructure.Persistence;
 
 namespace SwiftParcel.Infrastructure.Services;
 
-public class ParcelIntegrationService : IParcelIntegrationService
+public class ParcelService : IParcelService
 {
     private readonly AppDbContext _dbContext;
     private readonly IDeliveryEstimationService _estimationService;
     private readonly IWebhookClient  _webhookClient;
 
-    public ParcelIntegrationService(AppDbContext dbContext, IDeliveryEstimationService estimationService,  IWebhookClient webhookClient)
+    public ParcelService(AppDbContext dbContext, IDeliveryEstimationService estimationService,  IWebhookClient webhookClient)
     {
         _dbContext = dbContext;
         _estimationService = estimationService;

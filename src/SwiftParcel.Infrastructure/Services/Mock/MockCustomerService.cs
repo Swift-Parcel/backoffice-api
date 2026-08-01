@@ -3,7 +3,7 @@ using SwiftParcel.Application.Integration.Interfaces;
 
 namespace SwiftParcel.Infrastructure.Services.Mock;
 
-public class MockCustomerService : ICustomerIntegrationService
+public class MockCustomerService : ICustomerService
 {
     public Task<CreateCustomerResponse> CreateCustomerAsync(CreateCustomerRequest request, CancellationToken cancellationToken = default)
     {
