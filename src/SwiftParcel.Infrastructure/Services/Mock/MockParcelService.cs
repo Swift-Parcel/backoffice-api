@@ -5,7 +5,7 @@ using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Infrastructure.Services.Mock;
 
-public class MockParcelService : IParcelIntegrationService
+public class MockParcelService : IParcelService
 {
     public Task<ParcelTrackingResponse?> GetParcelTrackingAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {

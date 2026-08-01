@@ -4,7 +4,7 @@ using SwiftParcel.Domain.Enums;
 namespace SwiftParcel.Application.DTO.Cases;
 
 public record CaseStatusResponse(
-    [property: JsonPropertyName("case_status")] CaseStatus CaseStatus,
-    [property: JsonPropertyName("notes")] List<CaseNoteDto> Notes,
-    [property: JsonPropertyName("resolution")] string? Resolution
+     CaseStatus CaseStatus,
+     List<CaseNoteDto> Notes,
+     string? Resolution
 );
