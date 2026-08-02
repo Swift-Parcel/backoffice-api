@@ -6,6 +6,8 @@ namespace SwiftParcel.Api.Controllers;
 public class CasesController : ApiController
 {
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateCaseCommand command)
     {
         var result = await Mediator.Send(command);
