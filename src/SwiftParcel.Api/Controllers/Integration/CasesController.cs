@@ -62,19 +62,6 @@ public class CasesController : ControllerBase
     }
     
     /// <summary>
-    /// Create a new case (complaint) submitted by a customer.
-    /// </summary>
-    [HttpPost]
-    [ProducesResponseType(typeof(CreateCaseResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateCase([FromBody] CreateCaseRequest request, CancellationToken cancellationToken)
-    {
-        var result = await _caseService.CreateCaseAsync(request, cancellationToken);
-        
-        return StatusCode(StatusCodes.Status201Created, result);
-    }
-
-    /// <summary>
     /// Accept a customer-visible note/message added to an existing case.
     /// </summary>
     [HttpPost("{caseNumber}/notes")]
