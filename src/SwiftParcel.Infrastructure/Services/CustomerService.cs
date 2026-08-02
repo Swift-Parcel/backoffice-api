@@ -34,7 +34,7 @@ public class CustomerService : ICustomerService
         var registeredDate = DateTime.UtcNow.Date;
         var customer = new Customer()
         {
-            Name = request.Name,
+            FullName = request.Name,
             Email = request.Email,
             Phone = request.Phone,
             Address = address,

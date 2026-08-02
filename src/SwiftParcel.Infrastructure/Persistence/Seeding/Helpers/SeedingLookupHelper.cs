@@ -115,9 +115,9 @@ public static class SeedingLookupHelper
     {
         return await dbContext.Customers
             .AsNoTracking()
-            .Where(c => c.Name != null)
+            .Where(c => c.FullName != null)
             .ToDictionaryAsync(
-                c => c.Name!, 
+                c => c.FullName!, 
                 c => c.Id, 
                 StringComparer.OrdinalIgnoreCase, 
                 ct);

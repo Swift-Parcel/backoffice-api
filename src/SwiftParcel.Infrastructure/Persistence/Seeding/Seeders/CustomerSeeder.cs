@@ -55,7 +55,7 @@ public class CustomerSeeder : IEntitySeeder
             var newCustomer = new Customer
             {
                 Id = StringParserHelper.ExtractInteger(legacyCustomer.id),
-                Name = legacyCustomer.name,
+                FullName = legacyCustomer.name,
                 Email = normalizedEmail,
                 Phone = legacyCustomer.phone,
                 AddressId = addressId,
@@ -94,7 +94,7 @@ public class CustomerSeeder : IEntitySeeder
             var newCustomer = new Customer
             {
                 Id = nextId++,
-                Name = legacyOrphanCustomer.customer_name,
+                FullName = legacyOrphanCustomer.customer_name,
                 Email = normalizedEmail,
                 Phone = ContactInfoParserHelper.NormalizePhoneNumberOrDefault(legacyOrphanCustomer.customer_phone),
                 AddressId = fallbackAddressId
@@ -106,7 +106,7 @@ public class CustomerSeeder : IEntitySeeder
         await dbContext.Customers.AddRangeAsync(newCustomers, cancellationToken);
     }
 
-    private record LegacyCustomerDto(
+    private sealed record LegacyCustomerDto(
         string id,
         string name,
         string email,
@@ -116,7 +116,7 @@ public class CustomerSeeder : IEntitySeeder
         string vip,
         string? notes);
 
-    private record LegacyCaseDto(
+    private sealed record LegacyCaseDto(
         string customer_name,
         string customer_email,
         string customer_phone);
