@@ -12,8 +12,7 @@ public class Parcel
 
     public string RecipientName { get; set; } = string.Empty;
     
-    public int RecipientAddressId { get; set; }
-    public Address RecipientAddress { get; set; } = null!;
+    public Address RecipientAddress { get; set; }
 
     public float Weight { get; set; }
 

@@ -235,13 +235,13 @@ public class ParcelService : IParcelService
             CreatedDate = now,
         
             RecipientAddress = new Address
-            {
-                City = request.Recipient.RecipientAddress.City,
-                CountryCode = request.Recipient.RecipientAddress.CountryCode,
-                PostalCode = request.Recipient.RecipientAddress.PostalCode,
-                Street = request.Recipient.RecipientAddress.Street,
-                StreetNumber = request.Recipient.RecipientAddress.StreetNumber
-            }
+            (
+                request.Recipient.RecipientAddress.City,
+                request.Recipient.RecipientAddress.CountryCode,
+                request.Recipient.RecipientAddress.PostalCode,
+                request.Recipient.RecipientAddress.Street,
+                request.Recipient.RecipientAddress.StreetNumber
+            )
         };
 
         _dbContext.Parcels.Add(newParcel);
