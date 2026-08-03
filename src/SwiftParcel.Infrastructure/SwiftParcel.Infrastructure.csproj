@@ -18,6 +18,7 @@
   </ItemGroup>
    
   <ItemGroup>
+    <Folder Include="Integration\Mocks\Models\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 
