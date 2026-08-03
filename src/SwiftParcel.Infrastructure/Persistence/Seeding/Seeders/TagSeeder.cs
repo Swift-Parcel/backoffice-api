@@ -15,7 +15,8 @@ public class TagSeeder : IEntitySeeder
         HashSet<string> otherTags = new(StringComparer.OrdinalIgnoreCase)
         {
             "vip",
-            "multiple_parcels"
+            "multiple_parcels",
+            "priority"
         };
 
         return EnumParserHelper.GetEnumNamesSnakeCase<Tag>()
