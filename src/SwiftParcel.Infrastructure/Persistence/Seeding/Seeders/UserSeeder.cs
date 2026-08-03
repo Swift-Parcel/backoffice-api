@@ -1,3 +1,5 @@
+using SwiftParcel.Application.Helpers;
+
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
 using Microsoft.EntityFrameworkCore;
@@ -71,12 +73,14 @@ public class UserSeeder : IEntitySeeder
                 }
             }
 
+            string plainTextPassword = oldUser.password ?? string.Empty;
+            string HashedPassword = PasswordHasher.HashPassword(plainTextPassword);
+            
             var newUser = new User
             {
                 Id = userId,
                 Username = oldUser.username ?? string.Empty,
-                //TODO: Password Hash
-                PasswordHash = oldUser.password ?? string.Empty,
+                PasswordHash = HashedPassword,
                 FullName = oldUser.full_name ?? string.Empty,
                 Email = finalEmail,
                 RoleId = roleId,
