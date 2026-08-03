@@ -16,9 +16,7 @@ public class ParcelSeeder : IEntitySeeder
     {
         if (await dbContext.Parcels.AnyAsync(cancellationToken))
             return;
-
-        var addressLookup = await SeedingLookupHelper.GetAddressLookupAsync(dbContext, cancellationToken);
-
+        
         var existingCustomerIds = await dbContext.Customers
             .Select(c => c.Id)
             .ToHashSetAsync(cancellationToken);
@@ -31,39 +29,40 @@ public class ParcelSeeder : IEntitySeeder
 
         foreach (var legacyParcel in legacyParcels)
         {
-            var parsedAddress = AddressParserHelper.SplitStringAddress(legacyParcel.recipient_address);
-
-            var addressKey = SeedingLookupHelper.GenerateAddressKey(
-                parsedAddress.City,
-                parsedAddress.Street,
-                parsedAddress.StreetNumber,
-                parsedAddress.PostalCode,
-                parsedAddress.CountryCode);
-
-            var customerId = StringParserHelper.ExtractInteger(legacyParcel.customer_id);
+            var parsedAddress = AddressParserHelper.SplitStringAddress(legacyParcel.RecipientAddress);
+            
+            var recipientAddress = new Address(
+                parsedAddress.Street ?? string.Empty,
+                parsedAddress.StreetNumber ?? string.Empty,
+                parsedAddress.City ?? string.Empty,
+                parsedAddress.PostalCode ?? string.Empty,
+                parsedAddress.CountryCode ?? string.Empty
+            );
+            
+            var customerId = StringParserHelper.ExtractInteger(legacyParcel.CustomerId);
             if (!existingCustomerIds.Contains(customerId))
                 customerId = existingCustomerIds.FirstOrDefault();
 
-            var dimensions = ((int Width, int Length, int Height)?)StringParserHelper.ParseDimensions(legacyParcel.dimensions);
+            var dimensions = ((int Width, int Length, int Height)?)StringParserHelper.ParseDimensions(legacyParcel.Dimensions);
 
-            var hasDeliveredDate = TimestampParserHelper.TryParse(legacyParcel.delivered_date, out var deliveredDate);
+            var hasDeliveredDate = TimestampParserHelper.TryParse(legacyParcel.DeliveredDate, out var deliveredDate);
             
             var newParcel = new Parcel
             {
-                Id = StringParserHelper.ExtractInteger(legacyParcel.id),
-                TrackingNumber = FormatHelper.FormatTrackingNumber(legacyParcel.tracking_number ?? string.Empty),
+                Id = StringParserHelper.ExtractInteger(legacyParcel.Id),
+                TrackingNumber = FormatHelper.FormatTrackingNumber(legacyParcel.TrackingNumber ?? string.Empty),
                 CustomerId = customerId,
-                RecipientName = legacyParcel.recipient_name ?? string.Empty,
-                RecipientAddressId = addressLookup.GetValueOrDefault(addressKey),
-                Weight = StringParserHelper.ParseWeight(legacyParcel.weight) ?? 0f,
+                RecipientName = legacyParcel.RecipientName ?? string.Empty,
+                RecipientAddress = recipientAddress,
+                Weight = StringParserHelper.ParseWeight(legacyParcel.Weight) ?? 0f,
                 Width = dimensions?.Width ?? 0,
                 Length = dimensions?.Length ?? 0,
                 Height = dimensions?.Height ?? 0,
-                Status = ParseParcelStatus(legacyParcel.status),
-                CreatedDate = TimestampParserHelper.ParseOrFallback(legacyParcel.created_date),
+                Status = ParseParcelStatus(legacyParcel.Status),
+                CreatedDate = TimestampParserHelper.ParseOrFallback(legacyParcel.CreatedDate),
                 DeliveredDate = hasDeliveredDate ? deliveredDate : null,
-                ServiceType = ParseServiceType(legacyParcel.service_type),
-                DeclaredValueInEuros = (float)StringParserHelper.ExtractDecimal(legacyParcel.declared_value)
+                ServiceType = ParseServiceType(legacyParcel.ServiceType),
+                DeclaredValueInEuros = (float)StringParserHelper.ExtractDecimal(legacyParcel.DeclaredValue)
             };
 
             newParcels.Add(newParcel);
@@ -107,17 +106,17 @@ public class ParcelSeeder : IEntitySeeder
         };
     }
 
-    private record LegacyParcelDto(
-        string? id,
-        string? tracking_number,
-        string? recipient_name,
-        string? recipient_address,
-        string? weight,
-        string? dimensions,
-        string? status,
-        string? created_date,
-        string? delivered_date,
-        string? service_type,
-        string? declared_value,
-        string? customer_id);
+    private sealed record LegacyParcelDto(
+        string? Id,
+        string? TrackingNumber,
+        string? RecipientName,
+        string? RecipientAddress,
+        string? Weight,
+        string? Dimensions,
+        string? Status,
+        string? CreatedDate,
+        string? DeliveredDate,
+        string? ServiceType,
+        string? DeclaredValue,
+        string? CustomerId);
 }

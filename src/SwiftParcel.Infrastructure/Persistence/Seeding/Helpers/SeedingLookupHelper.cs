@@ -129,30 +129,12 @@ public static class SeedingLookupHelper
     {
         return await dbContext.Customers
             .AsNoTracking()
-            .Where(c => c.Name != null)
+            .Where(c => c.FullName != null)
             .ToDictionaryAsync(
-                c => c.Name!, 
+                c => c.FullName!, 
                 c => c.Id, 
                 StringComparer.OrdinalIgnoreCase, 
                 ct);
-    }
-    
-    /// <summary>
-    /// Maps a deterministic composite address key to Address Id
-    /// </summary>
-    public static async Task<Dictionary<string, int>> GetAddressLookupAsync(
-        AppDbContext dbContext, 
-        CancellationToken ct = default)
-    {
-        var addresses = await dbContext.Addresses
-            .AsNoTracking()
-            .Select(a => new { a.Id, a.City, a.Street, a.StreetNumber, a.PostalCode, a.CountryCode })
-            .ToListAsync(ct);
-
-        return addresses.ToDictionary(
-            a => GenerateAddressKey(a.City, a.Street, a.StreetNumber, a.PostalCode, a.CountryCode), 
-            a => a.Id, 
-            StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>

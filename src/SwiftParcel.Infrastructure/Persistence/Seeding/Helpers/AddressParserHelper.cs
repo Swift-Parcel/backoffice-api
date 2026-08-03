@@ -29,13 +29,13 @@ public static partial class AddressParserHelper
         var (cleanPostalCode, countryCode) = ParsePostalCodeAndCountry(rawPostalCode, city);
 
         return new Address
-        {
-            City = city,
-            Street = street,
-            StreetNumber = streetNumber,
-            PostalCode = cleanPostalCode,
-            CountryCode = countryCode
-        };
+        (
+            city,
+            street,
+            streetNumber,
+            cleanPostalCode,
+            countryCode
+        );
     }
 
     private static (string Street, string StreetNumber) ParseStreetAndNumber(string rawStreetSegment)
