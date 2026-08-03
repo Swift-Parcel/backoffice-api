@@ -37,7 +37,7 @@ public class RoleSeeder : IEntitySeeder
             var newRole = new Role
             {
                 Id = StringParserHelper.ExtractInteger(oldRole.id),
-                RoleName = oldRole.role_name ?? string.Empty,
+                Name = oldRole.role_name ?? string.Empty,
                 Description = oldRole.description ?? string.Empty,
                 CanAccessAllRegions = StringParserHelper.ParseBoolean(oldRole.permissions),
                 IsActive = StringParserHelper.ParseBoolean(oldRole.is_active),
@@ -70,7 +70,7 @@ public class RoleSeeder : IEntitySeeder
         await dbContext.Roles.AddRangeAsync(newRoles, cancellationToken);
     }
 
-    private record LegacyRoleDto(
+    private sealed record LegacyRoleDto(
         string id,
         string role_name,
         string description,
