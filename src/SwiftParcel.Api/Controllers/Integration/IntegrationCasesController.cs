@@ -4,6 +4,7 @@ using SwiftParcel.Application.DTO.Cases;
 using SwiftParcel.Application.Cases.Queries.GetCaseStatus;
 using SwiftParcel.Application.Cases.Queries.GetCustomerCases;
 using SwiftParcel.Application.Cases.Commands.AddCaseFeedback;
+using SwiftParcel.Application.Cases.Queries.GetCustomerCaseNotes;
 
 namespace SwiftParcel.Api.Controllers.Integration;
 
@@ -69,5 +70,18 @@ public class IntegrationCasesController : ApiController
             request.Attachment);
             
         return HandleResult(await Mediator.Send(command));
+    }
+    
+    /// <summary>
+    /// Get all customer-visible notes for a specific case.
+    /// </summary>
+    [HttpGet("{caseNumber}/notes")]
+    [ProducesResponseType(typeof(IReadOnlyList<CaseNoteDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCustomerCaseNotes([FromRoute] string caseNumber)
+    {
+        var query = new GetCustomerCaseNotesQuery(caseNumber);
+        
+        return HandleResult(await Mediator.Send(query));
     }
 }
