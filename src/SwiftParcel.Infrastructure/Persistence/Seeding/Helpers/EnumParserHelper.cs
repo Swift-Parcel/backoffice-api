@@ -28,7 +28,7 @@ public class EnumParserHelper
     private static HashSet<string> GetEnumNamesFromAssembly(Assembly assembly)
     {
         return assembly.GetTypes()
-            .Where(t => t.IsEnum && t.Namespace != null && t.Namespace.StartsWith("SwiftParcel.Domain.Entities"))
+            .Where(t => t.IsEnum && t.Namespace != null && t.Namespace.StartsWith("SwiftParcel.Domain.Enums"))
             .SelectMany(Enum.GetNames)
             .ToHashSet();
     }

@@ -99,7 +99,7 @@ public class AuditLogSeeder : IEntitySeeder
                 Id = StringParserHelper.ExtractInteger(oldLog.id),
                 AuditAction = action,
                 EntityType = entityType,
-                EntityId = oldLog.entity_id,
+                EntityId = StringParserHelper.ExtractIntegerOrNull(oldLog.entity_id),
                 UserId = userId,
                 OldValue = string.IsNullOrWhiteSpace(oldLog.old_value) ? null : oldLog.old_value,
                 NewValue = string.IsNullOrWhiteSpace(oldLog.new_value) ? null : oldLog.new_value,

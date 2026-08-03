@@ -38,6 +38,12 @@ public class UserSeeder : IEntitySeeder
         
         foreach (var oldUser in legacyUsers)
         {
+            bool isActive = StringParserHelper.ParseBoolean(oldUser.is_active);
+            if (!isActive)
+            {
+                continue;
+            }
+            
             int userId = StringParserHelper.ExtractInteger(oldUser.id);
 
             string rawEmail = (oldUser.email ?? string.Empty).Trim();

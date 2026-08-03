@@ -73,6 +73,20 @@ public static class SeedingLookupHelper
     }
 
     /// <summary>
+    /// Returns a map of vip customers
+    /// </summary>
+    public static async Task<List<int>> GetVipCustomerIdListAsync(
+        AppDbContext dbContext, 
+        CancellationToken ct = default)
+    {
+        return await dbContext.Customers
+            .AsNoTracking()
+            .Where(c => c.Vip)
+            .Select(c => c.Id)
+            .ToListAsync(ct);
+    }
+    
+    /// <summary>
     /// Maps Customer Email to Customer Id
     /// </summary>
     public static async Task<Dictionary<string, int>> GetCustomerLookupByEmailAsync(

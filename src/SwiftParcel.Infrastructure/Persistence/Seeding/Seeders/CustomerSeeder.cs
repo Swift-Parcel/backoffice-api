@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices.JavaScript;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Infrastructure.Parsers;
@@ -19,8 +20,6 @@ public class CustomerSeeder : IEntitySeeder
 
         var addressLookup = await SeedingLookupHelper.GetAddressLookupAsync(dbContext, cancellationToken);
         
-
-        int fallbackAddressId = addressLookup.Values.First();
 
         var legacyCustomers = await oldDbContext.Database
             .SqlQueryRaw<LegacyCustomerDto>("SELECT * FROM customers")
@@ -48,9 +47,9 @@ public class CustomerSeeder : IEntitySeeder
                 parsedAddress.PostalCode, 
                 parsedAddress.CountryCode);
 
-            int addressId = addressLookup.TryGetValue(addressKey, out var foundAddressId) 
+            int? addressId = addressLookup.TryGetValue(addressKey, out var foundAddressId) 
                 ? foundAddressId 
-                : fallbackAddressId;
+                : null;
 
             var newCustomer = new Customer
             {
@@ -97,7 +96,8 @@ public class CustomerSeeder : IEntitySeeder
                 Name = legacyOrphanCustomer.customer_name,
                 Email = normalizedEmail,
                 Phone = ContactInfoParserHelper.NormalizePhoneNumberOrDefault(legacyOrphanCustomer.customer_phone),
-                AddressId = fallbackAddressId
+                RegisteredDate = DateTime.UtcNow,
+                AddressId = null
             };
 
             newCustomers.Add(newCustomer);

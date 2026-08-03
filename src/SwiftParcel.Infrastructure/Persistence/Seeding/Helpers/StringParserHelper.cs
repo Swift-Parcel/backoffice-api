@@ -56,16 +56,27 @@ public static partial class StringParserHelper
     }
     
     /// <summary>
-    /// Extracts an integer number from formatted strings ("15 kg", "€50", "-10 pcs").
+    /// Extracts an integer number from formatted strings ("15 kg", "€50", "-10 pcs")
+    /// Returns 0 by as a fallback value.
     /// </summary>
     public static int ExtractInteger(string? input)
     {
-        if (string.IsNullOrWhiteSpace(input)) return 0;
+        var extracted = ExtractIntegerOrNull(input);
+        return extracted ?? 0;
+    }
+    
+    /// <summary>
+    /// Extracts an integer number from formatted strings ("15 kg", "€50", "-10 pcs")
+    /// Returns null on unsuccessful extraction.
+    /// </summary>
+    public static int? ExtractIntegerOrNull(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return null;
 
         var match = IntegerRegex.Match(input);
         return match.Success && int.TryParse(match.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var val)
             ? val
-            : 0;
+            : null;
     }
 
     /// <summary>

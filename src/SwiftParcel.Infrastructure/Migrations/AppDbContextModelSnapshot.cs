@@ -163,8 +163,8 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("details");
 
-                    b.Property<string>("EntityId")
-                        .HasColumnType("text")
+                    b.Property<int?>("EntityId")
+                        .HasColumnType("integer")
                         .HasColumnName("entity_id");
 
                     b.Property<EntityType>("EntityType")
@@ -198,62 +198,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasDatabaseName("ix_audit_logs_user_id");
 
                     b.ToTable("audit_logs", (string)null);
-                });
-
-            modelBuilder.Entity("SwiftParcel.Domain.Entities.AutoAssignmentRule", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AssignToDepartment")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("assign_to_department");
-
-                    b.Property<int>("AssignToHandler")
-                        .HasColumnType("integer")
-                        .HasColumnName("assign_to_handler");
-
-                    b.Property<string>("Conditions")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("conditions");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_date");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("Notes")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("notes");
-
-                    b.Property<int>("Priority")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(99)
-                        .HasColumnName("priority");
-
-                    b.Property<string>("RuleName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("rule_name");
-
-                    b.HasKey("Id")
-                        .HasName("pk_auto_assignment_rules");
-
-                    b.ToTable("auto_assignment_rules", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_auto_assignment_rules_priority", "priority >= 0 AND priority <= 99");
-                        });
                 });
 
             modelBuilder.Entity("SwiftParcel.Domain.Entities.Case", b =>
@@ -434,7 +378,7 @@ namespace SwiftParcel.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AddressId")
+                    b.Property<int?>("AddressId")
                         .HasColumnType("integer")
                         .HasColumnName("address_id");
 
@@ -480,61 +424,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                     b.ToTable("customers", (string)null);
                 });
 
-            modelBuilder.Entity("SwiftParcel.Domain.Entities.EmailTemplate", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("body");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("integer")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_date");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("Language")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("language");
-
-                    b.Property<int>("RegionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("region_id");
-
-                    b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("subject");
-
-                    b.Property<string>("TemplateName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("template_name");
-
-                    b.HasKey("Id")
-                        .HasName("pk_email_templates");
-
-                    b.HasIndex("TemplateName", "Language", "RegionId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_email_templates_template_name_language_region_id");
-
-                    b.ToTable("email_templates", (string)null);
-                });
-
             modelBuilder.Entity("SwiftParcel.Domain.Entities.Handler", b =>
                 {
                     b.Property<int>("Id")
@@ -573,43 +462,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                     b.ToTable("handlers", (string)null);
                 });
 
-            modelBuilder.Entity("SwiftParcel.Domain.Entities.Holiday", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("date")
-                        .HasColumnName("end_date");
-
-                    b.Property<string>("HolidayName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("holiday_name");
-
-                    b.Property<bool>("IsRecurring")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_recurring");
-
-                    b.Property<string>("Notes")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("notes");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("date")
-                        .HasColumnName("start_date");
-
-                    b.HasKey("Id")
-                        .HasName("pk_holidays");
-
-                    b.ToTable("holidays", (string)null);
-                });
-
             modelBuilder.Entity("SwiftParcel.Domain.Entities.Parcel", b =>
                 {
                     b.Property<int>("Id")
@@ -631,7 +483,7 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasColumnType("real")
                         .HasColumnName("declared_value_in_euros");
 
-                    b.Property<DateTime>("DeliveredDate")
+                    b.Property<DateTime?>("DeliveredDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("delivered_date");
 
@@ -763,10 +615,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasColumnType("character varying(10)")
                         .HasColumnName("country_code");
 
-                    b.Property<int?>("HolidayId")
-                        .HasColumnType("integer")
-                        .HasColumnName("holiday_id");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
@@ -786,9 +634,6 @@ namespace SwiftParcel.Infrastructure.Migrations
 
                     b.HasIndex("CountryCode")
                         .HasDatabaseName("ix_regions_country_code");
-
-                    b.HasIndex("HolidayId")
-                        .HasDatabaseName("ix_regions_holiday_id");
 
                     b.HasIndex("Name")
                         .IsUnique()
@@ -926,10 +771,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasColumnType("enum_case_status")
                         .HasColumnName("from_status");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
                     b.Property<bool>("RequireNote")
                         .HasColumnType("boolean")
                         .HasColumnName("require_note");
@@ -1043,10 +884,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("full_name");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
                     b.Property<DateTime>("LastLogin")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_login");
@@ -1083,29 +920,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasDatabaseName("ix_users_username");
 
                     b.ToTable("users", (string)null);
-                });
-
-            modelBuilder.Entity("SwiftParcel.Domain.Entities.UserPermission", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
-
-                    b.Property<int>("PermissionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("permission_id");
-
-                    b.Property<DateTime?>("Expires")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("expires");
-
-                    b.HasKey("UserId", "PermissionId")
-                        .HasName("pk_user_permissions");
-
-                    b.HasIndex("PermissionId")
-                        .HasDatabaseName("ix_user_permissions_permission_id");
-
-                    b.ToTable("user_permissions", (string)null);
                 });
 
             modelBuilder.Entity("CaseParcel", b =>
@@ -1237,8 +1051,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                     b.HasOne("SwiftParcel.Domain.Entities.Address", "Address")
                         .WithMany("Customers")
                         .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
                         .HasConstraintName("fk_customers_addresses_address_id");
 
                     b.Navigation("Address");
@@ -1294,11 +1106,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_regions_countries_country_code");
 
-                    b.HasOne("SwiftParcel.Domain.Entities.Holiday", null)
-                        .WithMany("Regions")
-                        .HasForeignKey("HolidayId")
-                        .HasConstraintName("fk_regions_holidays_holiday_id");
-
                     b.Navigation("Country");
                 });
 
@@ -1353,27 +1160,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("SwiftParcel.Domain.Entities.UserPermission", b =>
-                {
-                    b.HasOne("SwiftParcel.Domain.Entities.Permission", "Permission")
-                        .WithMany()
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_permissions_permissions_permission_id");
-
-                    b.HasOne("SwiftParcel.Domain.Entities.User", "User")
-                        .WithMany("Permissions")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_permissions_users_user_id");
-
-                    b.Navigation("Permission");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("SwiftParcel.Domain.Entities.Address", b =>
                 {
                     b.Navigation("Customers");
@@ -1398,11 +1184,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                     b.Navigation("Cases");
                 });
 
-            modelBuilder.Entity("SwiftParcel.Domain.Entities.Holiday", b =>
-                {
-                    b.Navigation("Regions");
-                });
-
             modelBuilder.Entity("SwiftParcel.Domain.Entities.Role", b =>
                 {
                     b.Navigation("Permissions");
@@ -1413,11 +1194,6 @@ namespace SwiftParcel.Infrastructure.Migrations
             modelBuilder.Entity("SwiftParcel.Domain.Entities.StatusWorkflow", b =>
                 {
                     b.Navigation("AllowedRoles");
-                });
-
-            modelBuilder.Entity("SwiftParcel.Domain.Entities.User", b =>
-                {
-                    b.Navigation("Permissions");
                 });
 #pragma warning restore 612, 618
         }
