@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using SwiftParcel.Application.Customers.Commands.CreateCustomer;
 using SwiftParcel.Application.Customers.Commands.CreatePortalCustomer;
-using SwiftParcel.Application.DTO;
 using SwiftParcel.Application.DTO.Customers;
-using SwiftParcel.Application.Integration.Interfaces;
 
 namespace SwiftParcel.Api.Controllers.Integration;
 
