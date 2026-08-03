@@ -17,11 +17,6 @@ public class CustomerSeeder : IEntitySeeder
             return;
         }
 
-        var addressLookup = await SeedingLookupHelper.GetAddressLookupAsync(dbContext, cancellationToken);
-        
-
-        int fallbackAddressId = addressLookup.Values.First();
-
         var legacyCustomers = await oldDbContext.Database
             .SqlQueryRaw<LegacyCustomerDto>("SELECT * FROM customers")
             .ToListAsync(cancellationToken);
@@ -39,26 +34,27 @@ public class CustomerSeeder : IEntitySeeder
                 continue;
             }
             
-            var parsedAddress = AddressParserHelper.SplitStringAddress(legacyCustomer.address);
-
-            var addressKey = SeedingLookupHelper.GenerateAddressKey(
-                parsedAddress.City, 
-                parsedAddress.Street, 
-                parsedAddress.StreetNumber, 
-                parsedAddress.PostalCode, 
-                parsedAddress.CountryCode);
-
-            int addressId = addressLookup.TryGetValue(addressKey, out var foundAddressId) 
-                ? foundAddressId 
-                : fallbackAddressId;
-
+            Address? address = null;
+            if (!string.IsNullOrWhiteSpace(legacyCustomer.address))
+            {
+                var parsedAddress = AddressParserHelper.SplitStringAddress(legacyCustomer.address);
+                
+                address = new Address(
+                    parsedAddress.Street ?? string.Empty,
+                    parsedAddress.StreetNumber ?? string.Empty,
+                    parsedAddress.City ?? string.Empty,
+                    parsedAddress.PostalCode ?? string.Empty,
+                    parsedAddress.CountryCode ?? string.Empty
+                );
+            }
+            
             var newCustomer = new Customer
             {
                 Id = StringParserHelper.ExtractInteger(legacyCustomer.id),
                 FullName = legacyCustomer.name,
                 Email = normalizedEmail,
                 Phone = legacyCustomer.phone,
-                AddressId = addressId,
+                Address = address,
                 RegisteredDate = TimestampParserHelper.ParseOrFallback(legacyCustomer.registered_date),
                 Vip = StringParserHelper.ParseBoolean(legacyCustomer.vip),
                 Notes = legacyCustomer.notes
@@ -97,7 +93,7 @@ public class CustomerSeeder : IEntitySeeder
                 FullName = legacyOrphanCustomer.customer_name,
                 Email = normalizedEmail,
                 Phone = ContactInfoParserHelper.NormalizePhoneNumberOrDefault(legacyOrphanCustomer.customer_phone),
-                AddressId = fallbackAddressId
+                Address = null
             };
 
             newCustomers.Add(newCustomer);

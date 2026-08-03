@@ -16,21 +16,23 @@ public class CustomerService : ICustomerService
         _dbContext = dbContext;
     }
 
-    public async Task<CreateCustomerResponse> CreateCustomerAsync(CreateCustomerRequest request, CancellationToken cancellationToken = default)
+    public async Task<CreateCustomerResponse> CreateCustomerAsync(CreateCustomerRequest request,
+        CancellationToken cancellationToken = default)
     {
-        var existingCustomer = await _dbContext.Customers.FirstOrDefaultAsync(c => c.Email == request.Email, cancellationToken);
+        var existingCustomer =
+            await _dbContext.Customers.FirstOrDefaultAsync(c => c.Email == request.Email, cancellationToken);
         if (existingCustomer != null)
             return new CreateCustomerResponse(existingCustomer.RegisteredDate);
 
         var address = new Address
-        {
-            City = request.Address.City,
-            PostalCode = request.Address.PostalCode,
-            Street = request.Address.Street,
-            StreetNumber = request.Address.StreetNumber,
-            CountryCode = request.Address.CountryCode
-        };
-        
+        (
+            request.Address.Street,
+            request.Address.StreetNumber,
+            request.Address.City,
+            request.Address.PostalCode,
+            request.Address.CountryCode
+        );
+
         var registeredDate = DateTime.UtcNow.Date;
         var customer = new Customer()
         {
