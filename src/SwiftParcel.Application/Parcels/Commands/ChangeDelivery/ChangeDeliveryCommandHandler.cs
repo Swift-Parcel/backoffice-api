@@ -1,8 +1,8 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using SwiftParcel.Application.Cases.Commands.CreateCase;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Models;
-using SwiftParcel.Application.DTO.Cases;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Domain.Enums;
@@ -12,14 +12,12 @@ namespace SwiftParcel.Application.Parcels.Commands.ChangeDelivery;
 public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryCommand, Result<DeliveryChangeResponse>>
 {
     private readonly IAppDbContext _context;
-    private readonly ICaseService _caseService;
-    private readonly IWebhookClient _webhookClient;
+    private readonly ISender _mediator;
 
-    public ChangeDeliveryCommandHandler(IAppDbContext context, ICaseService caseService, IWebhookClient webhookClient)
+    public ChangeDeliveryCommandHandler(IAppDbContext context, ISender mediator)
     {
         _context = context;
-        _caseService = caseService;
-        _webhookClient = webhookClient;
+        _mediator = mediator;
     }
 
     public async Task<Result<DeliveryChangeResponse>> Handle(ChangeDeliveryCommand request, CancellationToken cancellationToken)
@@ -41,26 +39,26 @@ public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryComman
             .Select(r => r.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
-        var caseRequest = new CreateCaseRequest(
-            CustomerEmail: parcel.Customer.Email,
-            TrackingNumbers: [request.TrackingNumber],
+        bool vip = parcel.Customer.Vip;
+        
+        var createCaseCommand = new CreateCaseCommand(
+            Title: "Delivery Change",
+            Description: $"{request.Date} - {request.Timeslot}",
             CaseType: CaseType.DeliveryChange,
-            CaseTitle: "Delivery Change",
+            CaseStatus: CaseStatus.Open,
+            Priority: vip ? Priority.High : Priority.Low,
+            CustomerEmail: parcel.Customer.Email,
             RegionId: regionId,
             Channel: Channel.Portal,
-            Description: $"{request.Date} - {request.Timeslot}"
+            TagIds: Array.Empty<int>(),
+            ParcelIds: new[] { parcel.Id }
         );
 
-        var caseResponse = await _caseService.CreateCaseAsync(caseRequest, cancellationToken);
+        var caseResult = await _mediator.Send(createCaseCommand, cancellationToken);
 
-        if (caseResponse is null)
-            return Result<DeliveryChangeResponse>.Failure(Error.Failure("create_case_failed", "Failed to create delivery change case."));
+        if (!caseResult.IsSuccess)
+            return Result<DeliveryChangeResponse>.Failure(caseResult.Error);
 
-        await _webhookClient.NotifyDeliveryChangeOutcomeAsync(
-            caseResponse.CaseNumber,
-            DeliveryChangeOutcome.Approved,
-            cancellationToken);
-
-        return Result<DeliveryChangeResponse>.Success(new DeliveryChangeResponse(caseResponse.CaseNumber));
+        return Result<DeliveryChangeResponse>.Success(new DeliveryChangeResponse(caseResult.Value.ToString()));
     }
 }
