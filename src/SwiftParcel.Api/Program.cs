@@ -11,7 +11,6 @@ using SwiftParcel.Domain.Enums;
 using SwiftParcel.Infrastructure.Persistence.Seeding;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 using SwiftParcel.Infrastructure.Services;
-using SwiftParcel.Infrastructure.Services.Mock;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,12 +66,7 @@ builder.Services.AddControllers()
     });
 builder.Services.AddOpenApi();
 
-builder.Services.AddScoped<IParcelService, MockParcelService>();
 builder.Services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
-
-builder.Services.AddScoped<ICaseService, MockCaseService>();
-
-builder.Services.AddScoped<ICustomerService, MockCustomerService>();
 
 // Webhook
 builder.Services.AddHttpClient<IWebhookClient, WebhookClient>(client =>

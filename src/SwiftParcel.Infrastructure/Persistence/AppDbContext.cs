@@ -68,6 +68,26 @@ namespace SwiftParcel.Infrastructure.Persistence
                 
                 b.HasOne(e => e.Handler).WithMany(h => h.Cases).HasForeignKey(e => e.HandlerId);
             });
+            
+            modelBuilder.Entity<CaseNote>(b =>
+            {
+                b.HasKey(e => e.Id);
+        
+                b.HasOne(n => n.Handler)
+                    .WithMany()
+                    .HasForeignKey(n => n.HandlerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                b.HasOne(n => n.Customer)
+                    .WithMany()
+                    .HasForeignKey(n => n.CustomerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                b.ToTable(t => t.HasCheckConstraint(
+                    "CK_CaseNote_Author", 
+                    "(\"HandlerId\" IS NOT NULL AND \"CustomerId\" IS NULL) OR (\"HandlerId\" IS NULL AND \"CustomerId\" IS NOT NULL)"
+                ));
+            });
 
             modelBuilder.Entity<Country>(b => 
             {

@@ -62,23 +62,6 @@ public class CasesController : ControllerBase
     }
     
     /// <summary>
-    /// Accept a customer-visible note/message added to an existing case.
-    /// </summary>
-    [HttpPost("{caseNumber}/notes")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AddCaseNote(
-        [FromRoute] string caseNumber,
-        [FromBody] AddCaseNoteRequest request,
-        CancellationToken cancellationToken)
-    {
-
-        await _caseService.AddCaseNoteAsync(caseNumber, request, cancellationToken);
-        return Ok();
-    }
-    
-    /// <summary>
     /// Accept a satisfaction score (1–5) and optional comment after case resolution.
     /// </summary>
     [HttpPost("{caseNumber}/feedback")]
