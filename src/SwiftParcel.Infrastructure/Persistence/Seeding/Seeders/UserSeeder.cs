@@ -27,7 +27,7 @@ public class UserSeeder : IEntitySeeder
             .SqlQueryRaw<LegacyUserDto>(@"
                 SELECT 
                     id, username, password, full_name, email, 
-                    role, role_id, regions, is_active, 
+                    role, role_id, regions,
                     last_login, created_date, created_by 
                 FROM users")
             .ToListAsync(cancellationToken);
@@ -38,12 +38,6 @@ public class UserSeeder : IEntitySeeder
         
         foreach (var oldUser in legacyUsers)
         {
-            bool isActive = StringParserHelper.ParseBoolean(oldUser.is_active);
-            if (!isActive)
-            {
-                continue;
-            }
-            
             int userId = StringParserHelper.ExtractInteger(oldUser.id);
 
             string rawEmail = (oldUser.email ?? string.Empty).Trim();
@@ -145,7 +139,6 @@ public class UserSeeder : IEntitySeeder
         string role,
         string role_id,
         string regions,
-        string is_active,
         string last_login,
         string created_date,
         string created_by);
