@@ -82,7 +82,7 @@ public class CaseSeeder : IEntitySeeder
                 ResolvedDate = TimestampParserHelper.ParseOrFallback(oldCase.resolved_date),
                 SlaDeadline = TimestampParserHelper.ParseOrFallback(oldCase.sla_deadline),
                 Resolution = oldCase.resolution,
-                SatisfactionScore = StringParserHelper.ExtractInteger(oldCase.satisfaction_score)
+                SatisfactionScore = StringParserHelper.ExtractIntegerOrNull(oldCase.satisfaction_score)
             };
 
             // Many-to-Many: Parcels
