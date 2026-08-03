@@ -8,6 +8,7 @@ using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Services;
 using SwiftParcel.Infrastructure.Persistence;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Infrastructure;
 using SwiftParcel.Infrastructure.Persistence.Seeding;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 using SwiftParcel.Infrastructure.Services;
@@ -74,6 +75,8 @@ builder.Services.AddHttpClient<IWebhookClient, WebhookClient>(client =>
     client.BaseAddress = new Uri(builder.Configuration["JavaBackend:BaseUrl"]);
 });
 
+builder.Services.AddInfrastructure(builder.Configuration);
+
 var app = builder.Build();
 app.UseExceptionHandler();
 
@@ -97,7 +100,10 @@ using (var scope = app.Services.CreateScope())
 
 
 app.UseHttpsRedirection();
-app.MapControllers();
 
-app.MapGet("/", () => "Swift-parcel backoffice is up and running.");
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();   
+
 await app.RunAsync();
