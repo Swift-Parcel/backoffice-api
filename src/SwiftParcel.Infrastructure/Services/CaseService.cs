@@ -89,13 +89,21 @@ public class CaseService : ICaseService
         int slaHours = slaRule?.SlaHours ?? 24;
         var slaDeadline = now.AddHours(slaHours);
         
+        Priority priority = Priority.Low;
+        if (customer.Vip)
+            priority = Priority.High;
+        
         var caseEntity = new Case
         {
             CaseNumber = caseNumber,
-            CustomerId = customer.Id,
+            Title = request.CaseTitle,
+            Description = request.Description,
             CaseType = request.CaseType,
             Status = CaseStatus.Open,
-            Description = request.Description,
+            RegionId = request.RegionId,
+            Priority = priority,
+            Channel = request.Channel,
+            CustomerId = customer.Id,
             CreatedDate = now,
             UpdatedDate = now,
             SlaDeadline = slaDeadline,

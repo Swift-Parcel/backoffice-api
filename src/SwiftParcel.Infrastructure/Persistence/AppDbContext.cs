@@ -13,14 +13,11 @@ namespace SwiftParcel.Infrastructure.Persistence
 
         // Core Tables
         public DbSet<AuditLog> AuditLogs { get; set; }
-        public DbSet<AutoAssignmentRule> AutoAssignmentRules { get; set; }
         public DbSet<Case> Cases { get; set; }
         public DbSet<CaseNote> CaseNotes { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Customer> Customers { get; set; }
-        public DbSet<EmailTemplate> EmailTemplates { get; set; }
         public DbSet<Handler> Handlers { get; set; }
-        public DbSet<Holiday> Holidays { get; set; }
         public DbSet<Parcel> Parcels { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<Region> Regions { get; set; }
@@ -30,9 +27,6 @@ namespace SwiftParcel.Infrastructure.Persistence
         public DbSet<SystemConfig> SystemConfigs { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<User> Users { get; set; }
-
-        // Junction Tables
-        public DbSet<UserPermission> UserPermissions { get; set; }
 
         private const string Citext = "citext";
         private const string EnumCaseStatus = "enum_case_status";
@@ -60,12 +54,6 @@ namespace SwiftParcel.Infrastructure.Persistence
                 b.Property(e => e.AuditAction).HasColumnType("enum_action");
                 b.Property(e => e.EntityType).HasColumnType("enum_entity_type");
                 b.Property(e => e.IpAddress).HasColumnType("inet");
-            });
-
-            modelBuilder.Entity<AutoAssignmentRule>(b =>
-            {
-                b.Property(e => e.Priority).HasDefaultValue(99);
-                b.HasCheckConstraint("CK_auto_assignment_rules_priority", "priority >= 0 AND priority <= 99");
             });
 
             modelBuilder.Entity<Case>(b =>
@@ -112,22 +100,11 @@ namespace SwiftParcel.Infrastructure.Persistence
                         .HasColumnName("Address_CountryCode");
                 });
             });
-
-            modelBuilder.Entity<EmailTemplate>(b => 
-            {
-                b.HasIndex(e => new { e.TemplateName, e.Language, e.RegionId }).IsUnique();
-            });
             
             modelBuilder.Entity<Handler>(b =>
             {
                 b.HasIndex(e => e.UserId).IsUnique(); 
                 b.Property(e => e.MaxCases).HasDefaultValue(10);
-            });
-
-            modelBuilder.Entity<Holiday>(b =>
-            {
-                b.Property(e => e.StartDate).HasColumnType("date");
-                b.Property(e => e.EndDate).HasColumnType("date");
             });
 
             modelBuilder.Entity<Parcel>(b =>
@@ -208,8 +185,6 @@ namespace SwiftParcel.Infrastructure.Persistence
                 b.Property(e => e.Email).HasColumnType(Citext);
                 b.HasOne(e => e.CreatedBy).WithMany().HasForeignKey(e => e.CreatedById);
             });
-
-            modelBuilder.Entity<UserPermission>().HasKey(up => new { up.UserId, up.PermissionId });
         }
     }
 }

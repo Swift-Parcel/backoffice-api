@@ -1,3 +1,5 @@
+using SwiftParcel.Application.Helpers;
+
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +38,12 @@ public class UserSeeder : IEntitySeeder
         
         foreach (var oldUser in legacyUsers)
         {
+            bool isActive = StringParserHelper.ParseBoolean(oldUser.is_active);
+            if (!isActive)
+            {
+                continue;
+            }
+            
             int userId = StringParserHelper.ExtractInteger(oldUser.id);
 
             string rawEmail = (oldUser.email ?? string.Empty).Trim();
@@ -71,12 +79,14 @@ public class UserSeeder : IEntitySeeder
                 }
             }
 
+            string plainTextPassword = oldUser.password ?? string.Empty;
+            string HashedPassword = PasswordHasher.HashPassword(plainTextPassword);
+            
             var newUser = new User
             {
                 Id = userId,
                 Username = oldUser.username ?? string.Empty,
-                //TODO: Password Hash
-                PasswordHash = oldUser.password ?? string.Empty,
+                PasswordHash = HashedPassword,
                 FullName = oldUser.full_name ?? string.Empty,
                 Email = finalEmail,
                 RoleId = roleId,

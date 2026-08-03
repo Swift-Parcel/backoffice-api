@@ -12,16 +12,17 @@ public class TagSeeder : IEntitySeeder
     private static readonly HashSet<string> BannedTags = LoadBannedTags();
     private static HashSet<string> LoadBannedTags()
     {
-        HashSet<string> otherTags = new()
+        HashSet<string> otherTags = new(StringComparer.OrdinalIgnoreCase)
         {
             "vip",
-            "multiple_parcels"
+            "multiple_parcels",
+            "priority"
         };
 
         return EnumParserHelper.GetEnumNamesSnakeCase<Tag>()
             .Union(EnumParserHelper.GetEnumNamesLowercase<Tag>())
             .Union(otherTags)
-            .ToHashSet();
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
 
     private static IEnumerable<string> CleanTagList(IEnumerable<string> tags)
@@ -29,9 +30,11 @@ public class TagSeeder : IEntitySeeder
         var cleanedTags = new List<string>();
         foreach (var tag in tags)
         {
-            if (!BannedTags.Contains(tag))
+            var cleanTag = tag.Trim();
+        
+            if (!string.IsNullOrWhiteSpace(cleanTag) && !BannedTags.Contains(cleanTag))
             {
-                cleanedTags.Add(tag);
+                cleanedTags.Add(cleanTag);
             }
         }
         return cleanedTags;

@@ -55,7 +55,6 @@ public class StatusWorkflowSeeder : IEntitySeeder
                 ToStatus = toStatus,
                 RequireNote = StringParserHelper.ParseBoolean(oldWorkflow.require_note),
                 RequireResolution = StringParserHelper.ParseBoolean(oldWorkflow.require_resolution),
-                IsActive = StringParserHelper.ParseBoolean(oldWorkflow.is_active),
             };
 
             // Process AllowedRoles (Many-to-Many)

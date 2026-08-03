@@ -39,7 +39,6 @@ public partial class SlaRuleSeeder : IEntitySeeder
             })
             .GroupBy(x => x.CleanName)
             .Select(group => group
-                .Where(x => x.IsOriginallyActive)
                 .OrderByDescending(x => x.CreatedDate)
                 .ThenByDescending(x => StringParserHelper.ExtractInteger(x.RawId))
                 .FirstOrDefault()?.RawId)

@@ -15,7 +15,7 @@ using SwiftParcel.Infrastructure.Services.Mock;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddExceptionHandler<GlobalExcpetionHandler>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 //dbContext registration

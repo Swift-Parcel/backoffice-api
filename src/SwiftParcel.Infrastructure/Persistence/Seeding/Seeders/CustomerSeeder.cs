@@ -93,6 +93,7 @@ public class CustomerSeeder : IEntitySeeder
                 FullName = legacyOrphanCustomer.customer_name,
                 Email = normalizedEmail,
                 Phone = ContactInfoParserHelper.NormalizePhoneNumberOrDefault(legacyOrphanCustomer.customer_phone),
+                RegisteredDate = DateTime.UtcNow,
                 Address = null
             };
 

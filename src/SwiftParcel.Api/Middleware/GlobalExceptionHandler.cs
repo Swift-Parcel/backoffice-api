@@ -5,11 +5,11 @@ using SwiftParcel.Domain.Exceptions;
 
 namespace SwiftParcel.Api.Middleware;
 
-public class GlobalExcpetionHandler : IExceptionHandler
+public class GlobalExceptionHandler : IExceptionHandler
 {
-    private readonly ILogger<GlobalExcpetionHandler> _logger;
+    private readonly ILogger<GlobalExceptionHandler> _logger;
 
-    public GlobalExcpetionHandler(ILogger<GlobalExcpetionHandler> logger)
+    public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
     {
         _logger = logger;
     }

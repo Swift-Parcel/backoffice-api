@@ -45,6 +45,8 @@ public class ParcelSeeder : IEntitySeeder
 
             var dimensions = ((int Width, int Length, int Height)?)StringParserHelper.ParseDimensions(legacyParcel.Dimensions);
 
+            var hasDeliveredDate = TimestampParserHelper.TryParse(legacyParcel.DeliveredDate, out var deliveredDate);
+            
             var newParcel = new Parcel
             {
                 Id = StringParserHelper.ExtractInteger(legacyParcel.Id),
@@ -58,7 +60,7 @@ public class ParcelSeeder : IEntitySeeder
                 Height = dimensions?.Height ?? 0,
                 Status = ParseParcelStatus(legacyParcel.Status),
                 CreatedDate = TimestampParserHelper.ParseOrFallback(legacyParcel.CreatedDate),
-                DeliveredDate = TimestampParserHelper.ParseOrFallback(legacyParcel.DeliveredDate, DateTime.MinValue),
+                DeliveredDate = hasDeliveredDate ? deliveredDate : null,
                 ServiceType = ParseServiceType(legacyParcel.ServiceType),
                 DeclaredValueInEuros = (float)StringParserHelper.ExtractDecimal(legacyParcel.DeclaredValue)
             };
