@@ -15,10 +15,10 @@ public record CreateParcelCommand(
 public record CreateParcelSenderDto(string Email);
 public record CreateParcelRecipientDto(string Name, AddressDto RecipientAddress);
 public record CreateParcelDetailsDto(
-    double Weight,
-    double Width,
-    double Length,
-    double Height,
+    float Weight,
+    int Width,
+    int Length,
+    int Height,
     ServiceType ServiceType,
-    decimal DeclaredValue
+    float DeclaredValue
 );
