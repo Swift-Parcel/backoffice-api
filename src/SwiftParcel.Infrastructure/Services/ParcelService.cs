@@ -1,4 +1,5 @@
 using System.Text.Json;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.DTO;
 using SwiftParcel.Application.DTO.Cases;
@@ -18,14 +19,25 @@ public class ParcelService : IParcelService
     private readonly AppDbContext _dbContext;
     private readonly IDeliveryEstimationService _estimationService;
     private readonly IWebhookClient  _webhookClient;
-    private readonly ICaseService _caseService;
+    private readonly ISender _mediator; 
 
-    public ParcelService(AppDbContext dbContext, IDeliveryEstimationService estimationService,  IWebhookClient webhookClient, ICaseService _caseService)
+    public ParcelService(
+        AppDbContext dbContext, 
+        IDeliveryEstimationService estimationService, 
+        IWebhookClient webhookClient, 
+        ISender mediator) // Inject it here
     {
         _dbContext = dbContext;
         _estimationService = estimationService;
         _webhookClient = webhookClient;
-        _caseService = _caseService;
+        _mediator = mediator;
+    }
+
+    public ParcelService(AppDbContext dbContext, IDeliveryEstimationService estimationService,  IWebhookClient webhookClient)
+    {
+        _dbContext = dbContext;
+        _estimationService = estimationService;
+        _webhookClient = webhookClient;
     }
 
     private async Task<Parcel?> FindParcelAsync(string trackingNumber, CancellationToken cancellationToken = default)
@@ -286,12 +298,6 @@ public class ParcelService : IParcelService
             Channel :  Channel.Portal,
             Description : $"{request.Date} - {request.Timeslot}"
         );
-        
-        var caseResponse = await _caseService.CreateCaseAsync(caserequest, cancellationToken);
-        
-        if (caseResponse is null)
-            return null;
-        
         
         return null;
     }
