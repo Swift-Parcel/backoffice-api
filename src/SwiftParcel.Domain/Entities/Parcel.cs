@@ -22,7 +22,7 @@ public class Parcel
     public int Height { get; set; }
     public ParcelStatus Status { get; set; }
     public DateTime CreatedDate { get; set; }
-    public DateTime DeliveredDate { get; set; }
+    public DateTime? DeliveredDate { get; set; }
     public ServiceType ServiceType { get; set; }
     public float DeclaredValueInEuros { get; set; }
     public DateTime? PreferredPickupDate { get; set; }
