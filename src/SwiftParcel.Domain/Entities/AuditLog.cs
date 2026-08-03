@@ -8,7 +8,6 @@ public class AuditLog
     public EntityType EntityType { get; set; }
     public int? EntityId { get; set; }
     public int UserId  { get; set; }
-    public User User { get; set; } = null!;
     public string? OldValue { get; set; }
     public string? NewValue { get; set; }
     public DateTime? TimeStamp { get; set; }
