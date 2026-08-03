@@ -20,7 +20,8 @@ public class CaseSeeder : IEntitySeeder
         var validHandlerIds = await SeedingLookupHelper.GetHandlerIdLookupAsync(dbContext, cancellationToken);
         var parcelsByTrackingNumber = await SeedingLookupHelper.GetTrackedParcelLookupByTrackingNumberAsync(dbContext, cancellationToken);
         var tagsByName = await SeedingLookupHelper.GetTrackedTagLookupByNameAsync(dbContext, cancellationToken);
-
+        var vipCustomers = await SeedingLookupHelper.GetVipCustomerIdListAsync(dbContext, cancellationToken);
+        
         var legacyCases = await oldDbContext.Database
             .SqlQueryRaw<LegacyCaseDto>(@"
                 SELECT 
@@ -60,7 +61,12 @@ public class CaseSeeder : IEntitySeeder
 
             Enum.TryParse<CaseType>(oldCase.case_type, true, out var caseType);
             Enum.TryParse<CaseStatus>(oldCase.status?.Replace(" ", ""), true, out var status);
-            Enum.TryParse<Priority>(oldCase.priority, true, out var priority);
+            if (!Enum.TryParse<Priority>(oldCase.priority, true, out var priority))
+            {
+                bool isVip = vipCustomers.Contains(customerId);
+                
+                priority = isVip ? Priority.High : Priority.Medium;
+            }
             Enum.TryParse<Channel>(oldCase.channel, true, out var channel);
 
             var newCase = new Case
