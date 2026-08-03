@@ -39,27 +39,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                 .Annotation("Npgsql:PostgresExtension:citext", ",,");
 
             migrationBuilder.CreateTable(
-                name: "auto_assignment_rules",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    rule_name = table.Column<string>(type: "text", nullable: false),
-                    priority = table.Column<int>(type: "integer", nullable: false, defaultValue: 99),
-                    conditions = table.Column<string>(type: "text", nullable: false),
-                    assign_to_handler = table.Column<int>(type: "integer", nullable: false),
-                    assign_to_department = table.Column<string>(type: "text", nullable: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false),
-                    created_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    notes = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_auto_assignment_rules", x => x.id);
-                    table.CheckConstraint("CK_auto_assignment_rules_priority", "priority >= 0 AND priority <= 99");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "countries",
                 columns: table => new
                 {
@@ -73,40 +52,26 @@ namespace SwiftParcel.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "email_templates",
+                name: "customers",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    template_name = table.Column<string>(type: "text", nullable: false),
-                    language = table.Column<string>(type: "text", nullable: false),
-                    region_id = table.Column<int>(type: "integer", nullable: false),
-                    subject = table.Column<string>(type: "text", nullable: false),
-                    body = table.Column<string>(type: "text", nullable: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false),
-                    created_by = table.Column<int>(type: "integer", nullable: false),
-                    created_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    full_name = table.Column<string>(type: "text", nullable: false),
+                    email = table.Column<string>(type: "citext", nullable: false),
+                    phone = table.Column<string>(type: "text", nullable: false),
+                    registered_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    vip = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    notes = table.Column<string>(type: "text", nullable: true),
+                    Address_City = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Address_CountryCode = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: true),
+                    Address_PostalCode = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    Address_Street = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    Address_StreetNumber = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_email_templates", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "holidays",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    holiday_name = table.Column<string>(type: "text", nullable: false),
-                    start_date = table.Column<DateTime>(type: "date", nullable: false),
-                    end_date = table.Column<DateTime>(type: "date", nullable: false),
-                    is_recurring = table.Column<bool>(type: "boolean", nullable: false),
-                    notes = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_holidays", x => x.id);
+                    table.PrimaryKey("pk_customers", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -118,8 +83,7 @@ namespace SwiftParcel.Infrastructure.Migrations
                     from_status = table.Column<CaseStatus>(type: "enum_case_status", nullable: true),
                     to_status = table.Column<CaseStatus>(type: "enum_case_status", nullable: true),
                     require_note = table.Column<bool>(type: "boolean", nullable: false),
-                    require_resolution = table.Column<bool>(type: "boolean", nullable: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false)
+                    require_resolution = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -140,29 +104,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "addresses",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    street = table.Column<string>(type: "text", nullable: false),
-                    street_number = table.Column<string>(type: "text", nullable: false),
-                    city = table.Column<string>(type: "text", nullable: false),
-                    postal_code = table.Column<string>(type: "text", nullable: false),
-                    country_code = table.Column<string>(type: "character varying(10)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_addresses", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_addresses_countries_country_code",
-                        column: x => x.country_code,
-                        principalTable: "countries",
-                        principalColumn: "country_code",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "regions",
                 columns: table => new
                 {
@@ -174,8 +115,7 @@ namespace SwiftParcel.Infrastructure.Migrations
                     business_hours_end = table.Column<TimeOnly>(type: "time", nullable: false),
                     manager_email = table.Column<string>(type: "citext", nullable: false),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
-                    business_days = table.Column<DayOfWeek[]>(type: "enum_day_of_week[]", nullable: false),
-                    holiday_id = table.Column<int>(type: "integer", nullable: true)
+                    business_days = table.Column<DayOfWeek[]>(type: "enum_day_of_week[]", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -186,11 +126,43 @@ namespace SwiftParcel.Infrastructure.Migrations
                         principalTable: "countries",
                         principalColumn: "country_code",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "parcels",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    tracking_number = table.Column<string>(type: "text", nullable: false),
+                    customer_id = table.Column<int>(type: "integer", nullable: false),
+                    recipient_name = table.Column<string>(type: "text", nullable: false),
+                    weight = table.Column<float>(type: "real", nullable: false),
+                    width = table.Column<int>(type: "integer", nullable: false),
+                    length = table.Column<int>(type: "integer", nullable: false),
+                    height = table.Column<int>(type: "integer", nullable: false),
+                    status = table.Column<ParcelStatus>(type: "enum_parcel_status", nullable: false, defaultValue: ParcelStatus.PendingPickup),
+                    created_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    delivered_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    service_type = table.Column<ServiceType>(type: "enum_service_type", nullable: false),
+                    declared_value_in_euros = table.Column<float>(type: "real", nullable: false),
+                    preferred_pickup_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    preferred_pickup_timeslot = table.Column<Timeslot>(type: "enum_timeslot", nullable: true),
+                    Recipient_City = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Recipient_CountryCode = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
+                    Recipient_PostalCode = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    Recipient_Street = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Recipient_StreetNumber = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_parcels", x => x.id);
                     table.ForeignKey(
-                        name: "fk_regions_holidays_holiday_id",
-                        column: x => x.holiday_id,
-                        principalTable: "holidays",
-                        principalColumn: "id");
+                        name: "fk_parcels_customers_customer_id",
+                        column: x => x.customer_id,
+                        principalTable: "customers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -214,31 +186,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                         column: x => x.status_workflow_id,
                         principalTable: "status_workflows",
                         principalColumn: "id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "customers",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    email = table.Column<string>(type: "citext", nullable: false),
-                    phone = table.Column<string>(type: "text", nullable: false),
-                    address_id = table.Column<int>(type: "integer", nullable: false),
-                    registered_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    vip = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    notes = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_customers", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_customers_addresses_address_id",
-                        column: x => x.address_id,
-                        principalTable: "addresses",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -272,7 +219,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                     full_name = table.Column<string>(type: "text", nullable: false),
                     role_id = table.Column<int>(type: "integer", nullable: false),
                     email = table.Column<string>(type: "citext", nullable: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false),
                     last_login = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by_id = table.Column<int>(type: "integer", nullable: false)
@@ -295,43 +241,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "parcels",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    tracking_number = table.Column<string>(type: "text", nullable: false),
-                    customer_id = table.Column<int>(type: "integer", nullable: false),
-                    recipient_name = table.Column<string>(type: "text", nullable: false),
-                    recipient_address_id = table.Column<int>(type: "integer", nullable: false),
-                    weight = table.Column<float>(type: "real", nullable: false),
-                    width = table.Column<int>(type: "integer", nullable: false),
-                    length = table.Column<int>(type: "integer", nullable: false),
-                    height = table.Column<int>(type: "integer", nullable: false),
-                    status = table.Column<ParcelStatus>(type: "enum_parcel_status", nullable: false, defaultValue: ParcelStatus.PendingPickup),
-                    created_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    delivered_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    service_type = table.Column<ServiceType>(type: "enum_service_type", nullable: false),
-                    declared_value_in_euros = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_parcels", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_parcels_addresses_recipient_address_id",
-                        column: x => x.recipient_address_id,
-                        principalTable: "addresses",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_parcels_customers_customer_id",
-                        column: x => x.customer_id,
-                        principalTable: "customers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "audit_logs",
                 columns: table => new
                 {
@@ -339,7 +248,7 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     audit_action = table.Column<AuditAction>(type: "enum_action", nullable: false),
                     entity_type = table.Column<EntityType>(type: "enum_entity_type", nullable: false),
-                    entity_id = table.Column<string>(type: "text", nullable: true),
+                    entity_id = table.Column<int>(type: "integer", nullable: true),
                     user_id = table.Column<int>(type: "integer", nullable: false),
                     old_value = table.Column<string>(type: "text", nullable: true),
                     new_value = table.Column<string>(type: "text", nullable: true),
@@ -428,31 +337,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "user_permissions",
-                columns: table => new
-                {
-                    user_id = table.Column<int>(type: "integer", nullable: false),
-                    permission_id = table.Column<int>(type: "integer", nullable: false),
-                    expires = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_user_permissions", x => new { x.user_id, x.permission_id });
-                    table.ForeignKey(
-                        name: "fk_user_permissions_permissions_permission_id",
-                        column: x => x.permission_id,
-                        principalTable: "permissions",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_user_permissions_users_user_id",
-                        column: x => x.user_id,
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "cases",
                 columns: table => new
                 {
@@ -468,12 +352,13 @@ namespace SwiftParcel.Infrastructure.Migrations
                     handler_id = table.Column<int>(type: "integer", nullable: true),
                     created_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    resolved_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    is_escalated = table.Column<bool>(type: "boolean", nullable: false),
+                    resolved_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     sla_deadline = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     region_id = table.Column<int>(type: "integer", nullable: false),
                     channel = table.Column<Channel>(type: "enum_channel", nullable: false),
-                    resolution = table.Column<string>(type: "text", nullable: false),
-                    satisfaction_score = table.Column<int>(type: "integer", nullable: false)
+                    resolution = table.Column<string>(type: "text", nullable: true),
+                    satisfaction_score = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -605,11 +490,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "ix_addresses_country_code",
-                table: "addresses",
-                column: "country_code");
-
-            migrationBuilder.CreateIndex(
                 name: "ix_audit_logs_user_id",
                 table: "audit_logs",
                 column: "user_id");
@@ -650,20 +530,9 @@ namespace SwiftParcel.Infrastructure.Migrations
                 column: "region_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_customers_address_id",
-                table: "customers",
-                column: "address_id");
-
-            migrationBuilder.CreateIndex(
                 name: "ix_customers_email",
                 table: "customers",
                 column: "email",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "ix_email_templates_template_name_language_region_id",
-                table: "email_templates",
-                columns: new[] { "template_name", "language", "region_id" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -676,11 +545,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                 name: "ix_parcels_customer_id",
                 table: "parcels",
                 column: "customer_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_parcels_recipient_address_id",
-                table: "parcels",
-                column: "recipient_address_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_parcels_tracking_number",
@@ -708,11 +572,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                 name: "ix_regions_country_code",
                 table: "regions",
                 column: "country_code");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_regions_holiday_id",
-                table: "regions",
-                column: "holiday_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_regions_name",
@@ -754,11 +613,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_user_permissions_permission_id",
-                table: "user_permissions",
-                column: "permission_id");
-
-            migrationBuilder.CreateIndex(
                 name: "ix_users_created_by_id",
                 table: "users",
                 column: "created_by_id");
@@ -788,9 +642,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                 name: "audit_logs");
 
             migrationBuilder.DropTable(
-                name: "auto_assignment_rules");
-
-            migrationBuilder.DropTable(
                 name: "case_notes");
 
             migrationBuilder.DropTable(
@@ -800,7 +651,7 @@ namespace SwiftParcel.Infrastructure.Migrations
                 name: "case_tag");
 
             migrationBuilder.DropTable(
-                name: "email_templates");
+                name: "permissions");
 
             migrationBuilder.DropTable(
                 name: "region_user");
@@ -812,9 +663,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                 name: "system_configs");
 
             migrationBuilder.DropTable(
-                name: "user_permissions");
-
-            migrationBuilder.DropTable(
                 name: "parcels");
 
             migrationBuilder.DropTable(
@@ -822,9 +670,6 @@ namespace SwiftParcel.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "tags");
-
-            migrationBuilder.DropTable(
-                name: "permissions");
 
             migrationBuilder.DropTable(
                 name: "customers");
@@ -836,13 +681,7 @@ namespace SwiftParcel.Infrastructure.Migrations
                 name: "regions");
 
             migrationBuilder.DropTable(
-                name: "addresses");
-
-            migrationBuilder.DropTable(
                 name: "users");
-
-            migrationBuilder.DropTable(
-                name: "holidays");
 
             migrationBuilder.DropTable(
                 name: "countries");
