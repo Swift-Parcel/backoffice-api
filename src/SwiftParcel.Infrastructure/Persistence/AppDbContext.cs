@@ -83,10 +83,8 @@ namespace SwiftParcel.Infrastructure.Persistence
                     .HasForeignKey(n => n.CustomerId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                b.ToTable(t => t.HasCheckConstraint(
-                    "CK_CaseNote_Author", 
-                    "(\"HandlerId\" IS NOT NULL AND \"CustomerId\" IS NULL) OR (\"HandlerId\" IS NULL AND \"CustomerId\" IS NOT NULL)"
-                ));
+                b.HasCheckConstraint("CK_CaseNote_Author", 
+                    "(handler_id IS NOT NULL AND customer_id IS NULL) OR (handler_id IS NULL AND customer_id IS NOT NULL)");
             });
 
             modelBuilder.Entity<Country>(b => 

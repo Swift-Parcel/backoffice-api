@@ -4,6 +4,8 @@ using SwiftParcel.Application.DTO.Cases;
 
 namespace SwiftParcel.Api.Controllers;
 
+[ApiController]
+[Route("api/cases")]
 public class CasesController : ApiController
 {
     [HttpPost]
@@ -26,8 +28,6 @@ public class CasesController : ApiController
         [FromRoute] string caseNumber, 
         [FromBody] AddHandlerNoteRequest request)
     {
-        // TODO: In Phase 2/Auth stage, extract this from HttpContext.User claims:
-        // var handlerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         int handlerId = 1; 
 
         var command = new AddHandlerNoteCommand(

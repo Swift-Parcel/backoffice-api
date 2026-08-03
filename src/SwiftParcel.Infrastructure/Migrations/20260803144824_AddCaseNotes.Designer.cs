@@ -4,6 +4,7 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SwiftParcel.Domain.Enums;
@@ -14,9 +15,11 @@ using SwiftParcel.Infrastructure.Persistence;
 namespace SwiftParcel.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260803144824_AddCaseNotes")]
+    partial class AddCaseNotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -352,7 +355,7 @@ namespace SwiftParcel.Infrastructure.Migrations
 
                     b.ToTable("case_notes", null, t =>
                         {
-                            t.HasCheckConstraint("CK_CaseNote_Author", "(handler_id IS NOT NULL AND customer_id IS NULL) OR (handler_id IS NULL AND customer_id IS NOT NULL)");
+                            t.HasCheckConstraint("CK_CaseNote_Author", "(\"HandlerId\" IS NOT NULL AND \"CustomerId\" IS NULL) OR (\"HandlerId\" IS NULL AND \"CustomerId\" IS NOT NULL)");
                         });
                 });
 

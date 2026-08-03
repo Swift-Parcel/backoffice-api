@@ -9,7 +9,7 @@ using SwiftParcel.Application.Cases.Queries.GetCustomerCaseNotes;
 namespace SwiftParcel.Api.Controllers.Integration;
 
 [ApiController]
-[Route("api/integration/cases")] // Simplified the route slightly for cleaner REST convention
+[Route("api/integration/cases")]
 [Produces(MediaTypeNames.Application.Json)]
 public class IntegrationCasesController : ApiController
 {
