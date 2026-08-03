@@ -8,7 +8,7 @@ public record UpdateSlaRuleRequest(
     ServiceType? ServiceType,
     int SlaHours,
     bool IsBusinessHours,
-    int? EscalationAfter,
+    int EscalationAfter,
     int? EscalationHandlerId,
     string? EscalationDepartment,
     string? Notes
