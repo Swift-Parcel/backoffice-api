@@ -45,7 +45,7 @@ public class SystemConfigSeeder : IEntitySeeder
             {
                 Id = StringParserHelper.ExtractInteger(legacyConfig.id),
                 ConfigKey = legacyConfig.config_key,
-                ConfigValue = JsonParserHelper.ParseJsonDocument(legacyConfig.config_value),
+                ConfigValue = JsonParserHelper.ParseToJsonDocument(legacyConfig.config_value),
                 Description = legacyConfig.description,
                 UpdatedById = updatedById ?? 1,
                 UpdatedDate = TimestampParserHelper.ParseOrFallback(legacyConfig.updated_date)
