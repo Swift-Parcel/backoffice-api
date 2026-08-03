@@ -9,7 +9,7 @@ public class Customer
     [Column(TypeName = "citext")]
     public string Email { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
-    public int AddressId { get; set; }
+    public int? AddressId { get; set; }
     public Address Address { get; set; } = null!;
     
     public DateTime RegisteredDate { get; set; }
