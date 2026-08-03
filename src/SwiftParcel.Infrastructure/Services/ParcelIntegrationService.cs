@@ -283,8 +283,8 @@ public class ParcelIntegrationService : IParcelIntegrationService
             CaseType : CaseType.DeliveryChange,
             CaseTitle : "Delivery Change",
             RegionId : regionId,
-            Channel :  Channel.Email,
-            Description : $"{request.Date} : {request.Timeslot}"
+            Channel :  Channel.Portal,
+            Description : $"{request.Date} - {request.Timeslot}"
         );
         
         var caseResponse = await _caseService.CreateCaseAsync(caserequest, cancellationToken);
@@ -292,11 +292,6 @@ public class ParcelIntegrationService : IParcelIntegrationService
         if (caseResponse is null)
             return null;
         
-        await _webhookClient.NotifyDeliveryChangeOutcomeAsync(
-            caseResponse.CaseNumber, 
-            DeliveryChangeOutcome.Approved, 
-            cancellationToken
-        );
         
         return null;
     }
