@@ -16,12 +16,18 @@ public class CaseNoteSeeder : IEntitySeeder
             return;
         }
 
-        // Caches for fast in-memory lookups
         var casesByNumber = await dbContext.Cases
             .ToDictionaryAsync(c => c.CaseNumber, c => c.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
-        var usersByEmail = await dbContext.Users
-            .ToDictionaryAsync(u => u.Email, u => u.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
+        var customersByEmail = await SeedingLookupHelper.GetCustomerLookupByEmailAsync(dbContext, cancellationToken);
+        var customersByName = await SeedingLookupHelper.GetCustomerLookupByNameAsync(dbContext, cancellationToken);
+        
+        var usersByEmail = await SeedingLookupHelper.GetUserLookupByEmailAsync(dbContext, cancellationToken);
+        var handlersByName = await SeedingLookupHelper.GetHandlerLookupByNameAsync(dbContext, cancellationToken);
+        
+        var handlersByUserId = await dbContext.Handlers
+            .AsNoTracking()
+            .ToDictionaryAsync(h => h.UserId, h => h.Id, cancellationToken);
 
         var legacyNotes = await oldDbContext.Database
             .SqlQueryRaw<LegacyCaseNoteDto>(@"SELECT id, case_id, case_number, author, author_email, note_text, created_date, is_internal, attachment 
@@ -48,23 +54,50 @@ public class CaseNoteSeeder : IEntitySeeder
                 }
             }
 
-            if (caseId == 0)
+            if (caseId == 0) continue;
+
+            int? customerId = null;
+            int? handlerId = null;
+            
+            var email = oldNote.author_email?.Trim();
+            var authorName = oldNote.author?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(email))
             {
-                continue;
+                if (customersByEmail.TryGetValue(email, out var parsedCustId))
+                {
+                    customerId = parsedCustId;
+                }
+                else if (usersByEmail.TryGetValue(email, out var parsedUserId) && 
+                         handlersByUserId.TryGetValue(parsedUserId, out var parsedHandlerId))
+                {
+                    handlerId = parsedHandlerId;
+                }
             }
 
-            int authorId = 0;
-            if (!string.IsNullOrWhiteSpace(oldNote.author_email) && 
-                usersByEmail.TryGetValue(oldNote.author_email.Trim(), out var parsedAuthorId))
+            if (customerId == null && handlerId == null && !string.IsNullOrWhiteSpace(authorName))
             {
-                authorId = parsedAuthorId;
+                if (handlersByName.TryGetValue(authorName, out var parsedHandlerIdFromName))
+                {
+                    handlerId = parsedHandlerIdFromName;
+                }
+                else if (customersByName.TryGetValue(authorName, out var parsedCustIdFromName))
+                {
+                    customerId = parsedCustIdFromName;
+                }
+            }
+
+            if (customerId == null && handlerId == null)
+            {
+                continue; 
             }
 
             var newNote = new CaseNote
             {
                 Id = StringParserHelper.ExtractInteger(oldNote.id),
-                CaseId = caseId, // Most már garantáltan létező Case.Id
-                AuthorId = authorId,
+                CaseId = caseId,
+                HandlerId = handlerId,
+                CustomerId = customerId,
                 NoteText = oldNote.note_text ?? string.Empty,
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldNote.created_date),
                 IsInternal = StringParserHelper.ParseBoolean(oldNote.is_internal),
