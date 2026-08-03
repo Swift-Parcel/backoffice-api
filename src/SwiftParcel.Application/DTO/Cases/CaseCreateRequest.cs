@@ -7,5 +7,6 @@ public record CreateCaseRequest(
      string CustomerEmail,
      List<string> TrackingNumbers,
      CaseType CaseType,
+     Channel Channel,
      string Description
 );
