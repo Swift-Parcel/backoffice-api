@@ -8,7 +8,7 @@ public interface IAppDbContext
     DbSet<Case> Cases { get; }
     DbSet<Customer> Customers { get; }
     DbSet<Parcel> Parcels { get; }
-    
+    DbSet<SlaRule> SlaRules { get; }
     DbSet<Region> Regions { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
