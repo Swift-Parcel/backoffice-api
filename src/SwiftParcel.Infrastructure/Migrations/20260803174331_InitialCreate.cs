@@ -418,15 +418,17 @@ namespace SwiftParcel.Infrastructure.Migrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     case_id = table.Column<int>(type: "integer", nullable: false),
-                    author_id = table.Column<int>(type: "integer", nullable: false),
                     note_text = table.Column<string>(type: "text", nullable: false),
                     created_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     is_internal = table.Column<bool>(type: "boolean", nullable: false),
+                    handler_id = table.Column<int>(type: "integer", nullable: true),
+                    customer_id = table.Column<int>(type: "integer", nullable: true),
                     attachment = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_case_notes", x => x.id);
+                    table.CheckConstraint("CK_CaseNote_Author", "(handler_id IS NOT NULL AND customer_id IS NULL) OR (handler_id IS NULL AND customer_id IS NOT NULL)");
                     table.ForeignKey(
                         name: "fk_case_notes_cases_case_id",
                         column: x => x.case_id,
@@ -434,11 +436,17 @@ namespace SwiftParcel.Infrastructure.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_case_notes_users_author_id",
-                        column: x => x.author_id,
+                        name: "fk_case_notes_customers_customer_id",
+                        column: x => x.customer_id,
+                        principalTable: "customers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_case_notes_users_handler_id",
+                        column: x => x.handler_id,
                         principalTable: "users",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -495,14 +503,19 @@ namespace SwiftParcel.Infrastructure.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_case_notes_author_id",
-                table: "case_notes",
-                column: "author_id");
-
-            migrationBuilder.CreateIndex(
                 name: "ix_case_notes_case_id",
                 table: "case_notes",
                 column: "case_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_case_notes_customer_id",
+                table: "case_notes",
+                column: "customer_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_case_notes_handler_id",
+                table: "case_notes",
+                column: "handler_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_case_parcel_parcels_id",
