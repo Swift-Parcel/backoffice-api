@@ -19,7 +19,7 @@ public class CreatePortalCustomerCommandValidator : AbstractValidator<CreatePort
             .NotEmpty().WithMessage("Phone is required.")
             .Matches(@"^\+?[1-9]\d{7,14}$").WithMessage("Invalid phone number format.");
         
-        RuleFor(x => x.AddressDto)
+        RuleFor(x => x.Address)
             .NotNull().WithMessage("Address is required.")
             .SetValidator(new AddressDtoValidator());
     }
