@@ -20,7 +20,7 @@ public class ParcelService : IParcelService
     private readonly IWebhookClient  _webhookClient;
     private readonly ICaseService _caseService;
 
-    public ParcelService(AppDbContext dbContext, IDeliveryEstimationService estimationService,  IWebhookClient webhookClient, ICaseIntegrationService _caseService)
+    public ParcelService(AppDbContext dbContext, IDeliveryEstimationService estimationService,  IWebhookClient webhookClient, ICaseService _caseService)
     {
         _dbContext = dbContext;
         _estimationService = estimationService;
