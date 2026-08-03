@@ -25,26 +25,26 @@ public class ApiController : ControllerBase
         {
             ErrorType.NotFound => NotFound(new
             {
-                code = result.Error.Code,
-                description = result.Error.Description
+                message = $"code:{result.Error.Code}," + 
+                    $"description:{result.Error.Description}"
             }),
 
             ErrorType.Validation => BadRequest(new
             {
-                code = result.Error.Code,
-                description = result.Error.Description
+                message = $"code:{result.Error.Code}," + 
+                    $"description:{result.Error.Description}"
             }),
             
             ErrorType.Conflict => Conflict(new
             {
-                code = result.Error.Code,
-                description = result.Error.Description
+                message = $"code:{result.Error.Code}," + 
+                    $"description:{result.Error.Description}"
             }),
             
             _ => BadRequest(new
             {
-                code = result.Error?.Code,
-                description = result.Error?.Description
+                message = $"code:{result.Error?.Code}," + 
+                    $"description:{result.Error?.Description}"
             })
         };
     }
