@@ -1,7 +1,19 @@
+using System.Text.Json.Serialization;
+
 namespace SwiftParcel.Application.DTO.Webhooks;
 
-public record ParcelStatusNotificationDto(string TrackingNumber, string Status);
+public record ParcelStatusNotificationDto(
+    [property: JsonPropertyName("tracking_number")] string TrackingNumber, 
+    [property: JsonPropertyName("status")] string Status
+);
 
-public record CaseStatusNotificationDto(string CaseNumber, string Status, string? Resolution);
+public record CaseStatusNotificationDto(
+    [property: JsonPropertyName("case_number")] string CaseNumber, 
+    [property: JsonPropertyName("status")] string Status, 
+    [property: JsonPropertyName("resolution")] string? Resolution
+);
 
-public record DeliveryChangeNotificationDto(string CaseNumber, string Outcome);
+public record DeliveryChangeNotificationDto(
+    [property: JsonPropertyName("case_number")] string CaseNumber, 
+    [property: JsonPropertyName("delivery_change_request_outcome")] string DeliveryChangeRequestOutcome
+);
