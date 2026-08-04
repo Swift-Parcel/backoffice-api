@@ -1,6 +1,6 @@
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using SwiftParcel.Api.Middleware;
 using SwiftParcel.Application;
 using SwiftParcel.Application.Common.Interfaces;
@@ -39,8 +39,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         .UseSnakeCaseNamingConvention()
 );
 
-builder.Services.AddScoped<IAppDbContext>(
-    sp => sp.GetRequiredService<AppDbContext>());
+builder.Services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
 var legacyConnectionString = builder.Configuration.GetConnectionString("LegacyConnection");
 builder.Services.AddDbContext<LegacyDbContext>(options =>
@@ -61,11 +60,33 @@ builder.Services.AddScoped<DataSeederOrchestrator>();
 builder.Services.AddApplication();
 
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
+    .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
+
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
     {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        var scheme = new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Copy the JWT token given by /api/auth/login endpoint"
+        };
+
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes["Bearer"] = scheme;
+
+        var requirement = new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer")] = new List<string>()
+        };
+
+        document.Security.Add(requirement);
+        return Task.CompletedTask;
     });
-builder.Services.AddOpenApi();
+});
 
 builder.Services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
 
@@ -104,6 +125,6 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();   
+app.MapControllers();
 
 await app.RunAsync();
