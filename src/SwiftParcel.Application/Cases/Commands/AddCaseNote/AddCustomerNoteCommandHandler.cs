@@ -23,6 +23,7 @@ public class AddCustomerNoteCommandHandler : IRequestHandler<AddCustomerNoteComm
 
         var note = new CaseNote
         {
+            CaseId = caseEntity.Id,
             NoteText = request.Message,
             CreatedDate = DateTime.UtcNow,
             IsInternal = false,

@@ -2,9 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 
-using Microsoft.Extensions.Logging;
-using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
-
 namespace SwiftParcel.Infrastructure.Persistence.Seeding;
 
 public class DataSeederOrchestrator
@@ -17,6 +14,22 @@ public class DataSeederOrchestrator
 
     private readonly ILogger<DataSeederOrchestrator> _logger;
 
+    private async Task ResyncPostgresSequencesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+    {
+        var tables = new[] { "customers", "cases", "case_notes", "parcels", "handlers" };
+
+        foreach (var table in tables)
+        {
+            var sql = $@"
+            SELECT setval(
+                pg_get_serial_sequence('{table}', 'id'), 
+                COALESCE((SELECT MAX(id) FROM {table}), 1)
+            );";
+            
+            await dbContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
+        }
+    }
+    
     public DataSeederOrchestrator(
         AppDbContext dbContext,
         LegacyDbContext oldDbContext,
@@ -56,6 +69,8 @@ public class DataSeederOrchestrator
                 _logger.LogInformation("[{Order}] Seed succeeded: {SeederName}", seeder.Order, seederName);
                 await _dbContext.SaveChangesAsync(cancellationToken);
             }
+            
+            await ResyncPostgresSequencesAsync(_dbContext, cancellationToken);
             
             await _dbContext.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);

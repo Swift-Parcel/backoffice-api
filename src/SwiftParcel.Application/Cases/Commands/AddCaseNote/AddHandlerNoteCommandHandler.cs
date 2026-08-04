@@ -19,6 +19,7 @@ public class AddHandlerNoteCommandHandler : IRequestHandler<AddHandlerNoteComman
 
         var note = new CaseNote
         {
+            CaseId = caseEntity.Id,
             NoteText = request.Message,
             CreatedDate = DateTime.UtcNow,
             IsInternal = request.IsInternal,
