@@ -3,5 +3,5 @@ using System.Threading.Tasks;
 
 public interface ICaseAssignmentService
 {
-    Task AssignCaseAsync(int caseId, int handlerId, CancellationToken cancellationToken = default);
+    Task AssignCaseAsync(string caseNumber, int handlerId, CancellationToken cancellationToken = default);
 }

@@ -23,11 +23,10 @@ public class CaseAssignmentService : ICaseAssignmentService
         _dbContext = dbContext;
     }
 
-    public async Task AssignCaseAsync(int caseId, int handlerId, CancellationToken cancellationToken = default)
-    {
+    public async Task AssignCaseAsync(string caseNumber, int handlerId, CancellationToken cancellationToken = default)    {
         var ticket = await _dbContext.Cases
-            .FirstOrDefaultAsync(c => c.Id == caseId, cancellationToken)
-            ?? throw new KeyNotFoundException($"Case with ID {caseId} was not found.");
+                         .FirstOrDefaultAsync(c => c.CaseNumber == caseNumber, cancellationToken)
+                     ?? throw new ResourceNotFoundException("Case", caseNumber);
 
         if (ticket.HandlerId == handlerId)
         {
