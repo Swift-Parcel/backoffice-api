@@ -6,8 +6,6 @@ using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Application.Reports.Queries;
 
-public record GetAverageResolutionTimeQuery : IRequest<List<AverageResolutionTimeReportDto>>;
-
 public class GetAverageResolutionTimeQueryHandler : IRequestHandler<GetAverageResolutionTimeQuery, List<AverageResolutionTimeReportDto>>
 {
     private readonly IAppDbContext _context;
