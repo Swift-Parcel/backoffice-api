@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Interfaces.Authentication;
 using SwiftParcel.Application.Common.Settings;
-using SwiftParcel.Application.Helpers;
 using SwiftParcel.Infrastructure.Authentication;
+using SwiftParcel.Infrastructure.Services;
 using PasswordHasher = SwiftParcel.Infrastructure.Authentication.PasswordHasher;
 
 namespace SwiftParcel.Infrastructure;
@@ -37,6 +38,9 @@ public static class DependencyInjection
                     Encoding.UTF8.GetBytes(jwtSettings.Secret))
             });
 
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        
         return services;
     }
 }
