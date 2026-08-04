@@ -6,8 +6,6 @@ using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Application.Reports.Queries;
 
-public record GetOpenCasesByTypeQuery : IRequest<List<CasesByTypeReportDto>>;
-
 public class GetOpenCasesByTypeQueryHandler : IRequestHandler<GetOpenCasesByTypeQuery, List<CasesByTypeReportDto>>
 {
     private readonly IAppDbContext _context;
