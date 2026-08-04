@@ -173,7 +173,7 @@ namespace SwiftParcel.Infrastructure.Persistence
                     .HasForeignKey(r => r.CountryCode);
             });
 
-            modelBuilder.Entity<Role>().HasIndex(e => e.RoleName).IsUnique();
+            modelBuilder.Entity<Role>().HasIndex(e => e.Name).IsUnique();
 
             modelBuilder.Entity<SlaRule>(b =>
             {

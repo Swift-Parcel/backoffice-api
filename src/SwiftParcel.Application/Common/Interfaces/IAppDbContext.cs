@@ -11,6 +11,7 @@ public interface IAppDbContext
     DbSet<Parcel> Parcels { get; }
     DbSet<SlaRule> SlaRules { get; }
     DbSet<Region> Regions { get; }
+    DbSet<User> Users { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

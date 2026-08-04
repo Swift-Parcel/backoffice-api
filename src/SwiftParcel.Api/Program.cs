@@ -1,6 +1,6 @@
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using SwiftParcel.Api.Middleware;
 using SwiftParcel.Application;
 using SwiftParcel.Application.Common.Interfaces;
@@ -8,6 +8,7 @@ using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Services;
 using SwiftParcel.Infrastructure.Persistence;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Infrastructure;
 using SwiftParcel.Infrastructure.Persistence.Seeding;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 using SwiftParcel.Infrastructure.Services;
@@ -38,8 +39,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         .UseSnakeCaseNamingConvention()
 );
 
-builder.Services.AddScoped<IAppDbContext>(
-    sp => sp.GetRequiredService<AppDbContext>());
+builder.Services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
 var legacyConnectionString = builder.Configuration.GetConnectionString("LegacyConnection");
 builder.Services.AddDbContext<LegacyDbContext>(options =>
@@ -60,11 +60,33 @@ builder.Services.AddScoped<DataSeederOrchestrator>();
 builder.Services.AddApplication();
 
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
+    .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
+
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
     {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        var scheme = new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Copy the JWT token given by /api/auth/login endpoint"
+        };
+
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes["Bearer"] = scheme;
+
+        var requirement = new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer")] = new List<string>()
+        };
+
+        document.Security.Add(requirement);
+        return Task.CompletedTask;
     });
-builder.Services.AddOpenApi();
+});
 
 builder.Services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
 
@@ -73,6 +95,8 @@ builder.Services.AddHttpClient<IWebhookClient, WebhookClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["JavaBackend:BaseUrl"]);
 });
+
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 app.UseExceptionHandler();
@@ -97,7 +121,10 @@ using (var scope = app.Services.CreateScope())
 
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 
-app.MapGet("/", () => "Swift-parcel backoffice is up and running.");
 await app.RunAsync();
