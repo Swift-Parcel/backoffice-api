@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.Customers.Commands.CreatePortalCustomer;
 using SwiftParcel.Application.DTO.Customers;
+using SwiftParcel.Infrastructure.Authentication;
 
 namespace SwiftParcel.Api.Controllers.Integration;
 
 [ApiController]
 [Route("api/integration/[controller]")]
+[ApiKeyAuth]
 public class CustomersController : ApiController
 {
     /// <summary>
