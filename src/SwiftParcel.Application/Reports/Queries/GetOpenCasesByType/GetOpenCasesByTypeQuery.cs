@@ -1,6 +1,7 @@
 using MediatR;
+using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO;
 
-namespace SwiftParcel.Application.Reports.Queries;
+namespace SwiftParcel.Application.Reports.Queries.GetOpenCasesByType;
 
-public record GetOpenCasesByTypeQuery : IRequest<List<CasesByTypeReportDto>>;
+public record GetOpenCasesByTypeQuery : IRequest<Result<IReadOnlyList<CasesByTypeReportDto>>>;
