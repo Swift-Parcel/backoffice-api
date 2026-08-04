@@ -1,14 +1,13 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO;
 using SwiftParcel.Domain.Enums;
 
-namespace SwiftParcel.Application.Reports.Queries;
+namespace SwiftParcel.Application.Reports.Queries.GetHandlerWorkload;
 
-public record GetHandlerWorkloadQuery : IRequest<List<HandlerWorkloadReportDto>>;
-
-public class GetHandlerWorkloadQueryHandler : IRequestHandler<GetHandlerWorkloadQuery, List<HandlerWorkloadReportDto>>
+public class GetHandlerWorkloadQueryHandler : IRequestHandler<GetHandlerWorkloadQuery, Result<IReadOnlyList<HandlerWorkloadReportDto>>>
 {
     private readonly IAppDbContext _context;
 
@@ -17,9 +16,9 @@ public class GetHandlerWorkloadQueryHandler : IRequestHandler<GetHandlerWorkload
         _context = context;
     }
 
-    public async Task<List<HandlerWorkloadReportDto>> Handle(GetHandlerWorkloadQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<HandlerWorkloadReportDto>>> Handle(GetHandlerWorkloadQuery request, CancellationToken cancellationToken)
     {
-        return await _context.Handlers
+        IReadOnlyList<HandlerWorkloadReportDto> reports = await _context.Handlers
             .Include(h => h.User)
             .Select(h => new HandlerWorkloadReportDto(
                 h.Id,
@@ -28,5 +27,7 @@ public class GetHandlerWorkloadQueryHandler : IRequestHandler<GetHandlerWorkload
                 h.MaxCases
             ))
             .ToListAsync(cancellationToken);
+
+        return Result<IReadOnlyList<HandlerWorkloadReportDto>>.Success(reports);
     }
 }
