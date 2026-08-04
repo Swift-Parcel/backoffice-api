@@ -39,7 +39,7 @@ public class RoleSeeder : IEntitySeeder
                 Id = StringParserHelper.ExtractInteger(oldRole.id),
                 Name = oldRole.role_name ?? string.Empty,
                 Description = oldRole.description ?? string.Empty,
-                CanAccessAllRegions = StringParserHelper.ParseBoolean(oldRole.permissions),
+                CanAccessAllRegions = StringParserHelper.ParseBoolean(oldRole.can_access_all_regions),
                 IsActive = StringParserHelper.ParseBoolean(oldRole.is_active),
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldRole.created_date)
             };

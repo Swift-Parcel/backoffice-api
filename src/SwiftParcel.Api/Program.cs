@@ -62,32 +62,7 @@ builder.Services.AddApplication();
 builder.Services.AddControllers()
     .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
-builder.Services.AddOpenApi(options =>
-{
-    options.AddDocumentTransformer((document, context, cancellationToken) =>
-    {
-        var scheme = new OpenApiSecurityScheme
-        {
-            Type = SecuritySchemeType.Http,
-            Scheme = "bearer",
-            BearerFormat = "JWT",
-            In = ParameterLocation.Header,
-            Description = "Copy the JWT token given by /api/auth/login endpoint"
-        };
-
-        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
-        document.Components.SecuritySchemes["Bearer"] = scheme;
-
-        document.Security ??= new List<OpenApiSecurityRequirement>();
-        var requirement = new OpenApiSecurityRequirement
-        {
-            [new OpenApiSecuritySchemeReference("Bearer")] = new List<string>()
-        };
-
-        document.Security.Add(requirement);
-        return Task.CompletedTask;
-    });
-});
+builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
 
