@@ -87,9 +87,20 @@ public class CaseNoteSeeder : IEntitySeeder
                 }
             }
 
+            var finalNoteText = oldNote.note_text;
+
             if (customerId == null && handlerId == null)
             {
-                continue; 
+                if (customersByEmail.TryGetValue("legacy.orphans@swiftparcel.internal", out var fallbackId))
+                {
+                    customerId = fallbackId;
+                    var legacyAuthor = string.IsNullOrWhiteSpace(authorName) ? "Unknown" : authorName;
+                    finalNoteText = $"[Legacy Author: {legacyAuthor}] {finalNoteText}";
+                }
+                else
+                {
+                    continue;
+                }
             }
 
             var newNote = new CaseNote
@@ -98,7 +109,7 @@ public class CaseNoteSeeder : IEntitySeeder
                 CaseId = caseId,
                 HandlerId = handlerId,
                 CustomerId = customerId,
-                NoteText = oldNote.note_text ?? string.Empty,
+                NoteText = finalNoteText,
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldNote.created_date),
                 IsInternal = StringParserHelper.ParseBoolean(oldNote.is_internal),
                 Attachment = oldNote.attachment ?? string.Empty
