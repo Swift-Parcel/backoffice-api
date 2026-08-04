@@ -104,37 +104,45 @@ public static class SeedingLookupHelper
     }
     
     /// <summary>
-    /// Maps Customer Email to Customer Id
+    /// Maps Customer Phone to Customer Id (Safely handles duplicate phones)
     /// </summary>
     public static async Task<Dictionary<string, int>> GetCustomerLookupByPhoneAsync(
         AppDbContext dbContext, 
         CancellationToken ct = default)
     {
-        return await dbContext.Customers
+        var data = await dbContext.Customers
             .AsNoTracking()
-            .Where(c => c.Phone != null)
-            .ToDictionaryAsync(
-                c => c.Phone!, 
-                c => c.Id, 
-                StringComparer.OrdinalIgnoreCase, 
-                ct);
+            .Where(c => !string.IsNullOrWhiteSpace(c.Phone))
+            .Select(c => new { c.Phone, c.Id })
+            .ToListAsync(ct);
+
+        return data
+            .GroupBy(c => c.Phone!.Trim())
+            .ToDictionary(
+                g => g.Key, 
+                g => g.First().Id, // If multiple customers share a phone, pick the first one
+                StringComparer.OrdinalIgnoreCase);
     }
     
     /// <summary>
-    /// Maps Customer Email to Customer Id
+    /// Maps Customer Name to Customer Id
     /// </summary>
     public static async Task<Dictionary<string, int>> GetCustomerLookupByNameAsync(
         AppDbContext dbContext, 
         CancellationToken ct = default)
     {
-        return await dbContext.Customers
+        var data = await dbContext.Customers
             .AsNoTracking()
-            .Where(c => c.FullName != null)
-            .ToDictionaryAsync(
-                c => c.FullName!, 
-                c => c.Id, 
-                StringComparer.OrdinalIgnoreCase, 
-                ct);
+            .Where(c => !string.IsNullOrWhiteSpace(c.FullName))
+            .Select(c => new { c.FullName, c.Id })
+            .ToListAsync(ct);
+
+        return data
+            .GroupBy(c => c.FullName!.Trim())
+            .ToDictionary(
+                g => g.Key, 
+                g => g.First().Id, // If multiple customers have the exact same name, pick the first
+                StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>

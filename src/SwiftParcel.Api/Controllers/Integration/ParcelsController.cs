@@ -7,11 +7,15 @@ using SwiftParcel.Application.Parcels.Queries.GetCustomerParcels;
 using SwiftParcel.Application.Parcels.Queries.GetDeliveryEstimate;
 using SwiftParcel.Application.Parcels.Queries.GetParcelStatus;
 using SwiftParcel.Application.Parcels.Queries.GetParcelTracking;
+using SwiftParcel.Application.Integration.Interfaces;
+using SwiftParcel.Application.Integration.Models;
+using SwiftParcel.Infrastructure.Authentication;
 
 namespace SwiftParcel.Api.Controllers.Integration;
 
 [ApiController]
 [Route("api/integration/parcels")]
+[ApiKeyAuth]
 public class ParcelsController : ApiController
 {
     /// <summary>

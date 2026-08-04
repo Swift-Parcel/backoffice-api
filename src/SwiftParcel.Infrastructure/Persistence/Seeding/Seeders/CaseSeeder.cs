@@ -16,7 +16,8 @@ public class CaseSeeder : IEntitySeeder
             return;
 
         var customersByEmail = await SeedingLookupHelper.GetCustomerLookupByEmailAsync(dbContext, cancellationToken);
-        var regionsByName = await SeedingLookupHelper.GetRegionLookupByNameAsync(dbContext, cancellationToken);
+        var customersByPhone = await SeedingLookupHelper.GetCustomerLookupByPhoneAsync(dbContext, cancellationToken);
+        var customersByName = await SeedingLookupHelper.GetCustomerLookupByNameAsync(dbContext, cancellationToken);        var regionsByName = await SeedingLookupHelper.GetRegionLookupByNameAsync(dbContext, cancellationToken);
         var validHandlerIds = await SeedingLookupHelper.GetHandlerIdLookupAsync(dbContext, cancellationToken);
         var parcelsByTrackingNumber = await SeedingLookupHelper.GetTrackedParcelLookupByTrackingNumberAsync(dbContext, cancellationToken);
         var tagsByName = await SeedingLookupHelper.GetTrackedTagLookupByNameAsync(dbContext, cancellationToken);
@@ -37,11 +38,49 @@ public class CaseSeeder : IEntitySeeder
         foreach (var oldCase in legacyCases)
         {
             
+            int? resolvedCustomerId = null;
+
             var normalizedEmail = StringParserHelper.NormalizeEmailOrDefault(oldCase.customer_email);
-            if (string.IsNullOrEmpty(normalizedEmail) || !customersByEmail.TryGetValue(normalizedEmail, out var customerId))
+            if (!string.IsNullOrEmpty(normalizedEmail) && customersByEmail.TryGetValue(normalizedEmail, out var idByEmail))
             {
-                continue; 
+                resolvedCustomerId = idByEmail;
             }
+
+            if (resolvedCustomerId == null && !string.IsNullOrWhiteSpace(oldCase.customer_phone))
+            {
+                var normalizedPhone = ContactInfoParserHelper.NormalizePhoneNumberOrDefault(oldCase.customer_phone);
+                if (customersByPhone.TryGetValue(normalizedPhone, out var idByPhone))
+                {
+                    resolvedCustomerId = idByPhone;
+                }
+            }
+
+            if (resolvedCustomerId == null && !string.IsNullOrWhiteSpace(oldCase.customer_name))
+            {
+                if (customersByName.TryGetValue(oldCase.customer_name.Trim(), out var idByName))
+                {
+                    resolvedCustomerId = idByName;
+                }
+            }
+
+            var finalDescription = oldCase.description;
+
+            if (resolvedCustomerId == null)
+            {
+                if (customersByEmail.TryGetValue("legacy.orphans@swiftparcel.internal", out var fallbackId))
+                {
+                    resolvedCustomerId = fallbackId;
+        
+                    var legacyName = string.IsNullOrWhiteSpace(oldCase.customer_name) ? "Unknown" : oldCase.customer_name;
+                    finalDescription = $"[Legacy Customer: {legacyName}] {oldCase.description}";
+                }
+                else
+                {
+                    continue;
+                }
+            }
+
+            var customerId = resolvedCustomerId.Value;
 
             int? handlerId = null;
             if (int.TryParse(oldCase.handler_id, out var parsedHandlerId) && 
@@ -74,7 +113,7 @@ public class CaseSeeder : IEntitySeeder
                 Id = StringParserHelper.ExtractInteger(oldCase.id),
                 CaseNumber = oldCase.case_number,
                 Title = oldCase.title,
-                Description = oldCase.description,
+                Description = finalDescription,
                 CaseType = caseType,
                 Status = status,
                 Priority = priority,

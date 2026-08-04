@@ -5,12 +5,14 @@ using SwiftParcel.Application.Cases.Queries.GetCaseStatus;
 using SwiftParcel.Application.Cases.Queries.GetCustomerCases;
 using SwiftParcel.Application.Cases.Commands.AddCaseFeedback;
 using SwiftParcel.Application.Cases.Queries.GetCustomerCaseNotes;
+using SwiftParcel.Infrastructure.Authentication;
 
 namespace SwiftParcel.Api.Controllers.Integration;
 
 [ApiController]
 [Route("api/integration/cases")]
 [Produces(MediaTypeNames.Application.Json)]
+[ApiKeyAuth]
 public class IntegrationCasesController : ApiController
 {
     /// <summary>

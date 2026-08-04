@@ -1,4 +1,6 @@
+using SwiftParcel.Application.Common.Interfaces.Authentication;
 using SwiftParcel.Application.Helpers;
+using SwiftParcel.Infrastructure.Authentication;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 
@@ -10,6 +12,7 @@ using Interfaces;
 
 public class UserSeeder : IEntitySeeder
 {
+    private readonly IPasswordHasher _passwordHasher = new PasswordHasher();
     public int Order => 50;
 
     public async Task SeedAsync(LegacyDbContext oldDbContext, AppDbContext dbContext, CancellationToken cancellationToken = default)
@@ -74,7 +77,7 @@ public class UserSeeder : IEntitySeeder
             }
 
             string plainTextPassword = oldUser.password ?? string.Empty;
-            string HashedPassword = PasswordHasher.HashPassword(plainTextPassword);
+            string HashedPassword = _passwordHasher.HashPassword(plainTextPassword);
             
             var newUser = new User
             {
@@ -130,7 +133,7 @@ public class UserSeeder : IEntitySeeder
         await dbContext.Users.AddRangeAsync(newUsers, cancellationToken);
     }
 
-    private record LegacyUserDto(
+    private sealed record LegacyUserDto(
         string id,
         string username,
         string password,
