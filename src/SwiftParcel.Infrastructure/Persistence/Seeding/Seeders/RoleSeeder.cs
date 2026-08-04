@@ -37,9 +37,9 @@ public class RoleSeeder : IEntitySeeder
             var newRole = new Role
             {
                 Id = StringParserHelper.ExtractInteger(oldRole.id),
-                RoleName = oldRole.role_name ?? string.Empty,
+                Name = oldRole.role_name ?? string.Empty,
                 Description = oldRole.description ?? string.Empty,
-                CanAccessAllRegions = StringParserHelper.ParseBoolean(oldRole.permissions),
+                CanAccessAllRegions = StringParserHelper.ParseBoolean(oldRole.can_access_all_regions),
                 IsActive = StringParserHelper.ParseBoolean(oldRole.is_active),
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldRole.created_date)
             };
@@ -70,7 +70,7 @@ public class RoleSeeder : IEntitySeeder
         await dbContext.Roles.AddRangeAsync(newRoles, cancellationToken);
     }
 
-    private record LegacyRoleDto(
+    private sealed record LegacyRoleDto(
         string id,
         string role_name,
         string description,

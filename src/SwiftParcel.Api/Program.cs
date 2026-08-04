@@ -1,6 +1,6 @@
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using SwiftParcel.Api.Middleware;
 using SwiftParcel.Application;
 using SwiftParcel.Application.Common.Interfaces;
@@ -8,10 +8,10 @@ using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Services;
 using SwiftParcel.Infrastructure.Persistence;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Infrastructure;
 using SwiftParcel.Infrastructure.Persistence.Seeding;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 using SwiftParcel.Infrastructure.Services;
-using SwiftParcel.Infrastructure.Services.Mock;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,8 +39,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         .UseSnakeCaseNamingConvention()
 );
 
-builder.Services.AddScoped<IAppDbContext>(
-    sp => sp.GetRequiredService<AppDbContext>());
+builder.Services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
 var legacyConnectionString = builder.Configuration.GetConnectionString("LegacyConnection");
 builder.Services.AddDbContext<LegacyDbContext>(options =>
@@ -61,49 +60,66 @@ builder.Services.AddScoped<DataSeederOrchestrator>();
 builder.Services.AddApplication();
 
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
-builder.Services.AddOpenApi();
+    .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 
-builder.Services.AddScoped<IParcelService, MockParcelService>();
-builder.Services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
-
-builder.Services.AddScoped<ICaseService, MockCaseService>();
-
-builder.Services.AddScoped<ICustomerService, MockCustomerService>();
-
-// Webhook
-builder.Services.AddHttpClient<IWebhookClient, WebhookClient>(client =>
+builder.Services.AddOpenApi(options =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["JavaBackend:BaseUrl"]);
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Info = new OpenApiInfo
+        {
+            Title = "SwiftParcel Back-Office API",
+            Version = "v1",
+            Description = @"
+### 🔐 Development Credentials:
+* **Admin Login:** `admin` / `admin`
+
+### 🤝 Java Portal Integration:
+* **Header:** `X-Api-Key`
+* **Secret Value:** `SwiftParcel_Java_Integration_Shared_Secret_2026!`
+"
+        };
+        return Task.CompletedTask;
+    });
 });
 
-var app = builder.Build();
-app.UseExceptionHandler();
+builder.Services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
+// Webhook
+    builder.Services.AddHttpClient<IWebhookClient, WebhookClient>(client =>
+    {
+        client.BaseAddress = new Uri(builder.Configuration["JavaBackend:BaseUrl"]);
+    });
 
-    app.UseSwaggerUI(options => { options.SwaggerEndpoint("/openapi/v1.json", "v1"); });
-}
+    builder.Services.AddInfrastructure(builder.Configuration);
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
+    var app = builder.Build();
+    app.UseExceptionHandler();
 
-    var newDbContext = services.GetRequiredService<AppDbContext>();
-    await newDbContext.Database.MigrateAsync();
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapOpenApi();
 
-    var migrationService = services.GetRequiredService<DataSeederOrchestrator>();
-    await migrationService.RunMigrationIfNeededAsync();
-}
+        app.UseSwaggerUI(options => { options.SwaggerEndpoint("/openapi/v1.json", "v1"); });
+    }
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+
+        var newDbContext = services.GetRequiredService<AppDbContext>();
+        await newDbContext.Database.MigrateAsync();
+
+        var migrationService = services.GetRequiredService<DataSeederOrchestrator>();
+        await migrationService.RunMigrationIfNeededAsync();
+    }
 
 
-app.UseHttpsRedirection();
-app.MapControllers();
+    app.UseHttpsRedirection();
 
-app.MapGet("/", () => "Swift-parcel backoffice is up and running.");
-await app.RunAsync();
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    await app.RunAsync();

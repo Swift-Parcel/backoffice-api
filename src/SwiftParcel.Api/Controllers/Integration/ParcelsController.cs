@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Integration.Models;
+using SwiftParcel.Infrastructure.Authentication;
 
 namespace SwiftParcel.Api.Controllers.Integration;
 
 [ApiController]
 [Route("api/integration/parcels")]
+[ApiKeyAuth]
 public class ParcelsController : ControllerBase
 {
     private readonly IParcelService _parcelService;
@@ -21,11 +23,6 @@ public class ParcelsController : ControllerBase
         return new ErrorResponseDto($"Parcel with tracking number {trackingNumber} was not found.");
     }
     
-    private static ErrorResponseDto CreateEmailNotFoundError(string trackingNumber)
-    {
-        return new ErrorResponseDto($"Parcel(s) with email {trackingNumber} not found.");
-    }
-
     /// <summary>
     /// Returns current parcel status, location, and tracking history for a given tracking number.
     /// </summary>

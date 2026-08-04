@@ -271,10 +271,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("attachment");
 
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("integer")
-                        .HasColumnName("author_id");
-
                     b.Property<int>("CaseId")
                         .HasColumnType("integer")
                         .HasColumnName("case_id");
@@ -282,6 +278,14 @@ namespace SwiftParcel.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_date");
+
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("integer")
+                        .HasColumnName("customer_id");
+
+                    b.Property<int?>("HandlerId")
+                        .HasColumnType("integer")
+                        .HasColumnName("handler_id");
 
                     b.Property<bool>("IsInternal")
                         .HasColumnType("boolean")
@@ -295,13 +299,19 @@ namespace SwiftParcel.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_case_notes");
 
-                    b.HasIndex("AuthorId")
-                        .HasDatabaseName("ix_case_notes_author_id");
-
                     b.HasIndex("CaseId")
                         .HasDatabaseName("ix_case_notes_case_id");
 
-                    b.ToTable("case_notes", (string)null);
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("ix_case_notes_customer_id");
+
+                    b.HasIndex("HandlerId")
+                        .HasDatabaseName("ix_case_notes_handler_id");
+
+                    b.ToTable("case_notes", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_CaseNote_Author", "(handler_id IS NOT NULL AND customer_id IS NULL) OR (handler_id IS NULL AND customer_id IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("SwiftParcel.Domain.Entities.Country", b =>
@@ -680,10 +690,10 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
-                    b.Property<string>("RoleName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("role_name");
+                        .HasColumnName("name");
 
                     b.Property<int?>("StatusWorkflowId")
                         .HasColumnType("integer")
@@ -692,9 +702,9 @@ namespace SwiftParcel.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_roles");
 
-                    b.HasIndex("RoleName")
+                    b.HasIndex("Name")
                         .IsUnique()
-                        .HasDatabaseName("ix_roles_role_name");
+                        .HasDatabaseName("ix_roles_name");
 
                     b.HasIndex("StatusWorkflowId")
                         .HasDatabaseName("ix_roles_status_workflow_id");
@@ -1027,13 +1037,6 @@ namespace SwiftParcel.Infrastructure.Migrations
 
             modelBuilder.Entity("SwiftParcel.Domain.Entities.CaseNote", b =>
                 {
-                    b.HasOne("SwiftParcel.Domain.Entities.User", "Author")
-                        .WithMany()
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_case_notes_users_author_id");
-
                     b.HasOne("SwiftParcel.Domain.Entities.Case", "Case")
                         .WithMany("Notes")
                         .HasForeignKey("CaseId")
@@ -1041,9 +1044,23 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_case_notes_cases_case_id");
 
-                    b.Navigation("Author");
+                    b.HasOne("SwiftParcel.Domain.Entities.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_case_notes_customers_customer_id");
+
+                    b.HasOne("SwiftParcel.Domain.Entities.User", "Handler")
+                        .WithMany()
+                        .HasForeignKey("HandlerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_case_notes_users_handler_id");
 
                     b.Navigation("Case");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Handler");
                 });
 
             modelBuilder.Entity("SwiftParcel.Domain.Entities.Handler", b =>

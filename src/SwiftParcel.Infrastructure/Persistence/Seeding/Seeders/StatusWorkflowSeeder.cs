@@ -19,7 +19,7 @@ public class StatusWorkflowSeeder : IEntitySeeder
 
         // Cache for Roles lookup by RoleName
         var rolesByName = await dbContext.Roles
-            .ToDictionaryAsync(r => r.RoleName, StringComparer.OrdinalIgnoreCase, cancellationToken);
+            .ToDictionaryAsync(r => r.Name, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
         var legacyWorkflows = await oldDbContext.Database
             .SqlQueryRaw<LegacyStatusWorkflowDto>(@"
@@ -76,7 +76,7 @@ public class StatusWorkflowSeeder : IEntitySeeder
         await dbContext.StatusWorkflows.AddRangeAsync(newWorkflows, cancellationToken);
     }
 
-    private record LegacyStatusWorkflowDto(
+    private sealed record LegacyStatusWorkflowDto(
         string id,
         string from_status,
         string to_status,

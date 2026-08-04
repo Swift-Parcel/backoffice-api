@@ -100,6 +100,21 @@ public class CustomerSeeder : IEntitySeeder
             newCustomers.Add(newCustomer);
         }
 
+        if (!await dbContext.Customers.AnyAsync(c => c.Email == "legacy.orphans@swiftparcel.internal", cancellationToken))
+        {
+            var fallbackCustomer = new Customer
+            {
+                Id = nextId++,
+                Email = "legacy.orphans@swiftparcel.internal",
+                FullName = "Unknown Legacy Customer",
+                Phone = "0000000000",
+                RegisteredDate = DateTime.UtcNow,
+                Vip = false,
+            };
+    
+            newCustomers.Add(fallbackCustomer);
+        }
+        
         await dbContext.Customers.AddRangeAsync(newCustomers, cancellationToken);
     }
 

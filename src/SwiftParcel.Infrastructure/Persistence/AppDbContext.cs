@@ -65,6 +65,24 @@ namespace SwiftParcel.Infrastructure.Persistence
                 
                 b.HasOne(e => e.Handler).WithMany(h => h.Cases).HasForeignKey(e => e.HandlerId);
             });
+            
+            modelBuilder.Entity<CaseNote>(b =>
+            {
+                b.HasKey(e => e.Id);
+        
+                b.HasOne(n => n.Handler)
+                    .WithMany()
+                    .HasForeignKey(n => n.HandlerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                b.HasOne(n => n.Customer)
+                    .WithMany()
+                    .HasForeignKey(n => n.CustomerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                b.HasCheckConstraint("CK_CaseNote_Author", 
+                    "(handler_id IS NOT NULL AND customer_id IS NULL) OR (handler_id IS NULL AND customer_id IS NOT NULL)");
+            });
 
             modelBuilder.Entity<Country>(b => 
             {
@@ -155,7 +173,7 @@ namespace SwiftParcel.Infrastructure.Persistence
                     .HasForeignKey(r => r.CountryCode);
             });
 
-            modelBuilder.Entity<Role>().HasIndex(e => e.RoleName).IsUnique();
+            modelBuilder.Entity<Role>().HasIndex(e => e.Name).IsUnique();
 
             modelBuilder.Entity<SlaRule>(b =>
             {
