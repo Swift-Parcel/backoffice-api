@@ -22,17 +22,22 @@ public class CustomerSeeder : IEntitySeeder
             .ToListAsync(cancellationToken);
 
         var newCustomers = new List<Customer>();
-
+        
         var processedEmails = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var processedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase); 
         
         foreach (var legacyCustomer in legacyCustomers)
         {
             var normalizedEmail = StringParserHelper.NormalizeEmailOrDefault(legacyCustomer.email);
+            var name = legacyCustomer.name?.Trim() ?? string.Empty;
             
-            if (string.IsNullOrEmpty(normalizedEmail) || !processedEmails.Add(normalizedEmail))
+            if ((!string.IsNullOrEmpty(normalizedEmail) && !processedEmails.Add(normalizedEmail)) ||
+                (string.IsNullOrEmpty(normalizedEmail) && !string.IsNullOrEmpty(name) && !processedNames.Add(name)))
             {
                 continue;
             }
+
+            if (!string.IsNullOrEmpty(name)) processedNames.Add(name);
             
             Address? address = null;
             if (!string.IsNullOrWhiteSpace(legacyCustomer.address))
@@ -68,21 +73,27 @@ public class CustomerSeeder : IEntitySeeder
         var legacyOrphanCustomers = await oldDbContext.Database
             .SqlQueryRaw<LegacyCaseDto>(@"
                 SELECT 
-                    customer_email,
-                    MAX(customer_name) AS customer_name,
+                    MAX(customer_email) AS customer_email,
+                    customer_name,
                     MAX(customer_phone) AS customer_phone
                 FROM cases
-                WHERE customer_email IS NOT NULL 
-                  AND TRIM(customer_email) <> ''
-                  AND customer_email NOT IN (SELECT email FROM customers WHERE email IS NOT NULL)
-                GROUP BY customer_email")
+                WHERE customer_name IS NOT NULL 
+                  AND TRIM(customer_name) <> ''
+                GROUP BY customer_name")
             .ToListAsync(cancellationToken);
 
         foreach (var legacyOrphanCustomer in legacyOrphanCustomers)
         {
+            var name = legacyOrphanCustomer.customer_name?.Trim() ?? string.Empty;
+
+            if (!string.IsNullOrEmpty(name) && processedNames.Contains(name))
+            {
+                continue;
+            }
+
             var normalizedEmail = StringParserHelper.NormalizeEmailOrDefault(legacyOrphanCustomer.customer_email);
             
-            if (string.IsNullOrEmpty(normalizedEmail) || !processedEmails.Add(normalizedEmail))
+            if (!string.IsNullOrEmpty(normalizedEmail) && !processedEmails.Add(normalizedEmail))
             {
                 continue;
             }
@@ -98,21 +109,6 @@ public class CustomerSeeder : IEntitySeeder
             };
 
             newCustomers.Add(newCustomer);
-        }
-
-        if (!await dbContext.Customers.AnyAsync(c => c.Email == "legacy.orphans@swiftparcel.internal", cancellationToken))
-        {
-            var fallbackCustomer = new Customer
-            {
-                Id = nextId++,
-                Email = "legacy.orphans@swiftparcel.internal",
-                FullName = "Unknown Legacy Customer",
-                Phone = "0000000000",
-                RegisteredDate = DateTime.UtcNow,
-                Vip = false,
-            };
-    
-            newCustomers.Add(fallbackCustomer);
         }
         
         await dbContext.Customers.AddRangeAsync(newCustomers, cancellationToken);

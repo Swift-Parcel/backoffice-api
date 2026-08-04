@@ -67,17 +67,7 @@ public class CaseSeeder : IEntitySeeder
 
             if (resolvedCustomerId == null)
             {
-                if (customersByEmail.TryGetValue("legacy.orphans@swiftparcel.internal", out var fallbackId))
-                {
-                    resolvedCustomerId = fallbackId;
-        
-                    var legacyName = string.IsNullOrWhiteSpace(oldCase.customer_name) ? "Unknown" : oldCase.customer_name;
-                    finalDescription = $"[Legacy Customer: {legacyName}] {oldCase.description}";
-                }
-                else
-                {
-                    continue;
-                }
+                continue; 
             }
 
             var customerId = resolvedCustomerId.Value;
