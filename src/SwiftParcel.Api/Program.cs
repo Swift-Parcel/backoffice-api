@@ -75,9 +75,10 @@ builder.Services.AddOpenApi(options =>
             Description = "Copy the JWT token given by /api/auth/login endpoint"
         };
 
-        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
         document.Components.SecuritySchemes["Bearer"] = scheme;
 
+        document.Security ??= new List<OpenApiSecurityRequirement>();
         var requirement = new OpenApiSecurityRequirement
         {
             [new OpenApiSecuritySchemeReference("Bearer")] = new List<string>()
