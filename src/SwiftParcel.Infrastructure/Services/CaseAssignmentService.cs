@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Domain.Exceptions;
 using SwiftParcel.Infrastructure.Persistence;
 
 public class CaseAssignmentService : ICaseAssignmentService

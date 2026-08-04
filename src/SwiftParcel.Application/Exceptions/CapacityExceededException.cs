@@ -1,14 +1,15 @@
-using System;
+using System.Net;
+using SwiftParcel.Domain.Exceptions;
 
-public class CapacityExceededException : Exception
+namespace SwiftParcel.Domain.Exceptions;
+
+public class CapacityExceededException : DomainException
 {
-    public int HandlerId { get; }
-    public int MaxCases { get; }
-
     public CapacityExceededException(int handlerId, int maxCases) 
-        : base($"Handler {handlerId} has reached their maximum capacity of {maxCases} active cases.")
+        : base(
+            code: "handler_capacity_exceeded", 
+            message: $"Handler {handlerId} has reached their maximum capacity of {maxCases} active cases.",
+            statusCode: HttpStatusCode.Conflict)
     {
-        HandlerId = handlerId;
-        MaxCases = maxCases;
     }
 }
