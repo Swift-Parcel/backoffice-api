@@ -49,7 +49,7 @@ public class CasesController : ApiController
     }
     
     /// <summary>
-    /// Get all notes for a specific case.
+    /// Allows an agent to get all notes for a specific case.
     /// </summary>
     [HttpGet("{caseNumber}/notes")]
     [Authorize(Roles = "Read-Only,Operator,Supervisor,Admin")]
