@@ -91,16 +91,9 @@ public class CaseNoteSeeder : IEntitySeeder
 
             if (customerId == null && handlerId == null)
             {
-                if (customersByEmail.TryGetValue("legacy.orphans@swiftparcel.internal", out var fallbackId))
-                {
-                    customerId = fallbackId;
-                    var legacyAuthor = string.IsNullOrWhiteSpace(authorName) ? "Unknown" : authorName;
-                    finalNoteText = $"[Legacy Author: {legacyAuthor}] {finalNoteText}";
-                }
-                else
-                {
-                    continue;
-                }
+                var legacyAuthor = string.IsNullOrWhiteSpace(authorName) ? "Unknown" : authorName.Trim();
+                
+                finalNoteText = $"[Legacy Author: {legacyAuthor}] {finalNoteText}";
             }
 
             var newNote = new CaseNote
