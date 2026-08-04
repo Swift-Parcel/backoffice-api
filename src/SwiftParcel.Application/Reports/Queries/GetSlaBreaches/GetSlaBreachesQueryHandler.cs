@@ -6,8 +6,6 @@ using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Application.Reports.Queries;
 
-public record GetSlaBreachesQuery : IRequest<SlaBreachesReportDto>;
-
 public class GetSlaBreachesQueryHandler : IRequestHandler<GetSlaBreachesQuery, SlaBreachesReportDto>
 {
     private readonly IAppDbContext _context;
