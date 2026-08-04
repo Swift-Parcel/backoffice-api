@@ -12,6 +12,7 @@ public interface IAppDbContext
     DbSet<SlaRule> SlaRules { get; }
     DbSet<Region> Regions { get; }
     DbSet<User> Users { get; }
+    DbSet<Handler> Handlers { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
