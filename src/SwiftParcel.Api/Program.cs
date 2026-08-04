@@ -1,125 +1,45 @@
 using System.Text.Json.Serialization;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi;
+using SwiftParcel.Api.Extensions;
 using SwiftParcel.Api.Middleware;
 using SwiftParcel.Application;
-using SwiftParcel.Application.Common.Interfaces;
-using SwiftParcel.Application.Integration.Interfaces;
-using SwiftParcel.Application.Services;
-using SwiftParcel.Infrastructure.Persistence;
-using SwiftParcel.Domain.Enums;
 using SwiftParcel.Infrastructure;
-using SwiftParcel.Infrastructure.Persistence.Seeding;
-using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
-using SwiftParcel.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
-//dbContext registration
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options
-        .UseNpgsql(connectionString, npgsqlOptions =>
-        {
-            npgsqlOptions.MapEnum<ParcelStatus>("enum_parcel_status");
-            npgsqlOptions.MapEnum<Timeslot>("enum_timeslot");
-            npgsqlOptions.MapEnum<ServiceType>("enum_service_type");
-            npgsqlOptions.MapEnum<CaseType>("enum_case_type");
-            npgsqlOptions.MapEnum<CaseStatus>("enum_case_status");
-            npgsqlOptions.MapEnum<Priority>("enum_priority");
-            npgsqlOptions.MapEnum<Channel>("enum_channel");
-            npgsqlOptions.MapEnum<DayOfWeek>("enum_day_of_week");
-            npgsqlOptions.MapEnum<SwiftParcel.Domain.Enums.AuditAction>("enum_action");
-            npgsqlOptions.MapEnum<EntityType>("enum_entity_type");
-        })
-        .UseSnakeCaseNamingConvention()
-);
-
-builder.Services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
-
-var legacyConnectionString = builder.Configuration.GetConnectionString("LegacyConnection");
-builder.Services.AddDbContext<LegacyDbContext>(options =>
-    options.UseNpgsql(legacyConnectionString));
-
-//seeder registration
-var seederTypes = typeof(DataSeederOrchestrator).Assembly
-    .GetTypes()
-    .Where(t => typeof(IEntitySeeder).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
-
-foreach (var type in seederTypes)
-{
-    builder.Services.AddScoped(typeof(IEntitySeeder), type);
-}
-
-builder.Services.AddScoped<DataSeederOrchestrator>();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 
-builder.Services.AddControllers()
-    .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
+builder.Services.AddSwaggerDocumentation();
 
-builder.Services.AddOpenApi(options =>
+var app = builder.Build();
+
+await app.SeedDatabaseAsync();
+
+app.UseExceptionHandler();
+
+if (app.Environment.IsDevelopment())
 {
-    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    app.MapOpenApi();
+    app.UseSwaggerUI(options =>
     {
-        document.Info = new OpenApiInfo
-        {
-            Title = "SwiftParcel Back-Office API",
-            Version = "v1",
-            Description = @"
-### 🔐 Development Credentials:
-* **Admin Login:** `admin` / `admin`
-
-### 🤝 Java Portal Integration:
-* **Header:** `X-Api-Key`
-* **Secret Value:** `SwiftParcel_Java_Integration_Shared_Secret_2026!`
-"
-        };
-        return Task.CompletedTask;
+        options.SwaggerEndpoint("/openapi/v1.json", "v1");
     });
-});
+}
 
-builder.Services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
+app.UseHttpsRedirection();
 
-// Webhook
-    builder.Services.AddHttpClient<IWebhookClient, WebhookClient>(client =>
-    {
-        client.BaseAddress = new Uri(builder.Configuration["JavaBackend:BaseUrl"]);
-    });
+app.UseAuthentication();
+app.UseAuthorization();
 
-    builder.Services.AddInfrastructure(builder.Configuration);
+app.MapControllers();
 
-    var app = builder.Build();
-    app.UseExceptionHandler();
-
-    if (app.Environment.IsDevelopment())
-    {
-        app.MapOpenApi();
-
-        app.UseSwaggerUI(options => { options.SwaggerEndpoint("/openapi/v1.json", "v1"); });
-    }
-
-    using (var scope = app.Services.CreateScope())
-    {
-        var services = scope.ServiceProvider;
-
-        var newDbContext = services.GetRequiredService<AppDbContext>();
-        await newDbContext.Database.MigrateAsync();
-
-        var migrationService = services.GetRequiredService<DataSeederOrchestrator>();
-        await migrationService.RunMigrationIfNeededAsync();
-    }
-
-
-    app.UseHttpsRedirection();
-
-    app.UseAuthentication();
-    app.UseAuthorization();
-
-    app.MapControllers();
-
-    await app.RunAsync();
+await app.RunAsync();
