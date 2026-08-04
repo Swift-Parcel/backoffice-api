@@ -41,6 +41,9 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         
+        services.Configure<ApiKeySettings>(
+            configuration.GetSection(ApiKeySettings.SectionName));
+        
         return services;
     }
 }
