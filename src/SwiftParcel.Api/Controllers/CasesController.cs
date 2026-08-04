@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SwiftParcel.Application.Cases.Commands.AssignCase;
 using SwiftParcel.Application.Cases.Commands.CreateCase;
 using SwiftParcel.Application.Cases.Queries.GetCaseNotes;
 using SwiftParcel.Application.DTO.Cases;
@@ -60,5 +61,25 @@ public class CasesController : ApiController
         var query = new GetCaseNotesQuery(caseNumber);
         
         return HandleResult(await Mediator.Send(query));
+    }
+    
+    /// <summary>
+    /// Manually assigns a case to a specific handler. Enforces handler capacity limits.
+    /// </summary>
+    [HttpPost("{caseNumber}/assign")]
+    [Authorize(Roles = "Operator,Supervisor,Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> AssignCase(
+        [FromRoute] string caseNumber, 
+        [FromBody] AssignCaseRequest request)
+    {
+        var command = new AssignCaseCommand(caseNumber, request.HandlerId);
+        
+        var result = await Mediator.Send(command);
+        
+        return HandleResult(result);
     }
 }

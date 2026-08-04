@@ -63,6 +63,8 @@ public static class DependencyInjection
         services.AddScoped<DataSeederOrchestrator>();
         
         services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
+        
+        services.AddScoped<ICaseAssignmentService, CaseAssignmentService>();
 
         services.AddHttpClient<IWebhookClient, WebhookClient>(client =>
         {
