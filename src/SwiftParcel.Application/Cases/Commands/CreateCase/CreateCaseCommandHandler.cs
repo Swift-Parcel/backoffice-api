@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SwiftParcel.Application.Cases.Dtos;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Models;
@@ -18,11 +19,11 @@ public class CreateCaseCommandHandler
     public CreateCaseCommandHandler(
         IAppDbContext context, 
         ICaseNumberGenerator caseNumberGenerator,
-        SlaOptions slaOptions)
+        IOptions<SlaOptions> slaOptions)
     {
         _context = context;
         _caseNumberGenerator = caseNumberGenerator;
-        _slaOptions = slaOptions;
+        _slaOptions = slaOptions.Value;
     }
     
     public async Task<Result<CreateCaseResponse>> Handle(CreateCaseCommand request,

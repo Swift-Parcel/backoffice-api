@@ -1,14 +1,21 @@
 using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using SwiftParcel.Application.Common.Behaviors;
+using SwiftParcel.Application.Common.Settings;
 
 namespace SwiftParcel.Application;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    public static IServiceCollection AddApplication(
+        this IServiceCollection services, 
+        IConfiguration configuration)
     {
+        
+        services.Configure<SlaOptions>(configuration.GetSection(nameof(SlaOptions)));
+        
         var assembly = Assembly.GetExecutingAssembly();
         
         //automatically finds all AbstractValidator and then registrates them

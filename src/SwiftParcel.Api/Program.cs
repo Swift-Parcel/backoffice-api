@@ -15,8 +15,8 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication(builder.Configuration)
+                .AddInfrastructure(builder.Configuration);
 
 builder.Services.AddSwaggerDocumentation();
 
