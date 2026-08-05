@@ -4,6 +4,8 @@ using SwiftParcel.Application.Cases.Commands.AssignCase;
 using SwiftParcel.Application.Cases.Commands.CreateCase;
 using SwiftParcel.Application.Cases.Queries.GetCaseNotes;
 using SwiftParcel.Application.DTO.Cases;
+using SwiftParcel.Domain.Enums;
+using SwiftParcel.Application.Cases.Commands.UpdateCaseStatus;
 
 namespace SwiftParcel.Api.Controllers;
 
@@ -80,6 +82,20 @@ public class CasesController : ApiController
         
         var result = await Mediator.Send(command);
         
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Updates the status of a case and triggers lifecycle notifications.
+    /// </summary>
+    [HttpPut("{caseNumber}/status")]
+    [Authorize(Roles = "Operator,Supervisor,Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateCaseStatus(string caseNumber, [FromBody] CaseStatus newStatus, CancellationToken cancellationToken = default)
+    {
+        var result = await Mediator.Send(new UpdateCaseStatusCommand(caseNumber, newStatus), cancellationToken);
         return HandleResult(result);
     }
 }
