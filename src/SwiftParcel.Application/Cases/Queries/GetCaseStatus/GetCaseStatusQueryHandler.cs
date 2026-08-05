@@ -28,14 +28,9 @@ public class GetCaseStatusQueryHandler : IRequestHandler<GetCaseStatusQuery, Res
         var notesDto = caseEntity.Notes
             .Where(n => !n.IsInternal)
             .OrderBy(n => n.CreatedDate)
-            .Select(n => new CaseNoteDto(
+            .Select(n => new CustomerFacingCaseNoteDto(
                 n.CreatedDate,
-                n.NoteText, 
-                n.HandlerId, 
-                n.Handler!.FullName, 
-                n.CustomerId, 
-                n.Customer!.FullName,  
-                n.Attachment))
+                n.NoteText))
             .ToList();
             
         var response = new CaseStatusResponse(caseEntity.Status, notesDto, caseEntity.Resolution);
