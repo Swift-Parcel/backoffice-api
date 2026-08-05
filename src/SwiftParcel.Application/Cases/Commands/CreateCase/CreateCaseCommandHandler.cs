@@ -30,16 +30,34 @@ public class CreateCaseCommandHandler
         CancellationToken cancellationToken)
     {
         var customer = await _context.Customers
-            .FirstAsync(c => c.Email == request.CustomerEmail, cancellationToken);
+            .FirstOrDefaultAsync(c => c.Email == request.CustomerEmail, cancellationToken);
+
+        if (customer is null)
+            return Result<CreateCaseResponse>.Failure(Error.NotFound("code",
+                $"Customer with email '{request.CustomerEmail}' does not exist."));
+
+        var activeRegionExists = await _context.Regions
+            .AnyAsync(r => r.Id == request.RegionId && r.IsActive, cancellationToken);
+        
+        if (!activeRegionExists)
+            return Result<CreateCaseResponse>.Failure(Error.NotFound("code", 
+                $"Region with ID '{request.RegionId}' does not exist or is inactive."));
 
         var parcels = await _context.Parcels
             .Where(p => request.ParcelIds.Contains(p.Id))
             .ToListAsync(cancellationToken);
+        
+        if (parcels.Count != request.ParcelIds.Distinct().Count())
+            return Result<CreateCaseResponse>.Failure(Error.NotFound("code", 
+                "One or more specified Parcel IDs do not exist."));
 
         var tags = request.TagIds.Any()
-            ? await _context.Tags.Where(t => request.TagIds.Contains(t.Id))
-                .ToListAsync(cancellationToken)
+            ? await _context.Tags.Where(t => request.TagIds.Contains(t.Id)).ToListAsync(cancellationToken)
             : new List<Tag>();
+        
+        if (request.TagIds.Any() && tags.Count != request.TagIds.Distinct().Count())
+            return Result<CreateCaseResponse>.Failure(Error.NotFound("code", 
+                "One or more specified Tag IDs do not exist."));
         
         string caseNumber = await _caseNumberGenerator.GenerateNextAsync(cancellationToken);
         int slaHours = _slaOptions.DefaultHours.GetValueOrDefault(request.CaseType, 72);
