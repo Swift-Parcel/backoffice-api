@@ -8,7 +8,7 @@ public class Customer
     public int Id { get; set; }
     public string FullName { get; set; } = string.Empty;
     [Column(TypeName = "citext")]
-    public required string Email { get; set; }
+    public string? Email { get; set; }
     public string Phone { get; set; } = string.Empty;
     public Address? Address { get; set; }
     
