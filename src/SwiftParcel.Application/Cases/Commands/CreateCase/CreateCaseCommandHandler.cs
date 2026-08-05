@@ -29,57 +29,20 @@ public class CreateCaseCommandHandler
     public async Task<Result<CreateCaseResponse>> Handle(CreateCaseCommand request,
         CancellationToken cancellationToken)
     {
+        var customer = await _context.Customers
+            .FirstAsync(c => c.Email == request.CustomerEmail, cancellationToken);
+
         var parcels = await _context.Parcels
             .Where(p => request.ParcelIds.Contains(p.Id))
             .ToListAsync(cancellationToken);
 
-        var existingParcelIds = parcels.Select(p => p.Id).ToList();
-
-        var missingParcelIds = request.ParcelIds
-            .Except(existingParcelIds)
-            .ToList();
-
-        if (missingParcelIds.Any())
-        {
-            var missingIdsString = string.Join(", ", missingParcelIds);
-    
-            return Result<CreateCaseResponse>.Failure(Error.Validation(
-                "create_case__missing_parcels", 
-                $"The following ParcelIds do not exist: {missingIdsString}"));
-        }
+        var tags = request.TagIds.Any()
+            ? await _context.Tags.Where(t => request.TagIds.Contains(t.Id))
+                .ToListAsync(cancellationToken)
+            : new List<Tag>();
         
         string caseNumber = await _caseNumberGenerator.GenerateNextAsync(cancellationToken);
-        
-        var customer = await _context.Customers.FirstOrDefaultAsync(c 
-            => c.Email == request.CustomerEmail, cancellationToken);
-
-        if (customer == null)
-        {
-            return Result<CreateCaseResponse>.Failure(Error.NotFound(
-                "create_case__customer_not_found", 
-                $"Customer with email '{request.CustomerEmail}' not found."));
-        }
-        
-        
-        List<Tag> tags = new();
-    
-        if (request.TagIds.Count > 0 )
-        {
-            tags = await _context.Tags
-                .Where(t => request.TagIds.Contains(t.Id))
-                .ToListAsync(cancellationToken);
-            if (tags.Count != request.TagIds.Count)
-            {
-                var missingTagIds = request.TagIds
-                    .Except(tags.Select(t => t.Id));
-                
-                return Result<CreateCaseResponse>.Failure(Error.Validation("code",
-                    $"The following tags aren't present in the database:{string.Join(", ", missingTagIds)}"));
-            }
-        }
-
-        int slaHours = _slaOptions.DefaultHours
-            .GetValueOrDefault(request.CaseType, 72);
+        int slaHours = _slaOptions.DefaultHours.GetValueOrDefault(request.CaseType, 72);
 
         DateTime now = DateTime.UtcNow;
         
