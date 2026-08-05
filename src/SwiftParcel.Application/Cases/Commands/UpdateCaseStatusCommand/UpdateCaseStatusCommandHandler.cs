@@ -48,7 +48,6 @@ public class UpdateCaseStatusCommandHandler : IRequestHandler<UpdateCaseStatusCo
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        // Webhook értesítés az Email-lel együtt
         await _webhookClient.NotifyCaseStatusChangedAsync(
             @case.CaseNumber,
             @case.Customer.Email,
