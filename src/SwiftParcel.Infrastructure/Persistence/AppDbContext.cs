@@ -35,6 +35,10 @@ namespace SwiftParcel.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.HasSequence<long>("case_number_seq")
+                .StartsAt(1000)
+                .IncrementsBy(1);
+            
             modelBuilder.HasPostgresExtension(Citext);
             
             modelBuilder.HasPostgresEnum<ParcelStatus>("enum_parcel_status");
