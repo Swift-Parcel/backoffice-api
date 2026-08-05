@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.Cases.Commands.AssignCase;
 using SwiftParcel.Application.Cases.Commands.CreateCase;
+using SwiftParcel.Application.Cases.Commands.ProcessDeliveryChange;
 using SwiftParcel.Application.Cases.Queries.GetCaseNotes;
 using SwiftParcel.Application.DTO.Cases;
 using SwiftParcel.Domain.Enums;
@@ -96,6 +97,23 @@ public class CasesController : ApiController
     public async Task<IActionResult> UpdateCaseStatus(string caseNumber, [FromBody] CaseStatus newStatus, CancellationToken cancellationToken = default)
     {
         var result = await Mediator.Send(new UpdateCaseStatusCommand(caseNumber, newStatus), cancellationToken);
+        return HandleResult(result);
+    }
+    
+    /// <summary>
+    /// Processes a delivery change request outcome and notifies external systems via webhook.
+    /// </summary>
+    [HttpPost("{caseNumber}/delivery-change/outcome")]
+    [Authorize(Roles = "Operator,Supervisor,Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ProcessDeliveryChange(
+        [FromRoute] string caseNumber, 
+        [FromBody] DeliveryChangeOutcome outcome, 
+        CancellationToken cancellationToken = default)
+    {
+        var result = await Mediator.Send(new ProcessDeliveryChangeCommand(caseNumber, outcome), cancellationToken);
         return HandleResult(result);
     }
 }
