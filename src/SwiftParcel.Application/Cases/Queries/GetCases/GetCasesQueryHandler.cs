@@ -1,13 +1,13 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Models;
 
 namespace SwiftParcel.Application.Cases.Queries.GetCases;
 
-public class GetCasesQueryHandler(IAppDbContext dbContext, ICurrentUserService currentUser)
-    : IRequestHandler<GetCasesQuery, List<CaseDto>>
+public class GetCasesQueryHandler(IAppDbContext dbContext, ICurrentUserService currentUser) : IRequestHandler<GetCasesQuery, Result<List<CaseDto>>>
 {
-    public async Task<List<CaseDto>> Handle(GetCasesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<List<CaseDto>>> Handle(GetCasesQuery request, CancellationToken cancellationToken)    
     {
         var query = dbContext.Cases.AsNoTracking();
 
@@ -17,13 +17,13 @@ public class GetCasesQueryHandler(IAppDbContext dbContext, ICurrentUserService c
             
             if (!userRegions.Any())
             {
-                return new List<CaseDto>();
+                return Result<List<CaseDto>>.Success(new List<CaseDto>());
             }
 
             query = query.Where(c => userRegions.Contains(c.RegionId));
         }
 
-        return await query
+        var cases = await query
             .Select(c => new CaseDto
             {
                 Id = c.Id,
@@ -58,5 +58,7 @@ public class GetCasesQueryHandler(IAppDbContext dbContext, ICurrentUserService c
                 }).ToList()
             })
             .ToListAsync(cancellationToken);
+
+        return Result<List<CaseDto>>.Success(cases);
     }
 }
