@@ -35,6 +35,14 @@ public class ConfirmDeliveryCommandHandler : IRequestHandler<ConfirmDeliveryComm
                 Error.NotFound("parcel_not_found", $"Parcel '{request.TrackingNumber}' not found."));
         }
 
+        if (!string.Equals(parcel.Customer.Email, request.CustomerEmail, StringComparison.OrdinalIgnoreCase))
+        {
+            _logger.LogWarning("Delivery confirmation failed for Parcel {TrackingNumber}: Email mismatch.", parcel.TrackingNumber);
+            
+            return Result<bool>.Failure(
+                Error.Validation("invalid_customer_email", "The provided email does not match the recipient on record."));
+        }
+
         parcel.Status = ParcelStatus.Delivered;
         parcel.DeliveredDate = DateTime.UtcNow;
 
