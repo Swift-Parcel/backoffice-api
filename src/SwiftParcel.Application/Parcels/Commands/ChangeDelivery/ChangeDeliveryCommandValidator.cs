@@ -9,10 +9,8 @@ public class ChangeDeliveryCommandValidator : AbstractValidator<ChangeDeliveryCo
         RuleFor(x => x.TrackingNumber)
             .NotEmpty().WithMessage("Tracking number is required.");
 
-        RuleFor(x => x.Date)
-            .NotEmpty().WithMessage("Date is required.");
-
-        RuleFor(x => x.Timeslot)
-            .NotEmpty().WithMessage("Timeslot is required.");
+        RuleFor(x => x)
+            .Must(x => x.Date.HasValue || x.Timeslot.HasValue)
+            .WithMessage("You must provide at least a Date or a Timeslot.");
     }
 }

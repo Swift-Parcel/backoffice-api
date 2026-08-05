@@ -6,20 +6,20 @@ using SwiftParcel.Application.DTO.Cases;
 
 namespace SwiftParcel.Application.Cases.Queries.GetCustomerCaseNotes;
 
-public class GetCustomerCaseNotesQueryHandler : IRequestHandler<GetCustomerCaseNotesQuery, Result<IReadOnlyList<CaseNoteDto>>>
+public class GetCustomerCaseNotesQueryHandler : IRequestHandler<GetCustomerCaseNotesQuery, Result<IReadOnlyList<CustomerFacingCaseNoteDto>>>
 {
     private readonly IAppDbContext _context;
 
     public GetCustomerCaseNotesQueryHandler(IAppDbContext context) => _context = context;
 
-    public async Task<Result<IReadOnlyList<CaseNoteDto>>> Handle(GetCustomerCaseNotesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<CustomerFacingCaseNoteDto>>> Handle(GetCustomerCaseNotesQuery request, CancellationToken cancellationToken)
     {
         var caseExists = await _context.Cases
             .AnyAsync(c => c.CaseNumber == request.CaseNumber, cancellationToken);
             
         if (!caseExists)
         {
-            return Result<IReadOnlyList<CaseNoteDto>>.Failure(Error.NotFound(
+            return Result<IReadOnlyList<CustomerFacingCaseNoteDto>>.Failure(Error.NotFound(
                 "get_customer_notes__case_not_found", 
                 $"Case with number {request.CaseNumber} was not found."));
         }
@@ -28,9 +28,11 @@ public class GetCustomerCaseNotesQueryHandler : IRequestHandler<GetCustomerCaseN
             .AsNoTracking()
             .Where(n => n.Case.CaseNumber == request.CaseNumber && !n.IsInternal)
             .OrderBy(n => n.CreatedDate)
-            .Select(n => new CaseNoteDto(n.CreatedDate, n.NoteText))
+            .Select(n => new CustomerFacingCaseNoteDto(
+                n.CreatedDate,
+                n.NoteText))
             .ToListAsync(cancellationToken);
 
-        return Result<IReadOnlyList<CaseNoteDto>>.Success(notes);
+        return Result<IReadOnlyList<CustomerFacingCaseNoteDto>>.Success(notes);
     }
 }

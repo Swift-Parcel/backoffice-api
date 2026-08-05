@@ -31,7 +31,7 @@ public class CreatePortalCustomerCommandHandler
 
         var customer = new Customer
         {
-            FullName = request.FullName,
+            FullName = request.Name,
             Email = request.Email,
             Phone = request.Phone,
             RegisteredDate = DateTime.UtcNow,

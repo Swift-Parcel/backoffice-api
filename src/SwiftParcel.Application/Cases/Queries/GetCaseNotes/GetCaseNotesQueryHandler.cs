@@ -25,7 +25,14 @@ public class GetCaseNotesQueryHandler(IAppDbContext context)
             .AsNoTracking()
             .Where(n => n.Case.CaseNumber == request.CaseNumber)
             .OrderBy(n => n.CreatedDate)
-            .Select(n => new CaseNoteDto(n.CreatedDate, n.NoteText))
+            .Select(n => new CaseNoteDto(
+                n.CreatedDate,
+                n.NoteText, 
+                n.HandlerId, 
+                n.Handler!.FullName, 
+                n.CustomerId, 
+                n.Customer!.FullName,  
+                n.Attachment))
             .ToListAsync(cancellationToken);
 
         return Result<IReadOnlyList<CaseNoteDto>>.Success(notes);

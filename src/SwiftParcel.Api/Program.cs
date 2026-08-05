@@ -9,11 +9,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+Action<System.Text.Json.JsonSerializerOptions> configureJsonOptions = options =>
+{
+    options.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower;
+    
+    options.Converters.Add(new JsonStringEnumConverter(System.Text.Json.JsonNamingPolicy.SnakeCaseUpper));
+};
+
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+    .AddJsonOptions(options => configureJsonOptions(options.JsonSerializerOptions));
+
+builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => 
+    configureJsonOptions(options.SerializerOptions));
 
 builder.Services.AddApplication(builder.Configuration)
                 .AddInfrastructure(builder.Configuration);
