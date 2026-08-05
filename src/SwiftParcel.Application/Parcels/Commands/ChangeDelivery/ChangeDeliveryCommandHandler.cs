@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SwiftParcel.Application.Cases.Commands.CreateCase;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Models;
@@ -20,11 +21,11 @@ public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryComman
     public ChangeDeliveryCommandHandler(
         IAppDbContext context,
         ICaseNumberGenerator caseNumberGenerator,
-        SlaOptions slaOptions)
+        IOptions<SlaOptions> slaOptions)
     {
         _context = context;
         _caseNumberGenerator = caseNumberGenerator;
-        _slaOptions = slaOptions;
+        _slaOptions = slaOptions.Value;
     }
 
     public async Task<Result<DeliveryChangeResponse>> Handle(ChangeDeliveryCommand request,
