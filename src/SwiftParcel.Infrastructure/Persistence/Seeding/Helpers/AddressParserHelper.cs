@@ -30,9 +30,9 @@ public static partial class AddressParserHelper
 
         return new Address
         (
-            city,
             street,
             streetNumber,
+            city,
             cleanPostalCode,
             countryCode
         );
