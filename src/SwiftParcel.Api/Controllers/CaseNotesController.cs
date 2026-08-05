@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SwiftParcel.Application.Cases.Commands.AddCaseNote;
 using SwiftParcel.Application.Cases.Queries.GetCaseNotes;
 using SwiftParcel.Application.DTO.Cases;
 
@@ -22,7 +23,7 @@ public class CaseNotesController : ApiController
         var query = new GetCaseNotesQuery(caseNumber);
         return HandleResult(await Mediator.Send(query));
     }
-    
+
     /// <summary>
     /// Allows a handler or operator to add a timestamped note (internal or customer-visible) to a case.
     /// </summary>
@@ -32,16 +33,13 @@ public class CaseNotesController : ApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddHandlerNote(
-        [FromRoute] string caseNumber, 
+        [FromRoute] string caseNumber,
         [FromBody] AddHandlerNoteRequest request)
     {
-        int handlerId = 1; 
-
         var command = new AddHandlerNoteCommand(
-            caseNumber, 
-            request.Message, 
-            request.IsInternal, 
-            handlerId, 
+            caseNumber,
+            request.Message,
+            request.IsInternal,
             request.Attachment
         );
 
