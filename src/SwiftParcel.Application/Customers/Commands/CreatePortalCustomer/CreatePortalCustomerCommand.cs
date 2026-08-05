@@ -6,7 +6,7 @@ using SwiftParcel.Application.DTO.Customers;
 namespace SwiftParcel.Application.Customers.Commands.CreatePortalCustomer;
 
 public record CreatePortalCustomerCommand(
-    string FullName,
+    string Name,
     string Email,
     string Phone,
     AddressDto Address)
