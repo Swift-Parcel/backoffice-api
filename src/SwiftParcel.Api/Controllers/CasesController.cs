@@ -7,6 +7,7 @@ using SwiftParcel.Application.Cases.Queries.GetCaseNotes;
 using SwiftParcel.Application.DTO.Cases;
 using SwiftParcel.Domain.Enums;
 using SwiftParcel.Application.Cases.Commands.UpdateCaseStatus;
+using SwiftParcel.Application.Cases.Queries.GetCases;
 
 namespace SwiftParcel.Api.Controllers;
 
@@ -15,6 +16,19 @@ namespace SwiftParcel.Api.Controllers;
 [Authorize]
 public class CasesController : ApiController
 {
+    /// <summary>
+    /// Retrieves a list of cases scoped to the user's authorized regions.
+    /// </summary>
+    [HttpGet]
+    [Authorize(Roles = "Operator,Supervisor,Admin")]
+    [ProducesResponseType(typeof(List<CaseDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCases(CancellationToken cancellationToken)
+    {
+        var query = new GetCasesQuery();
+
+        return HandleResult(await Mediator.Send(query, cancellationToken));
+    }
+    
     /// <summary>
     /// Allows an agent to get all notes for a specific case.
     /// </summary>
