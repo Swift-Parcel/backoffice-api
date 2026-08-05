@@ -6,6 +6,6 @@ namespace SwiftParcel.Application.Parcels.Commands.ChangeDelivery;
 
 public record ChangeDeliveryCommand(
     string TrackingNumber,
-    string Date,
+    DateTime Date,
     string Timeslot
 ) : IRequest<Result<DeliveryChangeResponse>>;

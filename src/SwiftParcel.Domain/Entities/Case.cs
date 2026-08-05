@@ -28,4 +28,39 @@ public class Case
     public ICollection<Tag> Tags { get; set; } = new List<Tag>();
     public ICollection<CaseNote> Notes { get; set; } = new List<CaseNote>();
     public ICollection<Parcel> Parcels { get; set; } = new List<Parcel>();
+    
+    /// <summary>
+    /// Factory method for creating Delivery Change cases. 
+    /// </summary>
+    public static Case CreateForDeliveryChange(
+        string caseNumber,
+        Customer customer,
+        Parcel parcel,
+        int regionId,
+        DateTime? newDate,
+        string? newTimeslot,
+        int slaHours)
+    {
+        var now = DateTime.UtcNow;
+        var isVip = customer.Vip;
+
+        var description = $"Delivery change requested.\nNew date: {newDate:yyyy-MM-dd HH:mm UTC} | Timeslot: {newTimeslot ?? "N/A"}";
+
+        return new Case
+        {
+            CaseNumber = caseNumber,
+            Title = $"Delivery Change - Tracking: {parcel.TrackingNumber}",
+            Description = description,
+            CaseType = CaseType.DeliveryChange,
+            Status = CaseStatus.Open,
+            Priority = isVip ? Priority.High : Priority.Low,
+            Customer = customer,
+            RegionId = regionId,
+            Channel = Channel.Portal,
+            CreatedDate = now,
+            SlaDeadline = now.AddHours(slaHours),
+            Parcels = new List<Parcel> { parcel },
+            Tags = new List<Tag>()
+        };
+    }
 }
