@@ -38,13 +38,13 @@ public class Case
         Parcel parcel,
         int regionId,
         DateTime? newDate,
-        string? newTimeslot,
+        Timeslot? newTimeslot,
         int slaHours)
     {
         var now = DateTime.UtcNow;
         var isVip = customer.Vip;
 
-        var description = $"Delivery change requested.\nNew date: {newDate:yyyy-MM-dd HH:mm UTC} | Timeslot: {newTimeslot ?? "N/A"}";
+        var description = $"Delivery change requested.\nNew date: {newDate:yyyy-MM-dd HH:mm UTC} | Timeslot: {newTimeslot.ToString()}";
 
         return new Case
         {

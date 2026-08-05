@@ -9,6 +9,7 @@ using SwiftParcel.Application.Parcels.Queries.GetParcelStatus;
 using SwiftParcel.Application.Parcels.Queries.GetParcelTracking;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Integration.Models;
+using SwiftParcel.Domain.Enums;
 using SwiftParcel.Infrastructure.Authentication;
 using CreateParcelCommand = SwiftParcel.Application.Parcels.Commands.CreateParcel.CreateParcelCommand;
 
@@ -71,9 +72,9 @@ public class ParcelsController : ApiController
     [ProducesResponseType(typeof(DeliveryChangeResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> ChangeDelivery(string trackingNumber, [FromBody] ChangeDeliveryRequestBody body, CancellationToken cancellationToken)
+    public async Task<IActionResult> ChangeDelivery(string trackingNumber, [FromBody] DeliveryChangeRequest body, CancellationToken cancellationToken)
     {
-        var command = new ChangeDeliveryCommand(trackingNumber,DateTime.Parse(body.Date), body.Timeslot);
+        var command = new ChangeDeliveryCommand(trackingNumber,body.Date, body.Timeslot);
         var result = await Mediator.Send(command, cancellationToken);
         return HandleResult(result);
     }
@@ -86,5 +87,3 @@ public class ParcelsController : ApiController
         return HandleResult(result);
     }
 }
-
-public record ChangeDeliveryRequestBody(string Date, string Timeslot);
