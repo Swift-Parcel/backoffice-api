@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SwiftParcel.Domain.Entities;
@@ -7,7 +8,7 @@ public class Customer
     public int Id { get; set; }
     public string FullName { get; set; } = string.Empty;
     [Column(TypeName = "citext")]
-    public string? Email { get; set; }
+    public required string Email { get; set; }
     public string Phone { get; set; } = string.Empty;
     public Address? Address { get; set; }
     

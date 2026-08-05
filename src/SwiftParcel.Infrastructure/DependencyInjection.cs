@@ -62,6 +62,7 @@ public static class DependencyInjection
 
         services.AddScoped<DataSeederOrchestrator>();
         
+        services.AddScoped<ICaseNumberGenerator, CaseNumberGenerator>();
         services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
         
         services.AddScoped<ICaseAssignmentService, CaseAssignmentService>();

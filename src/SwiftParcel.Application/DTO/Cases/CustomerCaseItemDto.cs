@@ -8,5 +8,5 @@ public record CustomerCaseItemDto(
      CaseType CaseType,
      CaseStatus CaseStatus,
      DateTime Created,
-     DateTime LastUpdate
+     DateTime? LastUpdate
 );

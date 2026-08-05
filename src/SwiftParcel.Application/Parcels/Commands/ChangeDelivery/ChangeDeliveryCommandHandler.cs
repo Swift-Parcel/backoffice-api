@@ -20,19 +20,26 @@ public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryComman
         _mediator = mediator;
     }
 
-    public async Task<Result<DeliveryChangeResponse>> Handle(ChangeDeliveryCommand request, CancellationToken cancellationToken)
+    public async Task<Result<DeliveryChangeResponse>> Handle(ChangeDeliveryCommand request,
+        CancellationToken cancellationToken)
     {
         var parcel = await _context.Parcels
             .Include(p => p.Customer)
+            .ThenInclude(c => c.Address)
             .FirstOrDefaultAsync(p => p.TrackingNumber == request.TrackingNumber, cancellationToken);
 
         if (parcel == null)
-            return Result<DeliveryChangeResponse>.Failure(Error.NotFound("parcel_not_found", $"Parcel with tracking number '{request.TrackingNumber}' was not found."));
+            return Result<DeliveryChangeResponse>.Failure(Error.NotFound("parcel_not_found",
+                $"Parcel with tracking number '{request.TrackingNumber}' was not found."));
 
-        var countryCode = await _context.Customers
-            .Where(c => c.Id == parcel.CustomerId)
-            .Select(c => c.Address.CountryCode)
-            .FirstOrDefaultAsync(cancellationToken);
+
+        if (parcel.Customer.Address == null)
+        {
+            return Result<DeliveryChangeResponse>.Failure(Error.Failure("customer_address_missing",
+                "Customer does not have an address."));
+        }
+        
+        string countryCode = parcel.Customer.Address.CountryCode;
 
         var regionId = await _context.Regions
             .Where(r => r.CountryCode == countryCode && r.IsActive)
@@ -40,18 +47,21 @@ public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryComman
             .FirstOrDefaultAsync(cancellationToken);
 
         bool vip = parcel.Customer.Vip;
-        
-        var createCaseCommand = new CreateCaseCommand(
-            Title: "Delivery Change",
-            Description: $"{request.Date} - {request.Timeslot}",
-            CaseType: CaseType.DeliveryChange,
-            CaseStatus: CaseStatus.Open,
-            Priority: vip ? Priority.High : Priority.Low,
-            CustomerEmail: parcel.Customer.Email,
-            RegionId: regionId,
-            Channel: Channel.Portal,
-            TagIds: Array.Empty<int>(),
-            ParcelIds: new[] { parcel.Id }
+
+        var createCaseCommand = new CreateCaseCommand
+        (
+            Title : "Delivery Change",
+            Description : $"Case automatically created for delivery change.\n" +
+                          $"New date and timeslot:{request.Date} - {request.Timeslot}",
+            CaseType : CaseType.DeliveryChange,
+            CaseStatus : CaseStatus.Open,
+            Priority : vip ? Priority.High : Priority.Low,
+            CustomerEmail : parcel.Customer.Email,
+            HandlerId: null,
+            RegionId : regionId,
+            Channel : Channel.Portal,
+            TagIds : Array.Empty<int>(),
+            ParcelIds : [parcel.Id]
         );
 
         var caseResult = await _mediator.Send(createCaseCommand, cancellationToken);
