@@ -13,11 +13,13 @@ public class CreateParcelCommandHandler : IRequestHandler<CreateParcelCommand, R
 {
     private readonly IAppDbContext _context;
     private readonly IWebhookClient _webhookClient;
+    private readonly IParcelNumberGenerator _parcelNumberGenerator;
 
-    public CreateParcelCommandHandler(IAppDbContext context, IWebhookClient webhookClient)
+    public CreateParcelCommandHandler(IAppDbContext context, IWebhookClient webhookClient, IParcelNumberGenerator parcelNumberGenerator)
     {
         _context = context;
         _webhookClient = webhookClient;
+        _parcelNumberGenerator = parcelNumberGenerator;
     }
 
     public async Task<Result<CreateParcelResponse>> Handle(CreateParcelCommand request, CancellationToken cancellationToken)
@@ -32,11 +34,7 @@ public class CreateParcelCommandHandler : IRequestHandler<CreateParcelCommand, R
         }
 
         var now = DateTime.UtcNow;
-        
-        var prefix = $"SP-{now:yyyyMM}";
-        var parcelsThisMonth = await _context.Parcels
-            .CountAsync(p => p.CreatedDate.Year == now.Year && p.CreatedDate.Month == now.Month, cancellationToken);
-        var trackingNumber = $"{prefix}{(parcelsThisMonth + 1):D2}";
+        var trackingNumber = await _parcelNumberGenerator.GenerateUniqueCodeAsync(cancellationToken);
 
         var newParcel = new Parcel
         {
