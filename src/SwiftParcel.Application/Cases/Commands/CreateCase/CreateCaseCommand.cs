@@ -12,7 +12,7 @@ public record CreateCaseCommand(
     CaseStatus CaseStatus,
     string CustomerEmail,
     int? HandlerId,
-    int RegionId,
+    int? RegionId,
     Channel Channel,
     IReadOnlyCollection<int> TagIds,
     IReadOnlyCollection<int> ParcelIds,

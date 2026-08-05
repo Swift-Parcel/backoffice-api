@@ -15,15 +15,18 @@ public class CreateCaseCommandHandler
     private readonly IAppDbContext _context;
     private readonly ICaseNumberGenerator _caseNumberGenerator;
     private readonly SlaOptions _slaOptions;
+    private readonly IRegionRoutingService _regionRoutingService;
 
     public CreateCaseCommandHandler(
         IAppDbContext context, 
         ICaseNumberGenerator caseNumberGenerator,
-        IOptions<SlaOptions> slaOptions)
+        IOptions<SlaOptions> slaOptions,
+        IRegionRoutingService regionRoutingService)
     {
         _context = context;
         _caseNumberGenerator = caseNumberGenerator;
         _slaOptions = slaOptions.Value;
+        _regionRoutingService = regionRoutingService;
     }
     
     public async Task<Result<CreateCaseResponse>> Handle(CreateCaseCommand request,
@@ -57,12 +60,13 @@ public class CreateCaseCommandHandler
             Customer = customer,
             HandlerId = request.HandlerId,
             CreatedDate = now,
-            SlaDeadline = now.AddHours(slaHours),
-            RegionId = request.RegionId,
+            SlaDeadline = now.AddHours(slaHours), // TODO: calculate actual deadline based on operating hours?
             Channel = request.Channel,
             Tags = tags,
             Parcels = parcels
         };
+        
+        newCase.RegionId = request.RegionId ?? await _regionRoutingService.DetermineRegionAsync(newCase, cancellationToken);
         
         _context.Cases.Add(newCase);
         await _context.SaveChangesAsync(cancellationToken);
