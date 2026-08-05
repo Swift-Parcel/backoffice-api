@@ -12,7 +12,8 @@ public class GetCustomerCasesQueryHandler : IRequestHandler<GetCustomerCasesQuer
 
     public GetCustomerCasesQueryHandler(IAppDbContext context) => _context = context;
 
-    public async Task<Result<CustomerCasesResponse>> Handle(GetCustomerCasesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<CustomerCasesResponse>> Handle(
+        GetCustomerCasesQuery request, CancellationToken cancellationToken)
     {
         var cases = await _context.Cases
             .Include(c => c.Customer)

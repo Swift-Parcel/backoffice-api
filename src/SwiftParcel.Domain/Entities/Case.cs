@@ -16,8 +16,8 @@ public class Case
     public int? HandlerId { get; set; }
     public Handler? Handler { get; set; }
     public DateTime CreatedDate { get; set; }
-    public DateTime UpdatedDate { get; set; }
-    public bool IsEscalated { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+    public bool IsEscalated { get; set; } = false;
     public DateTime? ResolvedDate { get; set; }
     public DateTime SlaDeadline { get; set; }
     public int RegionId { get; set; }
