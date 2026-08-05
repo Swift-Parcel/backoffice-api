@@ -53,37 +53,4 @@ public class IntegrationCasesController : ApiController
         var command = new AddCaseFeedbackCommand(caseNumber, request.Score);
         return HandleResult(await Mediator.Send(command));
     }
-
-    /// <summary>
-    /// Accepts a customer-visible note/message submitted from the Customer Portal (Java Team).
-    /// </summary>
-    [HttpPost("{caseNumber}/notes")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AddCustomerNote(
-        [FromRoute] string caseNumber, 
-        [FromBody] AddCustomerNoteRequest request)
-    {
-        var command = new AddCustomerNoteCommand(
-            caseNumber, 
-            request.Message, 
-            request.CustomerEmail, 
-            request.Attachment);
-            
-        return HandleResult(await Mediator.Send(command));
-    }
-    
-    /// <summary>
-    /// Get all customer-visible notes for a specific case.
-    /// </summary>
-    [HttpGet("{caseNumber}/notes")]
-    [ProducesResponseType(typeof(IReadOnlyList<CaseNoteDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetCustomerCaseNotes([FromRoute] string caseNumber)
-    {
-        var query = new GetCustomerCaseNotesQuery(caseNumber);
-        
-        return HandleResult(await Mediator.Send(query));
-    }
 }
