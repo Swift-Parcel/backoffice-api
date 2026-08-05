@@ -10,6 +10,7 @@ using SwiftParcel.Application.Parcels.Queries.GetParcelTracking;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Integration.Models;
 using SwiftParcel.Infrastructure.Authentication;
+using CreateParcelCommand = SwiftParcel.Application.Parcels.Commands.CreateParcel.CreateParcelCommand;
 
 namespace SwiftParcel.Api.Controllers.Integration;
 

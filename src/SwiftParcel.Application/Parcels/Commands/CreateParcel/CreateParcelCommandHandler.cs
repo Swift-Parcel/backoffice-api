@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Parcels;
@@ -14,12 +15,18 @@ public class CreateParcelCommandHandler : IRequestHandler<CreateParcelCommand, R
     private readonly IAppDbContext _context;
     private readonly IWebhookClient _webhookClient;
     private readonly IParcelNumberGenerator _parcelNumberGenerator;
+    private readonly ILogger<CreateParcelCommandHandler> _logger;
 
-    public CreateParcelCommandHandler(IAppDbContext context, IWebhookClient webhookClient, IParcelNumberGenerator parcelNumberGenerator)
+    public CreateParcelCommandHandler(
+        IAppDbContext context, 
+        IWebhookClient webhookClient, 
+        IParcelNumberGenerator parcelNumberGenerator,
+        ILogger<CreateParcelCommandHandler> logger)
     {
         _context = context;
         _webhookClient = webhookClient;
         _parcelNumberGenerator = parcelNumberGenerator;
+        _logger = logger;
     }
 
     public async Task<Result<CreateParcelResponse>> Handle(CreateParcelCommand request, CancellationToken cancellationToken)
@@ -49,6 +56,8 @@ public class CreateParcelCommandHandler : IRequestHandler<CreateParcelCommand, R
             DeclaredValueInEuros = request.Parcel.DeclaredValue,
             Status = ParcelStatus.PendingPickup,
             CreatedDate = now,
+            PreferredPickupDate = request.Parcel.PreferredPickupDate,
+            PreferredPickupTimeslot = request.Parcel.PreferredPickupTimeslot,
             RecipientAddress = new Address(
                 request.Recipient.RecipientAddress.Street,
                 request.Recipient.RecipientAddress.StreetNumber,
@@ -56,12 +65,27 @@ public class CreateParcelCommandHandler : IRequestHandler<CreateParcelCommand, R
                 request.Recipient.RecipientAddress.PostalCode,
                 request.Recipient.RecipientAddress.CountryCode
             )
+            //,
+            //Customer = .new Address(
+            //    request.Sender.SenderAddress.Street,
+            //    request.Sender.SenderAddress.StreetNumber,
+            //    request.Sender.SenderAddress.City,
+            //    request.Sender.SenderAddress.PostalCode,
+            //    request.Sender.SenderAddress.CountryCode
+            //)
         };
 
         _context.Parcels.Add(newParcel);
         await _context.SaveChangesAsync(cancellationToken);
 
-        await _webhookClient.NotifyParcelStatusChangedAsync(newParcel.TrackingNumber, newParcel.Status, cancellationToken);
+        try
+        {
+            await _webhookClient.NotifyParcelStatusChangedAsync(newParcel.TrackingNumber, newParcel.Status, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to dispatch webhook notification for newly created Parcel: {TrackingNumber}", newParcel.TrackingNumber);
+        }
 
         return Result<CreateParcelResponse>.Success(new CreateParcelResponse(newParcel.TrackingNumber, newParcel.Status));
     }
