@@ -97,7 +97,7 @@ public class CreateCaseCommandHandler
             Customer = customer,
             HandlerId = request.HandlerId,
             CreatedDate = now,
-            SlaDeadline = now.AddHours(slaHours),
+            SlaDeadline = now.AddHours(slaHours), // TODO: calculate actual deadline based on operating hours?
             Channel = request.Channel,
             Tags = tags,
             Parcels = parcels
