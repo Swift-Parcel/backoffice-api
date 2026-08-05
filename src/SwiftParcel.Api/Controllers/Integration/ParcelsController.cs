@@ -81,9 +81,8 @@ public class ParcelsController : ApiController
     [HttpPatch("{trackingNumber}/confirm-delivery")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> ConfirmDelivery(string trackingNumber, CancellationToken cancellationToken)
-    {
-        var result = await Mediator.Send(new ConfirmDeliveryCommand(trackingNumber), cancellationToken);
+    public async Task<IActionResult> ConfirmDelivery(string trackingNumber, [FromBody] ConfirmDeliveryRequest request, CancellationToken cancellationToken)    {
+        var result = await Mediator.Send(new ConfirmDeliveryCommand(trackingNumber, request.CustomerEmail), cancellationToken);
         return HandleResult(result);
     }
 }
