@@ -15,43 +15,6 @@ namespace SwiftParcel.Api.Controllers;
 [Authorize]
 public class CasesController : ApiController
 {
-    [HttpPost]
-    [Authorize(Roles = "Operator,Supervisor,Admin")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Create([FromBody] CreateCaseCommand command)
-    {
-        var result = await Mediator.Send(command);
-        return HandleResult(result);
-    }
-    
-    /// <summary>
-    /// Allows a handler or operator to add a timestamped note (internal or customer-visible) to a case.
-    /// </summary>
-    [HttpPost("{caseNumber}/notes")]
-    [Authorize(Roles = "Operator,Supervisor,Admin")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AddHandlerNote(
-        [FromRoute] string caseNumber, 
-        [FromBody] AddHandlerNoteRequest request)
-    {
-        int handlerId = 1; 
-
-        var command = new AddHandlerNoteCommand(
-            caseNumber, 
-            request.Message, 
-            request.IsInternal, 
-            handlerId, 
-            request.Attachment
-        );
-
-        var result = await Mediator.Send(command);
-
-        return HandleResult(result);
-    }
-    
     /// <summary>
     /// Allows an agent to get all notes for a specific case.
     /// </summary>
@@ -64,6 +27,20 @@ public class CasesController : ApiController
         var query = new GetCaseNotesQuery(caseNumber);
         
         return HandleResult(await Mediator.Send(query));
+    }
+    
+    /// <summary>
+    /// Creates a new case with the provided details. Returns the created
+    /// case number.
+    /// </summary>
+    [HttpPost]
+    [Authorize(Roles = "Operator,Supervisor,Admin")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Create([FromBody] CreateCaseCommand command)
+    {
+        var result = await Mediator.Send(command);
+        return HandleResult(result);
     }
     
     /// <summary>

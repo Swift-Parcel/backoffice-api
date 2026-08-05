@@ -4,16 +4,31 @@ using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Domain.Entities;
 
+namespace SwiftParcel.Application.Cases.Commands.AddCaseNote;
+
 public class AddHandlerNoteCommandHandler : IRequestHandler<AddHandlerNoteCommand, Result<int>>
 {
     private readonly IAppDbContext _context;
-    public AddHandlerNoteCommandHandler(IAppDbContext context) => _context = context;
+    private readonly ICurrentUserService _currentUserService;
 
-    public async Task<Result<int>> Handle(AddHandlerNoteCommand request, CancellationToken ct)
+    public AddHandlerNoteCommandHandler(IAppDbContext context, ICurrentUserService currentUserService)
     {
+        _context = context;
+        _currentUserService = currentUserService;
+    }
+
+    public async Task<Result<int>> Handle(AddHandlerNoteCommand request, CancellationToken cancellationToken)
+    {
+        var currentUserId = _currentUserService.UserId;
+        
+        var handlerId = await _context.Handlers
+            .Where(h => h.UserId == currentUserId)  
+            .Select(h => h.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+        
         var caseEntity = await _context.Cases
-            .FirstOrDefaultAsync(c => c.CaseNumber == request.CaseNumber, ct);
-            
+            .FirstOrDefaultAsync(c => c.CaseNumber == request.CaseNumber, cancellationToken);
+
         if (caseEntity == null)
             return Result<int>.Failure(Error.NotFound("case_not_found", "Case not found."));
 
@@ -23,7 +38,7 @@ public class AddHandlerNoteCommandHandler : IRequestHandler<AddHandlerNoteComman
             NoteText = request.Message,
             CreatedDate = DateTime.UtcNow,
             IsInternal = request.IsInternal,
-            HandlerId = request.HandlerId,
+            HandlerId = handlerId,
             CustomerId = null,
             Attachment = request.Attachment
         };
@@ -31,8 +46,8 @@ public class AddHandlerNoteCommandHandler : IRequestHandler<AddHandlerNoteComman
         caseEntity.Notes.Add(note);
         caseEntity.UpdatedDate = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync(ct);
-        
+        await _context.SaveChangesAsync(cancellationToken);
+
         return Result<int>.Success(note.Id);
     }
 }

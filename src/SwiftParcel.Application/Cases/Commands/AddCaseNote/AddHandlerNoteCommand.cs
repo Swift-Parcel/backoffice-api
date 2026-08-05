@@ -1,10 +1,11 @@
 using MediatR;
 using SwiftParcel.Application.Common.Models;
 
+namespace SwiftParcel.Application.Cases.Commands.AddCaseNote;
+
 public record AddHandlerNoteCommand(
     string CaseNumber,
     string Message,
     bool IsInternal,
-    int HandlerId,
     string? Attachment
 ) : IRequest<Result<int>>;
