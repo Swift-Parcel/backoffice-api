@@ -47,6 +47,9 @@ namespace SwiftParcel.Infrastructure.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "citext");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.HasSequence("case_number_seq")
+                .StartsAt(1000L);
+
             modelBuilder.Entity("CaseParcel", b =>
                 {
                     b.Property<int>("CasesId")
@@ -238,7 +241,7 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("title");
 
-                    b.Property<DateTime>("UpdatedDate")
+                    b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_date");
 
@@ -347,7 +350,6 @@ namespace SwiftParcel.Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("citext")
                         .HasColumnName("email");
 

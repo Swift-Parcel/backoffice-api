@@ -31,15 +31,15 @@ public class WebhookClient : IWebhookClient
         await SendWebhookAsync("/api/webhooks/parcels/status", payload, cancellationToken);
     }
 
-    public async Task NotifyCaseStatusChangedAsync(string caseNumber, CaseStatus status, CancellationToken cancellationToken = default)
+    public async Task NotifyCaseStatusChangedAsync(string email, string caseNumber, CaseStatus status, CancellationToken cancellationToken = default)
     {
-        var payload = new CaseStatusWebhookRequestDto(caseNumber, status);
+        var payload = new CaseStatusWebhookRequestDto(email, caseNumber, status);
         await  SendWebhookAsync("/api/webhooks/case/status", payload, cancellationToken);
     }
 
-    public async Task NotifyDeliveryChangeOutcomeAsync(string caseNumber, DeliveryChangeOutcome outcome, CancellationToken cancellationToken = default)
+    public async Task NotifyDeliveryChangeOutcomeAsync(string email, string caseNumber, DeliveryChangeOutcome outcome, CancellationToken cancellationToken = default)
     {
-        var payload = new DeliveryChangeOutcomeWebhookRequestDto(caseNumber, outcome);
+        var payload = new DeliveryChangeOutcomeWebhookRequestDto(email, caseNumber, outcome);
         await  SendWebhookAsync("/api/webhooks/cases/delivery-change", payload, cancellationToken);
     }
 
@@ -51,12 +51,12 @@ public class WebhookClient : IWebhookClient
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning($"Webhook call to {endpoint} failed with status code {response.StatusCode}");
+                _logger.LogWarning("Webhook call to {Endpoint} failed with status code {StatusCode}", endpoint, response.StatusCode);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error occurred while sending webhook to {endpoint}");
+            _logger.LogError(ex, "Error occurred while sending webhook to {Endpoint}", endpoint);
         }
     }
 }

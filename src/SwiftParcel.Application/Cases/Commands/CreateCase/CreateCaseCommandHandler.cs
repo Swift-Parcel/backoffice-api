@@ -1,49 +1,73 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using SwiftParcel.Application.Cases.Dtos;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Models;
+using SwiftParcel.Application.Common.Settings;
+using SwiftParcel.Domain.Entities;
 
 namespace SwiftParcel.Application.Cases.Commands.CreateCase;
 
-public class CreateCaseCommandHandler : IRequestHandler<CreateCaseCommand, Result<int>>
+public class CreateCaseCommandHandler 
+    : IRequestHandler<CreateCaseCommand, Result<CreateCaseResponse>>
 {
     private readonly IAppDbContext _context;
-    
-    public CreateCaseCommandHandler(IAppDbContext context)
+    private readonly ICaseNumberGenerator _caseNumberGenerator;
+    private readonly SlaOptions _slaOptions;
+
+    public CreateCaseCommandHandler(
+        IAppDbContext context, 
+        ICaseNumberGenerator caseNumberGenerator,
+        IOptions<SlaOptions> slaOptions)
     {
         _context = context;
+        _caseNumberGenerator = caseNumberGenerator;
+        _slaOptions = slaOptions.Value;
     }
     
-    public async Task<Result<int>> Handle(CreateCaseCommand request, CancellationToken cancellationToken)
+    public async Task<Result<CreateCaseResponse>> Handle(CreateCaseCommand request,
+        CancellationToken cancellationToken)
     {
-        if (request.ParcelIds.Count == 0)
-        {
-            return Result<int>.Failure(Error.Validation("ParcelIds.Empty", "At least one parcel has to be given."));
-        }
-        
-        var existingParcelIds = await _context.Parcels
+        var customer = await _context.Customers
+            .FirstAsync(c => c.Email == request.CustomerEmail, cancellationToken);
+
+        var parcels = await _context.Parcels
             .Where(p => request.ParcelIds.Contains(p.Id))
-            .Select(p => p.Id)
             .ToListAsync(cancellationToken);
+
+        var tags = request.TagIds.Any()
+            ? await _context.Tags.Where(t => request.TagIds.Contains(t.Id))
+                .ToListAsync(cancellationToken)
+            : new List<Tag>();
         
-        var missingParcelIds = request.ParcelIds
-            .Except(existingParcelIds)
-            .ToList();
+        string caseNumber = await _caseNumberGenerator.GenerateNextAsync(cancellationToken);
+        int slaHours = _slaOptions.DefaultHours.GetValueOrDefault(request.CaseType, 72);
+
+        DateTime now = DateTime.UtcNow;
         
-        if(missingParcelIds.Any())
+        var newCase = new Case
         {
-            var missingIdsString = string.Join(", ", missingParcelIds);
-            
-            return Result<int>.Failure(Error.Validation(
-                "create_case__missing_parcels", 
-                $"The following ParcelIds do not exist: {missingIdsString}"));
-        }
-
-        // 2. SLA kiszámítása a CaseType alapján (pl. LOST = 48h)
-        // 3. Új Case entitás létrehozása & mentése
-
-        var createdCaseId = 23;
+            CaseNumber = caseNumber,
+            Title = request.Title,
+            Description = request.Description,
+            CaseType = request.CaseType,
+            Status = request.CaseStatus,
+            Priority = request.Priority,
+            Customer = customer,
+            HandlerId = request.HandlerId,
+            CreatedDate = now,
+            SlaDeadline = now.AddHours(slaHours),
+            RegionId = request.RegionId,
+            Channel = request.Channel,
+            Tags = tags,
+            Parcels = parcels
+        };
         
-        return Result<int>.Success(createdCaseId);
+        _context.Cases.Add(newCase);
+        await _context.SaveChangesAsync(cancellationToken);
+        
+        return Result<CreateCaseResponse>.Success(new 
+            CreateCaseResponse(newCase.CaseNumber));
     }
 }

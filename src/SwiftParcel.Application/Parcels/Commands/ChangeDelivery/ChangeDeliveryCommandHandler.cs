@@ -1,10 +1,13 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SwiftParcel.Application.Cases.Commands.CreateCase;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Models;
+using SwiftParcel.Application.Common.Settings;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Integration.Interfaces;
+using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Application.Parcels.Commands.ChangeDelivery;
@@ -12,53 +15,61 @@ namespace SwiftParcel.Application.Parcels.Commands.ChangeDelivery;
 public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryCommand, Result<DeliveryChangeResponse>>
 {
     private readonly IAppDbContext _context;
-    private readonly ISender _mediator;
+    private readonly ICaseNumberGenerator _caseNumberGenerator;
+    private readonly SlaOptions _slaOptions;
 
-    public ChangeDeliveryCommandHandler(IAppDbContext context, ISender mediator)
+    public ChangeDeliveryCommandHandler(
+        IAppDbContext context,
+        ICaseNumberGenerator caseNumberGenerator,
+        IOptions<SlaOptions> slaOptions)
     {
         _context = context;
-        _mediator = mediator;
+        _caseNumberGenerator = caseNumberGenerator;
+        _slaOptions = slaOptions.Value;
     }
 
-    public async Task<Result<DeliveryChangeResponse>> Handle(ChangeDeliveryCommand request, CancellationToken cancellationToken)
+    public async Task<Result<DeliveryChangeResponse>> Handle(ChangeDeliveryCommand request,
+        CancellationToken cancellationToken)
     {
         var parcel = await _context.Parcels
             .Include(p => p.Customer)
+            .ThenInclude(c => c.Address)
             .FirstOrDefaultAsync(p => p.TrackingNumber == request.TrackingNumber, cancellationToken);
 
         if (parcel == null)
-            return Result<DeliveryChangeResponse>.Failure(Error.NotFound("parcel_not_found", $"Parcel with tracking number '{request.TrackingNumber}' was not found."));
+            return Result<DeliveryChangeResponse>.Failure(Error.NotFound("parcel_not_found",
+                $"Parcel with tracking number '{request.TrackingNumber}' was not found."));
 
-        var countryCode = await _context.Customers
-            .Where(c => c.Id == parcel.CustomerId)
-            .Select(c => c.Address.CountryCode)
-            .FirstOrDefaultAsync(cancellationToken);
 
+        if (parcel.Customer?.Address == null)
+        {
+            return Result<DeliveryChangeResponse>.Failure(
+                Error.Failure("customer_address_missing", "Customer does not have a valid address."));
+        }
+
+        var countryCode = parcel.Customer.Address.CountryCode;
         var regionId = await _context.Regions
             .Where(r => r.CountryCode == countryCode && r.IsActive)
             .Select(r => r.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
-        bool vip = parcel.Customer.Vip;
-        
-        var createCaseCommand = new CreateCaseCommand(
-            Title: "Delivery Change",
-            Description: $"{request.Date} - {request.Timeslot}",
-            CaseType: CaseType.DeliveryChange,
-            CaseStatus: CaseStatus.Open,
-            Priority: vip ? Priority.High : Priority.Low,
-            CustomerEmail: parcel.Customer.Email,
-            RegionId: regionId,
-            Channel: Channel.Portal,
-            TagIds: Array.Empty<int>(),
-            ParcelIds: new[] { parcel.Id }
+
+        var caseNumber = await _caseNumberGenerator.GenerateNextAsync(cancellationToken);
+        var slaHours = _slaOptions.DefaultHours.GetValueOrDefault(CaseType.DeliveryChange, 72);
+        var newCase = Case.CreateForDeliveryChange(
+            caseNumber: caseNumber,
+            customer: parcel.Customer,
+            parcel: parcel,
+            regionId: regionId,
+            newDate: request.Date,
+            newTimeslot: request.Timeslot,
+            slaHours: slaHours
         );
 
-        var caseResult = await _mediator.Send(createCaseCommand, cancellationToken);
 
-        if (!caseResult.IsSuccess)
-            return Result<DeliveryChangeResponse>.Failure(caseResult.Error);
+        _context.Cases.Add(newCase);
+        await _context.SaveChangesAsync(cancellationToken);
 
-        return Result<DeliveryChangeResponse>.Success(new DeliveryChangeResponse(caseResult.Value.ToString()));
+        return Result<DeliveryChangeResponse>.Success(new DeliveryChangeResponse(newCase.CaseNumber));
     }
 }

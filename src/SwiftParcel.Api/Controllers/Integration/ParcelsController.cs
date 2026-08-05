@@ -72,7 +72,7 @@ public class ParcelsController : ApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ChangeDelivery(string trackingNumber, [FromBody] ChangeDeliveryRequestBody body, CancellationToken cancellationToken)
     {
-        var command = new ChangeDeliveryCommand(trackingNumber, body.Date, body.Timeslot);
+        var command = new ChangeDeliveryCommand(trackingNumber,DateTime.Parse(body.Date), body.Timeslot);
         var result = await Mediator.Send(command, cancellationToken);
         return HandleResult(result);
     }
