@@ -4,7 +4,9 @@ using SwiftParcel.Application.Common.Models;
 namespace SwiftParcel.Application.Handlers.Commands.UpdateHandler;
 
 public record UpdateHandlerCommand(
-    int Id,
-    string? Department,
-    int? MaxCases
-) : IRequest<Result<Unit>>;
+    int UserId,
+    string Department,
+    DateTime HireDate,
+    int MaxCases,
+    bool IsActive,
+    int Id = 0) : IRequest<Result>;

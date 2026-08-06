@@ -5,7 +5,7 @@ using SwiftParcel.Application.Common.Models;
 
 namespace SwiftParcel.Application.Handlers.Commands.UpdateHandler;
 
-public class UpdateHandlerCommandHandler : IRequestHandler<UpdateHandlerCommand, Result<Unit>>
+public class UpdateHandlerCommandHandler : IRequestHandler<UpdateHandlerCommand, Result>
 {
     private readonly IAppDbContext _context;
 
@@ -14,19 +14,20 @@ public class UpdateHandlerCommandHandler : IRequestHandler<UpdateHandlerCommand,
         _context = context;
     }
 
-    public async Task<Result<Unit>> Handle(UpdateHandlerCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateHandlerCommand command, CancellationToken cancellationToken)
     {
         var handler = await _context.Handlers
-            .FirstAsync(h => h.Id == request.Id, cancellationToken);
+            .FirstAsync(h => h.Id == command.Id, cancellationToken);
 
-        if (request.Department != null)
-            handler.Department = request.Department;
-
-        if (request.MaxCases.HasValue)
-            handler.MaxCases = request.MaxCases.Value;
+        handler.UpdateHandler(
+            userId: command.UserId,
+            department: command.Department,
+            hireDate: command.HireDate,
+            maxCases: command.MaxCases,
+            isActive: command.IsActive);
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return Result<Unit>.Success(Unit.Value);
+        return Result.Success();
     }
 }
