@@ -29,7 +29,7 @@ public class DbSeeder
             await dbContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
         }
     }
-    
+
     public DbSeeder(
         AppDbContext dbContext,
         LegacyDbContext oldDbContext,
@@ -47,8 +47,10 @@ public class DbSeeder
         await SeedFromLegacyDbAsync(cancellationToken);
 
         await SeedSystemUser(cancellationToken);
+        
+        await ResyncPostgresSequencesAsync(_dbContext, cancellationToken);
     }
-    
+
     private async Task SeedFromLegacyDbAsync(CancellationToken cancellationToken = default)
     {
         var orderedSeeders = _seeders.OrderBy(s => s.Order).ToList();
@@ -60,9 +62,9 @@ public class DbSeeder
         }
 
         _logger.LogInformation("{Count} seeder have been started...", orderedSeeders.Count);
-        
+
         await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
-        
+
         try
         {
             foreach (var seeder in orderedSeeders)
@@ -71,13 +73,14 @@ public class DbSeeder
                 _logger.LogInformation("[{Order}] Running seeder: {SeederName}...", seeder.Order, seederName);
 
                 await seeder.SeedAsync(_oldDbContext, _dbContext, cancellationToken);
-                
+
                 _logger.LogInformation("[{Order}] Seed succeeded: {SeederName}", seeder.Order, seederName);
                 await _dbContext.SaveChangesAsync(cancellationToken);
+                _dbContext.ChangeTracker.Clear();
             }
-            
+
             await ResyncPostgresSequencesAsync(_dbContext, cancellationToken);
-            
+
             await _dbContext.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
@@ -105,7 +108,6 @@ public class DbSeeder
                     .Select(r => r.Id)
                     .FirstOrDefaultAsync(cancellationToken),
                 Email = "system@email.com"
-
             };
             await _dbContext.Users.AddAsync(systemUser, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
