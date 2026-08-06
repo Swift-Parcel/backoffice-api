@@ -69,6 +69,7 @@ public class TestDataSeeder
                 .Where(u => u.Username == "system")
                 .Select(u => u.Id)
                 .FirstOrDefaultAsync(),
+                CreatedDate = DateTime.UtcNow
         };
         newUsers.Add(readOnlyUser);
 
@@ -86,6 +87,7 @@ public class TestDataSeeder
                 .Where(u => u.Username == "system")
                 .Select(u => u.Id)
                 .FirstOrDefaultAsync(),
+            CreatedDate = DateTime.UtcNow
         };
         newUsers.Add(@operator);
 
@@ -103,6 +105,7 @@ public class TestDataSeeder
                 .Where(u => u.Username == "system")
                 .Select(u => u.Id)
                 .FirstOrDefaultAsync(),
+            CreatedDate = DateTime.UtcNow
         };
         newUsers.Add(supervisor);
 

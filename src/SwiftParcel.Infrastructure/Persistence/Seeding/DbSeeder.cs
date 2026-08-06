@@ -107,7 +107,8 @@ public class DbSeeder
                     .Where(r => r.Name == "Admin")
                     .Select(r => r.Id)
                     .FirstOrDefaultAsync(cancellationToken),
-                Email = "system@email.com"
+                Email = "system@email.com",
+                CreatedDate = DateTime.UtcNow.AddDays(-1)
             };
             await _dbContext.Users.AddAsync(systemUser, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
