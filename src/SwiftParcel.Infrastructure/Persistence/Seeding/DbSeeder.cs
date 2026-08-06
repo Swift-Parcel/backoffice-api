@@ -4,7 +4,7 @@ using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding;
 
-public class DataSeederOrchestrator
+public class DbSeeder
 {
     private readonly AppDbContext _dbContext;
 
@@ -12,7 +12,7 @@ public class DataSeederOrchestrator
 
     private readonly IEnumerable<IEntitySeeder> _seeders;
 
-    private readonly ILogger<DataSeederOrchestrator> _logger;
+    private readonly ILogger<DbSeeder> _logger;
 
     private async Task ResyncPostgresSequencesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
     {
@@ -30,11 +30,11 @@ public class DataSeederOrchestrator
         }
     }
     
-    public DataSeederOrchestrator(
+    public DbSeeder(
         AppDbContext dbContext,
         LegacyDbContext oldDbContext,
         IEnumerable<IEntitySeeder> seeders,
-        ILogger<DataSeederOrchestrator> logger)
+        ILogger<DbSeeder> logger)
     {
         _dbContext = dbContext;
         _oldDbContext = oldDbContext;
@@ -42,8 +42,14 @@ public class DataSeederOrchestrator
         _logger = logger;
     }
 
+    public async Task SeedAsync(CancellationToken cancellationToken = default)
+    {
+        await SeedFromLegacyDbAsync(cancellationToken);
 
-    public async Task RunMigrationIfNeededAsync(CancellationToken cancellationToken = default)
+        await SeedSystemUser(cancellationToken);
+    }
+    
+    private async Task SeedFromLegacyDbAsync(CancellationToken cancellationToken = default)
     {
         var orderedSeeders = _seeders.OrderBy(s => s.Order).ToList();
         if (!orderedSeeders.Any())
@@ -77,11 +83,32 @@ public class DataSeederOrchestrator
 
             _logger.LogInformation("All seeder succeeded, transaction is finished.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, "An error has occured while seeding. Transaction is rolled back.");
             await transaction.RollbackAsync(cancellationToken);
             throw;
+        }
+    }
+
+    private async Task SeedSystemUser(CancellationToken cancellationToken)
+    {
+        var systemUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.Username == "system", cancellationToken);
+        if (systemUser == null)
+        {
+            systemUser = new Domain.Entities.User
+            {
+                Username = "system",
+                PasswordHash = string.Empty,
+                FullName = "System User",
+                RoleId = await _dbContext.Roles
+                    .Where(r => r.Name == "Admin")
+                    .Select(r => r.Id)
+                    .FirstOrDefaultAsync(cancellationToken),
+                Email = "system@email.com"
+
+            };
+            await _dbContext.Users.AddAsync(systemUser, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }
