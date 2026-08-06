@@ -1,12 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.DTO.Users;
 using SwiftParcel.Application.Users.Commands.ActivateUser;
 using SwiftParcel.Application.Users.Commands.AdminResetPassword;
 using SwiftParcel.Application.Users.Commands.ChangeMyPassword;
 using SwiftParcel.Application.Users.Commands.CreateUser;
-using SwiftParcel.Application.Users.Commands.DeactivateUser;
 using SwiftParcel.Application.Users.Commands.UpdateUser;
 using SwiftParcel.Application.Users.Queries.GetCurrentUser;
 using SwiftParcel.Application.Users.Queries.GetUserById;
@@ -69,6 +67,20 @@ public class UsersController : ApiController
     }
 
     /// <summary>
+    /// Reactivates a soft-deleted user.
+    /// </summary>
+    [HttpPatch("{id:int}/activate")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ActivateUser([FromRoute] int id, CancellationToken cancellationToken)
+    {
+        var result = await Mediator.Send(new UpdateUserStatusCommand(id, true), cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
     /// Deactivates a user (soft delete). Deactivated users cannot log in or be assigned new cases.
     /// </summary>
     [HttpPatch("{id:int}/deactivate")]
@@ -78,23 +90,7 @@ public class UsersController : ApiController
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DeactivateUser([FromRoute] int id, CancellationToken cancellationToken)
     {
-        var command = new DeactivateUserCommand(id);
-        var result = await Mediator.Send(command, cancellationToken);
-        return HandleResult(result);
-    }
-    
-    /// <summary>
-    /// Activate a user.
-    /// </summary>
-    [HttpPatch("{id:int}/activate")]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> ActivateUser([FromRoute] int id, CancellationToken cancellationToken)
-    {
-        var command = new ActivateUserCommand(id);
-        var result = await Mediator.Send(command, cancellationToken);
+        var result = await Mediator.Send(new UpdateUserStatusCommand(id, false), cancellationToken);
         return HandleResult(result);
     }
     
