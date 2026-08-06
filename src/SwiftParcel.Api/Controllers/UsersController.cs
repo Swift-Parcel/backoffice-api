@@ -19,7 +19,7 @@ public class UsersController : ApiController
     /// </summary>
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    [ProducesResponseType(typeof(CreateUserResponse), StatusCodes.Status200OK)] // Or Status201Created depending on your HandleResult logic
+    [ProducesResponseType(typeof(CreateUserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command, CancellationToken cancellationToken)
