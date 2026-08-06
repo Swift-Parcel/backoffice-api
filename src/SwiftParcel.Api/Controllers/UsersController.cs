@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.DTO.Users;
 using SwiftParcel.Application.Users.Commands.ActivateUser;
+using SwiftParcel.Application.Users.Commands.AdminResetPassword;
 using SwiftParcel.Application.Users.Commands.ChangeMyPassword;
 using SwiftParcel.Application.Users.Commands.CreateUser;
 using SwiftParcel.Application.Users.Commands.DeactivateUser;
@@ -104,6 +105,21 @@ public class UsersController : ApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ChangeMyPassword([FromBody] ChangeMyPasswordCommand command, CancellationToken cancellationToken)
     {
+        var result = await Mediator.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+    
+    /// <summary>
+    /// Allows an Admin to forcefully reset another user's password without knowing their current password.
+    /// </summary>
+    [HttpPut("{id:int}/password/reset")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AdminResetPassword([FromRoute] int id, [FromBody] AdminResetPasswordRequest request, CancellationToken cancellationToken)
+    {
+        var command = new AdminResetPasswordCommand(id, request.NewPassword);
         var result = await Mediator.Send(command, cancellationToken);
         return HandleResult(result);
     }
