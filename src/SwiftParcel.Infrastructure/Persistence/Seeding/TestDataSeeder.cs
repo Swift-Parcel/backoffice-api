@@ -216,10 +216,18 @@ public class TestDataSeeder
             {
                 TrackingNumber = "SP-20261016", 
                 Customer = customer1, 
+                SenderAddress = new Address
+                (
+                    Street : "Fő utca",
+                    StreetNumber :"1",
+                    City : "Budapest",
+                    PostalCode : "1011",
+                    CountryCode: "HU"
+                ),
                 RecipientName = "John Doe",
                 RecipientAddress = new Address
                 (
-                    Street : "Petofi Sandor",
+                    Street : "Petofi Sandor utca",
                     StreetNumber :"123",
                     City : "Kiskunlachaza",
                     PostalCode : "1234",
@@ -239,10 +247,18 @@ public class TestDataSeeder
             {
                 TrackingNumber = "SP-20261017", 
                 Customer = customer1,
+                SenderAddress = new Address
+                (
+                    Street : "Fő utca",
+                    StreetNumber :"1",
+                    City : "Budapest",
+                    PostalCode : "1011",
+                    CountryCode: "HU"
+                ),
                 RecipientName = "Jane Smith",
                 RecipientAddress = new Address
                 (
-                    Street : "Kossuth Lajos",
+                    Street : "Kossuth Lajos utca",
                     StreetNumber :"456",
                     City : "Debrecen",
                     PostalCode : "4000",
@@ -262,10 +278,18 @@ public class TestDataSeeder
             {
                 TrackingNumber = "SP-20261018", 
                 Customer = customer2, 
+                SenderAddress = new Address
+                (
+                    Street : "Vaci utca",
+                    StreetNumber : "12",
+                    City : "Budapest",
+                    PostalCode : "1052",
+                    CountryCode : "HU"
+                ),
                 RecipientName = "Alice Johnson",
                 RecipientAddress = new Address
                 (
-                    Street : "Aradi Város",
+                    Street : "Nap utca",
                     StreetNumber :"789",
                     City : "Szeged",
                     PostalCode : "6724",
@@ -284,6 +308,14 @@ public class TestDataSeeder
             {
                 TrackingNumber = "SP-20261019", 
                 Customer = customer2, 
+                SenderAddress = new Address
+                (
+                    Street : "Leopold-Frank Straße",
+                    StreetNumber : "34",
+                    City : "Graz",
+                    PostalCode : "8010",
+                    CountryCode : "AT"
+                ),
                 RecipientName = "Bob Brown",
                 RecipientAddress = new Address
                 (
