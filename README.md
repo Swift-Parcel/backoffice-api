@@ -46,7 +46,11 @@ A backend service for managing parcel delivery operations, legacy system integra
 When the application is running, Swagger UI is available at:
 - http://localhost:3500/swagger
 ---
+### API Authentication & Integrations
 
+#### Java Portal Integration
+- **Header:** `X-Api-Key`
+- **Secret Value:** `SwiftParcel_Java_Integration_Shared_Secret_2026!`
 ## Database Connections
 
 ### Connection Credentials
