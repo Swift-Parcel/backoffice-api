@@ -209,34 +209,91 @@ public class TestDataSeeder
             {
                 TrackingNumber = "SP-20261016", 
                 Customer = customer1, 
-                Status = ParcelStatus.InTransit, 
+                RecipientName = "John Doe",
+                RecipientAddress = new Address
+                (
+                    Street : "Petofi Sandor",
+                    StreetNumber :"123",
+                    City : "Kiskunlachaza",
+                    PostalCode : "1234",
+                    CountryCode: "HU"
+                ),
                 Weight = 2.5f,
-                CreatedDate = DateTime.UtcNow.AddDays(-2)
+                Width = 30,
+                Length = 40,
+                Height = 20,
+                Status = ParcelStatus.InTransit, 
+                CreatedDate = DateTime.UtcNow.AddDays(-2),
+                ServiceType = ServiceType.Standard,
+                DeclaredValueInEuros = 100.0f,
+
             },
             new Parcel
             {
                 TrackingNumber = "SP-20261017", 
-                Customer = customer1, 
-                Status = ParcelStatus.Delivered, 
+                Customer = customer1,
+                RecipientName = "Jane Smith",
+                RecipientAddress = new Address
+                (
+                    Street : "Kossuth Lajos",
+                    StreetNumber :"456",
+                    City : "Debrecen",
+                    PostalCode : "4000",
+                    CountryCode: "HU"
+                ),
                 Weight = 1.0f,
+                Width = 20,
+                Length = 30,
+                Height = 10,
+                Status = ParcelStatus.Delivered, 
                 CreatedDate = DateTime.UtcNow.AddDays(-5), 
-                DeliveredDate = DateTime.UtcNow.AddDays(-1)
+                DeliveredDate = DateTime.UtcNow.AddDays(-1),
+                ServiceType = ServiceType.Express,
+                DeclaredValueInEuros = 50.0f,
             },
             new Parcel
             {
                 TrackingNumber = "SP-20261018", 
                 Customer = customer2, 
-                Status = ParcelStatus.DeliveryAttemptFailed, 
+                RecipientName = "Alice Johnson",
+                RecipientAddress = new Address
+                (
+                    Street : "Aradi Város",
+                    StreetNumber :"789",
+                    City : "Szeged",
+                    PostalCode : "6724",
+                    CountryCode: "HU"
+                ),
                 Weight = 15.2f,
-                CreatedDate = DateTime.UtcNow.AddDays(-7)
+                Width = 50,
+                Length = 60,
+                Height = 40,
+                Status = ParcelStatus.DeliveryAttemptFailed, 
+                CreatedDate = DateTime.UtcNow.AddDays(-7),
+                ServiceType = ServiceType.Standard,
+                DeclaredValueInEuros = 200.0f,
             },
             new Parcel
             {
                 TrackingNumber = "SP-20261019", 
                 Customer = customer2, 
-                Status = ParcelStatus.Lost, 
+                RecipientName = "Bob Brown",
+                RecipientAddress = new Address
+                (
+                    Street : "Bahnhof",
+                    StreetNumber :"456",
+                    City : "Wien",
+                    PostalCode : "2310",
+                    CountryCode: "AT"
+                ),
                 Weight = 0.5f,
-                CreatedDate = DateTime.UtcNow.AddDays(-10)
+                Width = 50,
+                Length = 60,
+                Height = 40,
+                Status = ParcelStatus.Lost, 
+                CreatedDate = DateTime.UtcNow.AddDays(-10),
+                ServiceType = ServiceType.Express,
+                DeclaredValueInEuros = 100.0f,
             }
         };
 
