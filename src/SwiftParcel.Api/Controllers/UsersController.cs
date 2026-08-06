@@ -18,19 +18,22 @@ namespace SwiftParcel.Api.Controllers;
 public class UsersController : ApiController
 {
     /// <summary>
-    /// Creates a new back-office user. Returns the ID of the newly created user.
+    /// Retrieves a list of all users. Supports optional filtering by Role, Status, and Search text.
     /// </summary>
-    [HttpPost]
+    [HttpGet]
     [Authorize(Roles = "Admin")]
-    [ProducesResponseType(typeof(CreateUserResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(List<UserDetailsDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetUsers(
+        [FromQuery] int? roleId, 
+        [FromQuery] bool? isActive, 
+        [FromQuery] string? searchTerm, 
+        CancellationToken cancellationToken)
     {
-        var result = await Mediator.Send(command, cancellationToken);
+        var query = new GetUsersQuery(roleId, isActive, searchTerm);
+        var result = await Mediator.Send(query, cancellationToken);
         return HandleResult(result);
     }
-
+    
     /// <summary>
     /// Retrieves a specific user's details by their unique ID.
     /// </summary>
@@ -42,6 +45,34 @@ public class UsersController : ApiController
     {
         var query = new GetUserByIdQuery(id);
         var result = await Mediator.Send(query, cancellationToken);
+        return HandleResult(result);
+    }
+    
+    /// <summary>
+    /// Retrieves the profile of the currently authenticated user.
+    /// </summary>
+    [HttpGet("me")]
+    [Authorize]
+    [ProducesResponseType(typeof(UserDetailsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCurrentUser(CancellationToken cancellationToken)
+    {
+        var query = new GetCurrentUserQuery();
+        var result = await Mediator.Send(query, cancellationToken);
+        return HandleResult(result);
+    }
+    
+    /// <summary>
+    /// Creates a new back-office user. Returns the ID of the newly created user.
+    /// </summary>
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(CreateUserResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserCommand command, CancellationToken cancellationToken)
+    {
+        var result = await Mediator.Send(command, cancellationToken);
         return HandleResult(result);
     }
 
@@ -119,37 +150,6 @@ public class UsersController : ApiController
     {
         var command = new AdminResetPasswordCommand(id, request.NewPassword);
         var result = await Mediator.Send(command, cancellationToken);
-        return HandleResult(result);
-    }
-    
-    /// <summary>
-    /// Retrieves the profile of the currently authenticated user.
-    /// </summary>
-    [HttpGet("me")]
-    [Authorize]
-    [ProducesResponseType(typeof(UserDetailsDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetCurrentUser(CancellationToken cancellationToken)
-    {
-        var query = new GetCurrentUserQuery();
-        var result = await Mediator.Send(query, cancellationToken);
-        return HandleResult(result);
-    }
-    
-    /// <summary>
-    /// Retrieves a list of all users. Supports optional filtering by Role, Status, and Search text.
-    /// </summary>
-    [HttpGet]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(typeof(List<UserDetailsDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetUsers(
-        [FromQuery] int? roleId, 
-        [FromQuery] bool? isActive, 
-        [FromQuery] string? searchTerm, 
-        CancellationToken cancellationToken)
-    {
-        var query = new GetUsersQuery(roleId, isActive, searchTerm);
-        var result = await Mediator.Send(query, cancellationToken);
         return HandleResult(result);
     }
 }
