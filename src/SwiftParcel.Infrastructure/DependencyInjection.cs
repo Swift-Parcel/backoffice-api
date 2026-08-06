@@ -7,12 +7,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Interfaces.Authentication;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Settings;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Application.Services;
 using SwiftParcel.Domain.Enums;
 using SwiftParcel.Infrastructure.Authentication;
 using SwiftParcel.Infrastructure.Persistence;
+using SwiftParcel.Infrastructure.Persistence.Repositories;
 using SwiftParcel.Infrastructure.Persistence.Seeding;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 using SwiftParcel.Infrastructure.Services;
@@ -63,13 +65,12 @@ public static class DependencyInjection
         services.AddScoped<DbSeeder>();
         services.AddScoped<TestDataSeeder>();
         
+        services.AddScoped<IHandlerRepository, HandlerRepository>();
         services.AddScoped<ICaseNumberGenerator, CaseNumberGenerator>();
         services.AddScoped<IParcelNumberGenerator, ParcelNumberGenerator>();
         services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
         services.AddScoped<IRegionRoutingService, RegionRoutingService>();
         
-        services.AddScoped<ICaseAssignmentService, CaseAssignmentService>();
-
         services.AddHttpClient<IWebhookClient, WebhookClient>(client =>
         {
             client.BaseAddress = new Uri(configuration["JavaBackend:BaseUrl"] ?? string.Empty);

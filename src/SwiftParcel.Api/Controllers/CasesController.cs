@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.Cases.Commands.AssignCase;
 using SwiftParcel.Application.Cases.Commands.CreateCase;
 using SwiftParcel.Application.Cases.Commands.ProcessDeliveryChange;
-using SwiftParcel.Application.Cases.Queries.GetCaseNotes;
 using SwiftParcel.Application.DTO.Cases;
 using SwiftParcel.Domain.Enums;
 using SwiftParcel.Application.Cases.Commands.UpdateCaseStatus;
@@ -22,10 +21,13 @@ public class CasesController : ApiController
     [HttpGet]
     [Authorize(Roles = "Operator,Supervisor,Admin")]
     [ProducesResponseType(typeof(List<CaseDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetCases(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetCases(
+        [FromQuery] int? customerId,
+        [FromQuery] string? customerEmail,
+        [FromQuery] string? customerPhone,
+        CancellationToken cancellationToken)
     {
-        var query = new GetCasesQuery();
-
+        var query = new GetCasesQuery(customerId, customerEmail, customerPhone);
         return HandleResult(await Mediator.Send(query, cancellationToken));
     }
     

@@ -1,17 +1,17 @@
 using MediatR;
+using SwiftParcel.Application.Cases.Dtos;
+using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Models;
+using SwiftParcel.Application.Integration.Interfaces;
 
 namespace SwiftParcel.Application.Cases.Commands.AssignCase;
 
 public class AssignCaseCommandHandler(ICaseAssignmentService assignmentService)
-    : IRequestHandler<AssignCaseCommand, Result<Unit>>
+    : IRequestHandler<AssignCaseCommand, Result<CaseSummaryDto>>
 {
-    public async Task<Result<Unit>> Handle(AssignCaseCommand request, CancellationToken cancellationToken)
+    public async Task<Result<CaseSummaryDto>> Handle(AssignCaseCommand request, CancellationToken cancellationToken)
     {
-        // The service handles transaction locking and capacity enforcement.
-        // It will throw DomainExceptions if business rules are violated.
-        await assignmentService.AssignCaseAsync(request.CaseNumber, request.HandlerId, cancellationToken);
-
-        return Result<Unit>.Success(Unit.Value);
+        return await assignmentService
+            .AssignCaseAsync(request.CaseNumber, request.HandlerId, cancellationToken);
     }
 }

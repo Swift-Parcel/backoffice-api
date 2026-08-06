@@ -10,12 +10,11 @@ public abstract class DomainException : Exception
 {
     public string Code { get; }
     public HttpStatusCode StatusCode { get; }
-    
-    protected DomainException(string code, string message, 
-        HttpStatusCode statusCode = HttpStatusCode.BadRequest) 
+
+    protected DomainException(string message,
+        HttpStatusCode statusCode = HttpStatusCode.BadRequest)
         : base(message)
     {
-        Code = code;
         StatusCode = statusCode;
     }
 }

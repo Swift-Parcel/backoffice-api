@@ -10,9 +10,18 @@ public class ApiController : ControllerBase
 {
     private ISender? _mediator;
 
-    //lazy-loaded MediatR Sender
     protected ISender Mediator =>
         _mediator ??= HttpContext.RequestServices.GetRequiredService<ISender>();
+
+    protected IActionResult HandleResult(Result result)
+    {
+        if (result.IsSuccess)
+        {
+            return NoContent();
+        }
+
+        return HandleFailure(result.Error);
+    }
 
     protected IActionResult HandleResult<T>(Result<T> result)
     {
@@ -21,27 +30,17 @@ public class ApiController : ControllerBase
             return result.Value is null ? NoContent() : Ok(result.Value);
         }
 
-        return result.Error?.Type switch
-        {
-            ErrorType.NotFound => NotFound(new
-            {
-                message = $"message:{result.Error.Description}"
-            }),
+        return HandleFailure(result.Error);
+    }
 
-            ErrorType.Validation => BadRequest(new
-            {
-                message = $"message:{result.Error.Description}"
-            }),
-            
-            ErrorType.Conflict => Conflict(new
-            {
-                message = $"message:{result.Error.Description}"
-            }),
-            
-            _ => BadRequest(new
-            {
-                message = $"message::{result.Error?.Description}"
-            })
+    private IActionResult HandleFailure(Error? error)
+    {
+        return error?.Type switch
+        {
+            ErrorType.NotFound => NotFound(new { message = error.Description }),
+            ErrorType.Validation => BadRequest(new { message = error.Description }),
+            ErrorType.Conflict => Conflict(new { message = error.Description }),
+            _ => BadRequest(new { message = error?.Description ?? "An unexpected error occurred." })
         };
     }
 }
