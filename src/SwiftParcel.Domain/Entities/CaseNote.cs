@@ -9,7 +9,7 @@ public class CaseNote
     public bool IsInternal { get; set; }
     public int? HandlerId { get; set; }
     public int? CustomerId { get; set; }
-    public string Attachment { get; set; } = string.Empty;
+    public string? Attachment { get; set; } = string.Empty;
     
     public Case Case { get; set; } = null!;
     public User? Handler { get; set; }

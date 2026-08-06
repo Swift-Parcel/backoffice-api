@@ -7,7 +7,7 @@ public class CreatePortalCustomerCommandValidator : AbstractValidator<CreatePort
 {
     public CreatePortalCustomerCommandValidator()
     {
-        RuleFor(x => x.FullName)
+        RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Full name is required.")
             .MaximumLength(100).WithMessage("Full name cannot exceed 100 characters.");
 

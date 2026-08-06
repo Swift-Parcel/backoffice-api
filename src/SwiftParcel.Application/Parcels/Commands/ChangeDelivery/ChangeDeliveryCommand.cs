@@ -1,11 +1,12 @@
 using MediatR;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Common.Models;
+using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Application.Parcels.Commands.ChangeDelivery;
 
 public record ChangeDeliveryCommand(
     string TrackingNumber,
-    DateTime Date,
-    string Timeslot
+    DateTime? Date,
+    Timeslot? Timeslot
 ) : IRequest<Result<DeliveryChangeResponse>>;

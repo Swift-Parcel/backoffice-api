@@ -5,6 +5,6 @@ namespace SwiftParcel.Application.DTO.Cases;
 
 public record CaseStatusResponse(
      CaseStatus CaseStatus,
-     List<CaseNoteDto> Notes,
+     List<CustomerFacingCaseNoteDto> Notes,
      string? Resolution
 );

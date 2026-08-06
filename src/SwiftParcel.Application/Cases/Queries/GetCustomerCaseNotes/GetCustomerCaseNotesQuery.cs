@@ -5,4 +5,4 @@ using SwiftParcel.Application.DTO.Cases;
 
 namespace SwiftParcel.Application.Cases.Queries.GetCustomerCaseNotes;
 
-public record GetCustomerCaseNotesQuery(string CaseNumber) : IRequest<Result<IReadOnlyList<CaseNoteDto>>>;
+public record GetCustomerCaseNotesQuery(string CaseNumber) : IRequest<Result<IReadOnlyList<CustomerFacingCaseNoteDto>>>;

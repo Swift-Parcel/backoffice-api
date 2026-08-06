@@ -6,7 +6,7 @@ using SwiftParcel.Infrastructure.Authentication;
 namespace SwiftParcel.Api.Controllers.Integration;
 
 [ApiController]
-[Route("api/integration/[controller]")]
+[Route("api/integration/customers")]
 [ApiKeyAuth]
 public class CustomersController : ApiController
 {
