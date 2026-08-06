@@ -65,14 +65,14 @@ public class CreateParcelCommandHandler : IRequestHandler<CreateParcelCommand, R
                 request.Recipient.RecipientAddress.PostalCode,
                 request.Recipient.RecipientAddress.CountryCode
             )
-            //,
-            //Customer = .new Address(
-            //    request.Sender.SenderAddress.Street,
-            //    request.Sender.SenderAddress.StreetNumber,
-            //    request.Sender.SenderAddress.City,
-            //    request.Sender.SenderAddress.PostalCode,
-            //    request.Sender.SenderAddress.CountryCode
-            //)
+            ,
+            SenderAddress = new Address(
+                request.Sender.SenderAddress.Street,
+                request.Sender.SenderAddress.StreetNumber,
+                request.Sender.SenderAddress.City,
+                request.Sender.SenderAddress.PostalCode,
+                request.Sender.SenderAddress.CountryCode
+            )
         };
 
         _context.Parcels.Add(newParcel);
