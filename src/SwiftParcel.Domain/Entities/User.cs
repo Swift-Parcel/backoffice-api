@@ -15,4 +15,5 @@ public class User
     public DateTime CreatedDate { get; set; }
     public int CreatedById { get; set; }
     public User CreatedBy { get; set; }
+    public bool IsActive { get; set; }
 }

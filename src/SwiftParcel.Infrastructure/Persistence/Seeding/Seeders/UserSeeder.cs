@@ -91,7 +91,8 @@ public class UserSeeder : IEntitySeeder
                 Email = finalEmail,
                 RoleId = roleId,
                 LastLogin = hasLastLogin ?  createdDate : null,
-                CreatedDate = TimestampParserHelper.ParseOrFallback(oldUser.created_date)
+                CreatedDate = TimestampParserHelper.ParseOrFallback(oldUser.created_date),
+                IsActive = StringParserHelper.ParseBoolean(oldUser.is_active)
             };
 
             // 2. Resolve Regions (Many-to-Many)
@@ -147,5 +148,6 @@ public class UserSeeder : IEntitySeeder
         string regions,
         string last_login,
         string created_date,
-        string created_by);
+        string created_by,
+        string is_active);
 }
