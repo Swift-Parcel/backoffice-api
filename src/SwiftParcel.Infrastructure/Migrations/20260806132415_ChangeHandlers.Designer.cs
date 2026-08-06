@@ -5,6 +5,7 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SwiftParcel.Domain.Enums;
@@ -15,9 +16,11 @@ using SwiftParcel.Infrastructure.Persistence;
 namespace SwiftParcel.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260806132415_ChangeHandlers")]
+    partial class ChangeHandlers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -928,7 +931,7 @@ namespace SwiftParcel.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CreatedById")
+                    b.Property<int>("CreatedById")
                         .HasColumnType("integer")
                         .HasColumnName("created_by_id");
 
@@ -1186,6 +1189,8 @@ namespace SwiftParcel.Infrastructure.Migrations
                     b.HasOne("SwiftParcel.Domain.Entities.User", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
                         .HasConstraintName("fk_users_users_created_by_id");
 
                     b.HasOne("SwiftParcel.Domain.Entities.Role", "Role")

@@ -30,6 +30,17 @@ public class Case
     public ICollection<Parcel> Parcels { get; set; } = new List<Parcel>();
     
     /// <summary>
+    /// Centralized definition of active statuses
+    /// </summary>
+    public static readonly CaseStatus[] ActiveStatuses = 
+    {
+        CaseStatus.Open,
+        CaseStatus.InProgress,
+        CaseStatus.Escalated,
+        CaseStatus.AwaitingCustomer
+    };
+    
+    /// <summary>
     /// Factory method for creating Delivery Change cases. 
     /// </summary>
     public static Case CreateForDeliveryChange(

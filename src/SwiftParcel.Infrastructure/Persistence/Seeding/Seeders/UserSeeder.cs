@@ -31,7 +31,7 @@ public class UserSeeder : IEntitySeeder
                 SELECT 
                     id, username, password, full_name, email, 
                     role, role_id, regions,
-                    last_login, created_date, created_by 
+                    last_login, created_date, created_by, is_active
                 FROM users")
             .ToListAsync(cancellationToken);
 
@@ -78,6 +78,9 @@ public class UserSeeder : IEntitySeeder
 
             string plainTextPassword = oldUser.password ?? string.Empty;
             string HashedPassword = _passwordHasher.HashPassword(plainTextPassword);
+
+            bool hasLastLogin = false;
+            hasLastLogin = TimestampParserHelper.TryParse(oldUser.last_login, out var createdDate);
             
             var newUser = new User
             {
@@ -87,8 +90,9 @@ public class UserSeeder : IEntitySeeder
                 FullName = oldUser.full_name ?? string.Empty,
                 Email = finalEmail,
                 RoleId = roleId,
-                LastLogin = TimestampParserHelper.ParseOrFallback(oldUser.last_login),
-                CreatedDate = TimestampParserHelper.ParseOrFallback(oldUser.created_date)
+                LastLogin = hasLastLogin ?  createdDate : null,
+                CreatedDate = TimestampParserHelper.ParseOrFallback(oldUser.created_date),
+                IsActive = StringParserHelper.ParseBoolean(oldUser.is_active)
             };
 
             // 2. Resolve Regions (Many-to-Many)
@@ -144,5 +148,6 @@ public class UserSeeder : IEntitySeeder
         string regions,
         string last_login,
         string created_date,
-        string created_by);
+        string created_by,
+        string is_active);
 }

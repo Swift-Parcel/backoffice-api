@@ -1,25 +1,16 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
 using SwiftParcel.Domain.Exceptions;
 using SwiftParcel.Infrastructure.Persistence;
-using SwiftParcel.Application.Common.Interfaces;
+
+namespace SwiftParcel.Infrastructure.Services;
 
 public class CaseAssignmentService : ICaseAssignmentService
 {
     private readonly AppDbContext _dbContext;
     private readonly ICurrentUserService _currentUser;
-
-    private readonly CaseStatus[] _activeStatuses = new[] 
-    { 
-        CaseStatus.Open, 
-        CaseStatus.InProgress, 
-        CaseStatus.Escalated, 
-        CaseStatus.AwaitingCustomer 
-    };
     
     public CaseAssignmentService(AppDbContext dbContext, ICurrentUserService currentUser)
     {
@@ -48,15 +39,27 @@ public class CaseAssignmentService : ICaseAssignmentService
         try
         {
             var handler = await _dbContext.Handlers
-                .FromSqlInterpolated($"SELECT * FROM handlers WHERE id = {handlerId} FOR UPDATE")
-                .SingleOrDefaultAsync(cancellationToken)
-                ?? throw new KeyNotFoundException($"Handler with ID {handlerId} was not found.");
+                              .FromSqlInterpolated($"SELECT * FROM handlers WHERE id = {handlerId} FOR UPDATE")
+                              .SingleOrDefaultAsync(cancellationToken)
+                          ?? throw new KeyNotFoundException($"Handler with ID {handlerId} was not found.");
 
             var targetUser = await _dbContext.Users
                 .Include(u => u.Regions)
                 .FirstOrDefaultAsync(u => u.Id == handler.UserId, cancellationToken);
+            
+            if (targetUser == null)
+            {
+                throw new KeyNotFoundException($"User associated with Handler {handlerId} was not found.");
+            }
 
-            bool targetHandlerIsInRegion = targetUser!.Regions.Any(r => r.Id == ticket.RegionId);
+            if (!targetUser.IsActive)
+            {
+                throw new BusinessRuleValidationException(
+                    "handler_deactivated", 
+                    "The selected handler's user account has been deactivated. They cannot be assigned new cases.");
+            }
+
+            bool targetHandlerIsInRegion = targetUser.Regions.Any(r => r.Id == ticket.RegionId);
             
             if (!targetHandlerIsInRegion && !_currentUser.CanAccessAllRegions)
             {
@@ -88,7 +91,7 @@ public class CaseAssignmentService : ICaseAssignmentService
             
             var activeCasesCount = await _dbContext.Cases
                 .CountAsync(c => c.HandlerId == handlerId && 
-                                 _activeStatuses.Contains(c.Status), 
+                                 Case.ActiveStatuses.Contains(c.Status),
                     cancellationToken);
             
             if (activeCasesCount >= handler.MaxCases)

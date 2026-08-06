@@ -7,12 +7,16 @@ public class TimestampParserHelper
     private static readonly string[] GlobalFormats = new string[]
     {
         "yyyy-MM-dd HH:mm:ss",
+        "yyyy-MM-dd HH:mm",
         "yyyy-MM-dd",
         "dd/MM/yyyy HH:mm:ss",
+        "dd/MM/yyyy HH:mm",
         "dd/MM/yyyy",
         "MM/dd/yyyy HH:mm:ss",
+        "MM/dd/yyyy HH:mm",
         "MM/dd/yyyy",
         "yyyy/MM/dd HH:mm:ss",
+        "yyyy/MM/dd HH:mm",
         "yyyy/MM/dd",
     };
 

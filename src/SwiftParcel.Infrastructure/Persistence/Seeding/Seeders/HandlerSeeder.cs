@@ -25,18 +25,14 @@ public class HandlerSeeder : IEntitySeeder
         
         foreach (var legacyHandler in legacyHandlers)
         {
-            if (!StringParserHelper.ParseBoolean(legacyHandler.is_active))
-            {
-                continue;
-            }
-            
             var newHandler = new Handler()
             {
                 Id = StringParserHelper.ExtractInteger(legacyHandler.id),
                 UserId = userLookup.GetValueOrDefault(legacyHandler.email),
                 Department = legacyHandler.department,
                 HireDate = TimestampParserHelper.ParseOrFallback(legacyHandler.hire_date),
-                MaxCases = StringParserHelper.ExtractInteger(legacyHandler.max_cases)
+                MaxCases = StringParserHelper.ExtractInteger(legacyHandler.max_cases),
+                IsActive = StringParserHelper.ParseBoolean(legacyHandler.is_active)
             };
             
             newHandlers.Add(newHandler);
