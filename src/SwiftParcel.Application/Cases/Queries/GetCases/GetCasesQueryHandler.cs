@@ -23,6 +23,21 @@ public class GetCasesQueryHandler(IAppDbContext dbContext, ICurrentUserService c
             query = query.Where(c => userRegions.Contains(c.RegionId));
         }
 
+        if (request.CustomerId.HasValue)
+        {
+            query = query.Where(c => c.CustomerId == request.CustomerId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.CustomerEmail))
+        {
+            query = query.Where(c => c.Customer.Email.ToLower() == request.CustomerEmail.ToLower());
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.CustomerPhone))
+        {
+            query = query.Where(c => c.Customer.Phone == request.CustomerPhone);
+        }
+
         var cases = await query
             .Select(c => new CaseDto
             {

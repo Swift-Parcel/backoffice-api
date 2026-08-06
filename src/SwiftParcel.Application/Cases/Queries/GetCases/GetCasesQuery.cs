@@ -1,9 +1,10 @@
 using MediatR;
 using SwiftParcel.Application.Common.Models;
-using SwiftParcel.Application.DTO.Cases;
 
 namespace SwiftParcel.Application.Cases.Queries.GetCases;
 
-public class GetCasesQuery : IRequest<Result<List<CaseDto>>>
-{
-}
+public record GetCasesQuery(
+    int? CustomerId = null,
+    string? CustomerEmail = null,
+    string? CustomerPhone = null
+) : IRequest<Result<List<CaseDto>>>;
