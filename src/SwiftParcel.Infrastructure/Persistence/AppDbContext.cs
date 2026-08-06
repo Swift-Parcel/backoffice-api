@@ -156,6 +156,29 @@ namespace SwiftParcel.Infrastructure.Persistence
                         .HasMaxLength(3)
                         .HasColumnName("Recipient_CountryCode");
                 });
+                
+                b.ComplexProperty(p => p.SenderAddress, addressBuilder =>
+                {
+                    addressBuilder.Property(a => a.Street)
+                        .HasMaxLength(200)
+                        .HasColumnName("Sender_Street");
+
+                    addressBuilder.Property(a => a.StreetNumber)
+                        .HasMaxLength(30)
+                        .HasColumnName("Sender_StreetNumber");
+
+                    addressBuilder.Property(a => a.City)
+                        .HasMaxLength(100)
+                        .HasColumnName("Sender_City");
+
+                    addressBuilder.Property(a => a.PostalCode)
+                        .HasMaxLength(20)
+                        .HasColumnName("Sender_PostalCode");
+
+                    addressBuilder.Property(a => a.CountryCode)
+                        .HasMaxLength(3)
+                        .HasColumnName("Sender_CountryCode");
+                });
             });
 
             modelBuilder.Entity<Permission>(b =>
