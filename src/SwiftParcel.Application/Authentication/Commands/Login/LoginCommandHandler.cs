@@ -39,8 +39,16 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<Authenti
                     , "Invalid username or password."));
         }
         
+        if (!user.IsActive)
+        {
+            return Result<AuthenticationResult?>.Failure(
+                Error.Failure("account_disabled", 
+                    "This account has been deactivated. Please contact an administrator."));
+        }
+        
         var isPasswordValid = _passwordHasher
             .VerifyPassword(request.Password, user.PasswordHash);
+            
         if(!isPasswordValid)
         {
             return Result<AuthenticationResult?>.Failure(

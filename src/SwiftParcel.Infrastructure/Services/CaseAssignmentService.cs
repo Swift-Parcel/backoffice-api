@@ -55,8 +55,20 @@ public class CaseAssignmentService : ICaseAssignmentService
             var targetUser = await _dbContext.Users
                 .Include(u => u.Regions)
                 .FirstOrDefaultAsync(u => u.Id == handler.UserId, cancellationToken);
+            
+            if (targetUser == null)
+            {
+                throw new KeyNotFoundException($"User associated with Handler {handlerId} was not found.");
+            }
 
-            bool targetHandlerIsInRegion = targetUser!.Regions.Any(r => r.Id == ticket.RegionId);
+            if (!targetUser.IsActive)
+            {
+                throw new BusinessRuleValidationException(
+                    "handler_deactivated", 
+                    "The selected handler's user account has been deactivated. They cannot be assigned new cases.");
+            }
+
+            bool targetHandlerIsInRegion = targetUser.Regions.Any(r => r.Id == ticket.RegionId);
             
             if (!targetHandlerIsInRegion && !_currentUser.CanAccessAllRegions)
             {
