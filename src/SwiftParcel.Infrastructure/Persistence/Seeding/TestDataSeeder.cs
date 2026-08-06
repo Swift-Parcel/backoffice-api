@@ -125,7 +125,11 @@ public class TestDataSeeder
                  .Select(r => r.Id)
                  .FirstOrDefaultAsync(),
             Email = "handlerfull@example.com",
-            CreatedDate = DateTime.UtcNow
+            CreatedDate = DateTime.UtcNow,
+            CreatedById = await _context.Users
+                .Where(u => u.Username == "system")
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync()
         };
         _context.Users.Add(handlerFullUser);
         await _context.SaveChangesAsync();
