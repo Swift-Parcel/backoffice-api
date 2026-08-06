@@ -14,7 +14,13 @@ public static class DatabaseExtensions
         var newDbContext = services.GetRequiredService<AppDbContext>();
         await newDbContext.Database.MigrateAsync();
 
-        var migrationService = services.GetRequiredService<DataSeederOrchestrator>();
-        await migrationService.RunMigrationIfNeededAsync();
+        var migrationService = services.GetRequiredService<DbSeeder>();
+        await migrationService.SeedAsync();
+        
+        if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Testing"))
+        {
+            var testDataSeeder = services.GetRequiredService<TestDataSeeder>();
+            await testDataSeeder.SeedAsync();
+        }
     }
 }
