@@ -19,21 +19,23 @@ public class Handler
     public Handler()
     { }
     
-    public Handler(int userId, string department, DateTime hireDate, int maxCases)
+    public Handler(int userId, string department, DateTime hireDate, int maxCases, bool isActive)
     {
         UserId = userId;
         Department = department;
         HireDate = hireDate;
         MaxCases = maxCases;
+        IsActive = isActive;
     }
     
-    public Handler(int id,int userId, string department, DateTime hireDate, int maxCases)
+    public Handler(int id,int userId, string department, DateTime hireDate, int maxCases,  bool isActive)
     {
         Id = id;
         UserId = userId;
         Department = department;
         HireDate = hireDate;
         MaxCases = maxCases;
+        IsActive = isActive;
     }
     
     public void UpdateHandler(int userId, 
