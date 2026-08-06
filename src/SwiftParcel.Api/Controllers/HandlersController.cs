@@ -35,8 +35,8 @@ public class HandlersController : ApiController
     [Authorize(Roles = "Supervisor,Admin")]
     [ProducesResponseType(typeof(List<HandlerDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetHandlers(
-        [FromQuery] bool? isActive, 
-        [FromQuery] string? department, 
+        [FromQuery] bool? isActive,
+        [FromQuery] string? department,
         CancellationToken cancellationToken)
     {
         var query = new GetHandlersQuery(isActive, department);
@@ -57,30 +57,31 @@ public class HandlersController : ApiController
         var result = await Mediator.Send(new GetHandlerByIdQuery(id), cancellationToken);
         return HandleResult(result);
     }
-    
+
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> CreateHandler([FromBody] CreateHandlerCommand command, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateHandler([FromBody] CreateHandlerCommand command,
+        CancellationToken cancellationToken)
     {
         var result = await Mediator.Send(command, cancellationToken);
         return HandleResult(result);
     }
 
-    [HttpPatch("{id:int}")]
+    [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateHandler([FromRoute] int id, [FromBody] UpdateHandlerRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateHandler([FromRoute] int id, [FromBody] UpdateHandlerCommand command,
+        CancellationToken cancellationToken)
     {
-        var command = new UpdateHandlerCommand(id, request.Department, request.MaxCases);
-        var result = await Mediator.Send(command, cancellationToken);
+        var result = await Mediator.Send( command with {Id = id}, cancellationToken);
         return HandleResult(result);
     }
-    
+
     [HttpPatch("{id:int}/activate")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

@@ -25,15 +25,19 @@ public class HandlerSeeder : IEntitySeeder
         
         foreach (var legacyHandler in legacyHandlers)
         {
-            var newHandler = new Handler()
+            if (!StringParserHelper.ParseBoolean(legacyHandler.is_active))
             {
-                Id = StringParserHelper.ExtractInteger(legacyHandler.id),
-                UserId = userLookup.GetValueOrDefault(legacyHandler.email),
-                Department = legacyHandler.department,
-                HireDate = TimestampParserHelper.ParseOrFallback(legacyHandler.hire_date),
-                MaxCases = StringParserHelper.ExtractInteger(legacyHandler.max_cases),
-                IsActive = StringParserHelper.ParseBoolean(legacyHandler.is_active)
-            };
+                continue;
+            }
+            
+            var newHandler = new Handler(
+                id : StringParserHelper.ExtractInteger(legacyHandler.id),
+                userId : userLookup.GetValueOrDefault(legacyHandler.email),
+                department : legacyHandler.department,
+                hireDate : TimestampParserHelper.ParseOrFallback(legacyHandler.hire_date),
+                maxCases : StringParserHelper.ExtractInteger(legacyHandler.max_cases),
+                isActive : StringParserHelper.ParseBoolean(legacyHandler.is_active)
+            );
             
             newHandlers.Add(newHandler);
         }
@@ -41,7 +45,7 @@ public class HandlerSeeder : IEntitySeeder
         await dbContext.Handlers.AddRangeAsync(newHandlers, cancellationToken);
     }
     
-    private record LegacyHandlerDto(
+    private sealed record LegacyHandlerDto(
         string id,
         string email,
         string department,

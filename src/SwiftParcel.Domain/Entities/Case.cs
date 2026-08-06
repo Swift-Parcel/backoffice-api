@@ -74,4 +74,11 @@ public class Case
             Tags = new List<Tag>()
         };
     }
+    
+    public string GetRequiredDepartment() => this switch
+    {
+        { IsEscalated: true } => "Escalations",
+        { IsEscalated: false, CaseType: CaseType.Lost } => "Investigations",
+        _ => "Customer Support"
+    };
 }

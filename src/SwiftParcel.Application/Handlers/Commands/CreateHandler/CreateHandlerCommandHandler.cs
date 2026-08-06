@@ -17,13 +17,12 @@ public class CreateHandlerCommandHandler : IRequestHandler<CreateHandlerCommand,
     public async Task<Result<int>> Handle(CreateHandlerCommand request, CancellationToken cancellationToken)
     {
         var newHandler = new Handler
-        {
-            UserId = request.UserId,
-            Department = request.Department,
-            MaxCases = request.MaxCases,
-            HireDate = request.HireDate ?? DateTime.UtcNow,
-            IsActive = true
-        };
+        (
+            userId: request.UserId,
+            department: request.Department,
+            maxCases: request.MaxCases,
+            hireDate: request.HireDate ?? DateTime.UtcNow
+        );
 
         _context.Handlers.Add(newHandler);
         await _context.SaveChangesAsync(cancellationToken);

@@ -134,13 +134,13 @@ public class TestDataSeeder
         _context.Users.Add(handlerFullUser);
         await _context.SaveChangesAsync();
 
-        var handlerFull = new Handler()
-        {
-            UserId = handlerFullUser.Id,
-            Department = "Customer Support",
-            HireDate = DateTime.UtcNow.AddYears(-2),
-            MaxCases = 2
-        };
+        var handlerFull = new Handler
+        (
+            userId: handlerFullUser.Id,
+            department: "Customer Support",
+            hireDate: DateTime.UtcNow.AddYears(-2),
+            maxCases: 2
+        );
         _context.Handlers.Add(handlerFull);
 
         var customer1 = new Customer()
@@ -348,8 +348,18 @@ public class TestDataSeeder
         var operatorUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == "operator");
         var supervisorUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == "supervisor");
 
-        var opHandler = new Handler { UserId = operatorUser!.Id, Department = "Customer Support", MaxCases = 10 };
-        var supHandler = new Handler { UserId = supervisorUser!.Id, Department = "Escalations", MaxCases = 5 };
+        var opHandler = new Handler ( 
+            userId : operatorUser!.Id, 
+            department : "Customer Support",
+            hireDate: DateTime.UtcNow.AddYears(-1),
+            maxCases : 10 );
+        
+        var supHandler = new Handler ( 
+            userId : supervisorUser!.Id, 
+            department : "Escalations", 
+            hireDate: DateTime.UtcNow.AddYears(-2), 
+            maxCases : 5 );
+        
         _context.Handlers.AddRange(opHandler, supHandler);
         await _context.SaveChangesAsync();
 
