@@ -37,7 +37,7 @@
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "3500:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - DOTNET_SYSTEM_NET_DISABLEIPV6=1
