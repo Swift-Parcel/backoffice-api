@@ -8,6 +8,7 @@ using SwiftParcel.Application.Users.Commands.ChangeMyPassword;
 using SwiftParcel.Application.Users.Commands.CreateUser;
 using SwiftParcel.Application.Users.Commands.DeactivateUser;
 using SwiftParcel.Application.Users.Commands.UpdateUser;
+using SwiftParcel.Application.Users.Queries.GetCurrentUser;
 using SwiftParcel.Application.Users.Queries.GetUserById;
 
 namespace SwiftParcel.Api.Controllers;
@@ -121,6 +122,20 @@ public class UsersController : ApiController
     {
         var command = new AdminResetPasswordCommand(id, request.NewPassword);
         var result = await Mediator.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+    
+    /// <summary>
+    /// Retrieves the profile of the currently authenticated user.
+    /// </summary>
+    [HttpGet("me")]
+    [Authorize]
+    [ProducesResponseType(typeof(UserDetailsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCurrentUser(CancellationToken cancellationToken)
+    {
+        var query = new GetCurrentUserQuery();
+        var result = await Mediator.Send(query, cancellationToken);
         return HandleResult(result);
     }
 }
