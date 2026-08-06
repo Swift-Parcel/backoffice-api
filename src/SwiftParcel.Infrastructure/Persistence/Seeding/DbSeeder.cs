@@ -15,33 +15,19 @@ public class DbSeeder
     private readonly ILogger<DbSeeder> _logger;
 
     private static async Task ResyncPostgresSequencesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+
     {
         var tables = new[] { "users", "roles", "customers", "cases", "case_notes", "parcels", "handlers" };
+        foreach (var table in tables)
+        {
+            var sql = $@"
+            SELECT setval(
+                pg_get_serial_sequence('{table}', 'id'), 
+                COALESCE((SELECT MAX(id) FROM {table}), 1)
+            );";
 
-        const string sql = @"
-        DO $$
-        DECLARE
-            tbl text;
-            seq text;
-            max_id bigint;
-        BEGIN
-            FOREACH tbl IN ARRAY @p0
-            LOOP
-                seq := pg_get_serial_sequence(quote_ident(tbl), 'id');
-                
-                IF seq IS NOT NULL THEN
-                    EXECUTE format('SELECT COALESCE(MAX(id), 0) FROM %I', tbl) INTO max_id;
-                    
-                    IF max_id = 0 THEN
-                        PERFORM setval(seq, 1, false);
-                    ELSE
-                        PERFORM setval(seq, max_id, true);
-                    END IF;
-                END IF;
-            END LOOP;
-        END $$;";
-
-        await dbContext.Database.ExecuteSqlRawAsync(sql, new object[] { tables }, cancellationToken);
+            await dbContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
+        }
     }
 
     public DbSeeder(
@@ -61,7 +47,7 @@ public class DbSeeder
         await SeedFromLegacyDbAsync(cancellationToken);
 
         await SeedSystemUser(cancellationToken);
-        
+
         await ResyncPostgresSequencesAsync(_dbContext, cancellationToken);
     }
 
