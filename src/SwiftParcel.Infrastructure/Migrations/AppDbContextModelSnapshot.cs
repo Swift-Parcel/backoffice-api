@@ -942,7 +942,7 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("full_name");
 
-                    b.Property<DateTime>("LastLogin")
+                    b.Property<DateTime?>("LastLogin")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_login");
 

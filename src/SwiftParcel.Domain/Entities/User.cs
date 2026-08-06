@@ -11,7 +11,7 @@ public class User
 
     public ICollection<Region> Regions { get; set; }= new List<Region>();
     public string Email { get; set; } = string.Empty;
-    public DateTime LastLogin { get; set; }
+    public DateTime? LastLogin { get; set; }
     public DateTime CreatedDate { get; set; }
     public int CreatedById { get; set; }
     public User CreatedBy { get; set; }

@@ -78,6 +78,9 @@ public class UserSeeder : IEntitySeeder
 
             string plainTextPassword = oldUser.password ?? string.Empty;
             string HashedPassword = _passwordHasher.HashPassword(plainTextPassword);
+
+            bool hasLastLogin = false;
+            hasLastLogin = TimestampParserHelper.TryParse(oldUser.last_login, out var createdDate);
             
             var newUser = new User
             {
@@ -87,7 +90,7 @@ public class UserSeeder : IEntitySeeder
                 FullName = oldUser.full_name ?? string.Empty,
                 Email = finalEmail,
                 RoleId = roleId,
-                LastLogin = TimestampParserHelper.ParseOrFallback(oldUser.last_login),
+                LastLogin = hasLastLogin ?  createdDate : null,
                 CreatedDate = TimestampParserHelper.ParseOrFallback(oldUser.created_date)
             };
 
