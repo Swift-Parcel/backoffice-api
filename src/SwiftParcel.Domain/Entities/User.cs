@@ -13,6 +13,6 @@ public class User
     public string Email { get; set; } = string.Empty;
     public DateTime LastLogin { get; set; }
     public DateTime CreatedDate { get; set; }
-    public int CreatedById { get; set; }
-    public User CreatedBy { get; set; }
+    public int? CreatedById { get; set; }
+    public User? CreatedBy { get; set; }
 }
