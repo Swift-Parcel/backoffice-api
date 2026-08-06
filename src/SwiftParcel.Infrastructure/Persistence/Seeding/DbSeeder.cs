@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
 
@@ -15,17 +16,35 @@ public class DbSeeder
     private readonly ILogger<DbSeeder> _logger;
 
     private static async Task ResyncPostgresSequencesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
-
     {
-        var tables = new[] { "users", "roles", "customers", "cases", "case_notes", "parcels", "handlers" };
-        foreach (var table in tables)
-        {
-            var sql = $@"
-            SELECT setval(
-                pg_get_serial_sequence('{table}', 'id'), 
-                COALESCE((SELECT MAX(id) FROM {table}), 1)
-            );";
+        var entityTypes = dbContext.Model.GetEntityTypes();
 
+        foreach (var entityType in entityTypes)
+        {
+            var tableName = entityType.GetTableName();
+            if (string.IsNullOrEmpty(tableName)) 
+                continue;
+
+            var pk = entityType.FindPrimaryKey();
+            if (pk == null || pk.Properties.Count != 1) 
+                continue;
+
+            var pkProperty = pk.Properties[0];
+            var storeObject = StoreObjectIdentifier.Table(tableName, entityType.GetSchema());
+            var columnName = pkProperty.GetColumnName(storeObject);
+
+            var sql = $@"
+        DO $$
+        DECLARE
+            seq TEXT;
+        BEGIN
+            seq := pg_get_serial_sequence('""{tableName}""', '{columnName}');
+            
+            IF seq IS NOT NULL THEN
+                EXECUTE format('SELECT setval(''%s'', COALESCE((SELECT MAX(""{columnName}"") FROM ""{tableName}""), 1))', seq);
+            END IF;
+        END $$;";
+            
             await dbContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
         }
     }

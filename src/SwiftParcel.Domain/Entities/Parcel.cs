@@ -9,9 +9,10 @@ public class Parcel
 
     public int CustomerId { get; set; }
     public Customer Customer { get; set; } = null!;
+    
+    public Address SenderAddress { get; set; }
 
     public string RecipientName { get; set; } = string.Empty;
-    
     public Address RecipientAddress { get; set; }
 
     public float Weight { get; set; }

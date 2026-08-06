@@ -14,6 +14,7 @@ public interface IAppDbContext
     DbSet<Tag> Tags { get; }
     DbSet<User> Users { get; }
     DbSet<Handler> Handlers { get; }
+    DbSet<Role> Roles { get; }
     
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

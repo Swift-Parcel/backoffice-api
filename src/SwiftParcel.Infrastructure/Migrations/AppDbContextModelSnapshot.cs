@@ -437,6 +437,10 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("hire_date");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
                     b.Property<int>("MaxCases")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
@@ -559,6 +563,41 @@ namespace SwiftParcel.Infrastructure.Migrations
                                 .HasMaxLength(30)
                                 .HasColumnType("character varying(30)")
                                 .HasColumnName("Recipient_StreetNumber");
+                        });
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "SenderAddress", "SwiftParcel.Domain.Entities.Parcel.SenderAddress#Address", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("Sender_City");
+
+                            b1.Property<string>("CountryCode")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("Sender_CountryCode");
+
+                            b1.Property<string>("PostalCode")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("Sender_PostalCode");
+
+                            b1.Property<string>("Street")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("Sender_Street");
+
+                            b1.Property<string>("StreetNumber")
+                                .IsRequired()
+                                .HasMaxLength(30)
+                                .HasColumnType("character varying(30)")
+                                .HasColumnName("Sender_StreetNumber");
                         });
 
                     b.HasKey("Id")
@@ -906,6 +945,10 @@ namespace SwiftParcel.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("full_name");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
 
                     b.Property<DateTime?>("LastLogin")
                         .HasColumnType("timestamp with time zone")

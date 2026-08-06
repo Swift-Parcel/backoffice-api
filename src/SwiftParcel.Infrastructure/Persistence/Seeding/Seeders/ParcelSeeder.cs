@@ -29,14 +29,22 @@ public class ParcelSeeder : IEntitySeeder
 
         foreach (var legacyParcel in legacyParcels)
         {
-            var parsedAddress = AddressParserHelper.SplitStringAddress(legacyParcel.recipient_address);
+            var parsedSenderAddress = AddressParserHelper.SplitStringAddress(legacyParcel.sender_address);
+            var senderAddress = new Address(
+                parsedSenderAddress.Street ?? string.Empty,
+                parsedSenderAddress.StreetNumber ?? string.Empty,
+                parsedSenderAddress.City ?? string.Empty,
+                parsedSenderAddress.PostalCode ?? string.Empty,
+                parsedSenderAddress.CountryCode ?? string.Empty
+            );
             
+            var parsedRecipientAddress = AddressParserHelper.SplitStringAddress(legacyParcel.recipient_address);
             var recipientAddress = new Address(
-                parsedAddress.Street ?? string.Empty,
-                parsedAddress.StreetNumber ?? string.Empty,
-                parsedAddress.City ?? string.Empty,
-                parsedAddress.PostalCode ?? string.Empty,
-                parsedAddress.CountryCode ?? string.Empty
+                parsedRecipientAddress.Street ?? string.Empty,
+                parsedRecipientAddress.StreetNumber ?? string.Empty,
+                parsedRecipientAddress.City ?? string.Empty,
+                parsedRecipientAddress.PostalCode ?? string.Empty,
+                parsedRecipientAddress.CountryCode ?? string.Empty
             );
             
             var customerId = StringParserHelper.ExtractInteger(legacyParcel.customer_id);
@@ -52,6 +60,7 @@ public class ParcelSeeder : IEntitySeeder
                 Id = StringParserHelper.ExtractInteger(legacyParcel.id),
                 TrackingNumber = FormatHelper.FormatTrackingNumber(legacyParcel.tracking_number ?? string.Empty),
                 CustomerId = customerId,
+                SenderAddress = senderAddress,
                 RecipientName = legacyParcel.recipient_name ?? string.Empty,
                 RecipientAddress = recipientAddress,
                 Weight = StringParserHelper.ParseWeight(legacyParcel.weight) ?? 0f,
@@ -109,6 +118,7 @@ public class ParcelSeeder : IEntitySeeder
     private sealed record LegacyParcelDto(
         string? id,
         string? tracking_number,
+        string? sender_address,
         string? recipient_name,
         string? recipient_address,
         string? weight,

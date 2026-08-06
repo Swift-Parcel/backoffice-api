@@ -15,10 +15,10 @@ public static class OpenApiExtensions
                     Title = "SwiftParcel Back-Office API",
                     Version = "v1",
                     Description = @"
-### 🔐 Development Credentials:
+### Development Credentials:
 * **Admin Login:** `admin` / `admin`
 
-### 🤝 Java Portal Integration:
+### Java Portal Integration:
 * **Header:** `X-Api-Key`
 * **Secret Value:** `SwiftParcel_Java_Integration_Shared_Secret_2026!`
 "
