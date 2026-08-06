@@ -51,7 +51,7 @@ public static class DependencyInjection
         services.AddDbContext<LegacyDbContext>(options =>
             options.UseNpgsql(legacyConnectionString));
         
-        var seederTypes = typeof(DataSeederOrchestrator).Assembly
+        var seederTypes = typeof(DbSeeder).Assembly
             .GetTypes()
             .Where(t => typeof(IEntitySeeder).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
 
@@ -60,7 +60,8 @@ public static class DependencyInjection
             services.AddScoped(typeof(IEntitySeeder), type);
         }
 
-        services.AddScoped<DataSeederOrchestrator>();
+        services.AddScoped<DbSeeder>();
+        services.AddScoped<TestDataSeeder>();
         
         services.AddScoped<ICaseNumberGenerator, CaseNumberGenerator>();
         services.AddScoped<IParcelNumberGenerator, ParcelNumberGenerator>();
