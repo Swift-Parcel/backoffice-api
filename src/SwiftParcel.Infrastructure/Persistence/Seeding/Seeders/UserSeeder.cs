@@ -31,7 +31,7 @@ public class UserSeeder : IEntitySeeder
                 SELECT 
                     id, username, password, full_name, email, 
                     role, role_id, regions,
-                    last_login, created_date, created_by 
+                    last_login, created_date, created_by, is_active
                 FROM users")
             .ToListAsync(cancellationToken);
 
