@@ -10,6 +10,7 @@ using SwiftParcel.Application.Users.Commands.DeactivateUser;
 using SwiftParcel.Application.Users.Commands.UpdateUser;
 using SwiftParcel.Application.Users.Queries.GetCurrentUser;
 using SwiftParcel.Application.Users.Queries.GetUserById;
+using SwiftParcel.Application.Users.Queries.GetUsers;
 
 namespace SwiftParcel.Api.Controllers;
 
@@ -135,6 +136,23 @@ public class UsersController : ApiController
     public async Task<IActionResult> GetCurrentUser(CancellationToken cancellationToken)
     {
         var query = new GetCurrentUserQuery();
+        var result = await Mediator.Send(query, cancellationToken);
+        return HandleResult(result);
+    }
+    
+    /// <summary>
+    /// Retrieves a list of all users. Supports optional filtering by Role, Status, and Search text.
+    /// </summary>
+    [HttpGet]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(List<UserDetailsDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetUsers(
+        [FromQuery] int? roleId, 
+        [FromQuery] bool? isActive, 
+        [FromQuery] string? searchTerm, 
+        CancellationToken cancellationToken)
+    {
+        var query = new GetUsersQuery(roleId, isActive, searchTerm);
         var result = await Mediator.Send(query, cancellationToken);
         return HandleResult(result);
     }
