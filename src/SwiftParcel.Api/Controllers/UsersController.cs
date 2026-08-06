@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.DTO.Users;
 using SwiftParcel.Application.Users.Commands.ActivateUser;
+using SwiftParcel.Application.Users.Commands.ChangeMyPassword;
 using SwiftParcel.Application.Users.Commands.CreateUser;
 using SwiftParcel.Application.Users.Commands.DeactivateUser;
 using SwiftParcel.Application.Users.Commands.UpdateUser;
@@ -90,6 +91,19 @@ public class UsersController : ApiController
     public async Task<IActionResult> ActivateUser([FromRoute] int id, CancellationToken cancellationToken)
     {
         var command = new ActivateUserCommand(id);
+        var result = await Mediator.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+    
+    /// <summary>
+    /// Allows any authenticated user to change their own password. Requires the current password.
+    /// </summary>
+    [HttpPut("me/password")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ChangeMyPassword([FromBody] ChangeMyPasswordCommand command, CancellationToken cancellationToken)
+    {
         var result = await Mediator.Send(command, cancellationToken);
         return HandleResult(result);
     }
