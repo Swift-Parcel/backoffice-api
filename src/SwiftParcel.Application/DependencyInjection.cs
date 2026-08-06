@@ -23,7 +23,7 @@ public static class DependencyInjection
         
         //automatically finds all AbstractValidator and then registrates them
         services.AddValidatorsFromAssembly(assembly);
-        
+        services.AddAutoMapper(cfg => cfg.AddMaps(assembly));
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(assembly);
