@@ -48,4 +48,16 @@ public class ReportRepository : IReportRepository
             ))
             .ToListAsync(cancellationToken);
     }
+    
+    public async Task<IReadOnlyList<CasesByTypeReportDto>> GetOpenCasesByTypeReportAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Cases
+            .Where(c => c.Status != CaseStatus.Closed && c.Status != CaseStatus.Resolved)
+            .GroupBy(c => c.CaseType)
+            .Select(g => new CasesByTypeReportDto(
+                g.Key,
+                g.Count()
+            ))
+            .ToListAsync(cancellationToken);
+    }
 }
