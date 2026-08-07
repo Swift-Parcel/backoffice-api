@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Domain.Entities;
+using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Infrastructure.Services;
 
@@ -29,8 +30,8 @@ public class CurrentUserService : ICurrentUserService
     public string? Username => _httpContextAccessor.HttpContext?
         .User?.FindFirstValue(ClaimTypes.Name);
 
-    public string? Role => _httpContextAccessor.HttpContext?
-        .User?.FindFirstValue(ClaimTypes.Role);
+    public UserRole? Role => _httpContextAccessor.HttpContext?
+        .User?.FindFirstValue(ClaimTypes.Role) is string role ? Enum.Parse<UserRole>(role) : null;
 
     public bool CanAccessAllRegions => bool.TryParse(
         _httpContextAccessor.HttpContext?.User?.FindFirstValue("can_access_all_regions"),
