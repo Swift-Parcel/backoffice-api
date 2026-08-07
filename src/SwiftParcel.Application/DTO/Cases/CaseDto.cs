@@ -1,6 +1,6 @@
 using SwiftParcel.Domain.Enums;
 
-namespace SwiftParcel.Application.Cases.Queries.GetCases;
+namespace SwiftParcel.Application.DTO.Cases;
 
 public class CaseDto
 {

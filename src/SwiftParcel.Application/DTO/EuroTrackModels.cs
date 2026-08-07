@@ -1,4 +1,4 @@
-namespace SwiftParcel.Infrastructure.Integration.Models;
+namespace SwiftParcel.Application.DTO;
 
 public record EuroTrackResponseDto(
     List<EuroTrackShipmentDto> Shipments

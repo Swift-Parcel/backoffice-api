@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using SwiftParcel.Domain.Entities;
 
-namespace SwiftParcel.Infrastructure.Parsers;
+namespace SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
 
 public static partial class AddressParserHelper
 {

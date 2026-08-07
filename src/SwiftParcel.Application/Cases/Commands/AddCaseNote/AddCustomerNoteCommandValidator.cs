@@ -1,5 +1,7 @@
 using FluentValidation;
 
+namespace SwiftParcel.Application.Cases.Commands.AddCaseNote;
+
 public class AddCustomerNoteCommandValidator : AbstractValidator<AddCustomerNoteCommand>
 {
     public AddCustomerNoteCommandValidator()

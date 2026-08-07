@@ -4,6 +4,8 @@ using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Domain.Entities;
 
+namespace SwiftParcel.Application.Cases.Commands.AddCaseNote;
+
 public class AddCustomerNoteCommandHandler : IRequestHandler<AddCustomerNoteCommand, Result<int>>
 {
     private readonly IAppDbContext _context;

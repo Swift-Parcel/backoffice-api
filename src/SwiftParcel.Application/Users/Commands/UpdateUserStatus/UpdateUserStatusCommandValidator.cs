@@ -1,7 +1,6 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
-using SwiftParcel.Application.Users.Commands.ActivateUser;
 
 namespace SwiftParcel.Application.Users.Commands.UpdateUserStatus;
 

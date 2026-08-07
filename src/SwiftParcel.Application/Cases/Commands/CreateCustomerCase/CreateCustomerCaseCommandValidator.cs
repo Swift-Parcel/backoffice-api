@@ -1,7 +1,6 @@
 using FluentValidation;
-using SwiftParcel.Application.Cases.Commands.CreateCustomerCase;
 
-namespace SwiftParcel.Application.Integration.Validators;
+namespace SwiftParcel.Application.Cases.Commands.CreateCustomerCase;
 
 public class CreateCustomerCaseCommandValidator : AbstractValidator<CreateCustomerCaseCommand>
 {

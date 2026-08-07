@@ -1,6 +1,6 @@
 using SwiftParcel.Domain.Enums;
 
-namespace SwiftParcel.Application.Integration.Dtos;
+namespace SwiftParcel.Application.DTO.Cases;
 
 public class CreateCustomerCaseRequest
 {
