@@ -15,6 +15,7 @@ A backend service for managing parcel delivery operations, legacy system integra
 ## Getting Started
 
 ### Prerequisites
+
 - Docker Desktop or Docker Engine with Docker Compose installed.
 - .NET 10 SDK (optional, for local execution)
 
@@ -39,18 +40,23 @@ A backend service for managing parcel delivery operations, legacy system integra
 | Backoffice API | 3500 | 8080 | Main .NET REST API |
 | SwiftParcel DB | 5433 | 5432 | Primary PostgreSQL Database |
 | Legacy DB | 5434 | 5432 | Legacy PostgreSQL Database |
+
 ---
 
 ## API Documentation
 
 When the application is running, Swagger UI is available at:
 - http://localhost:3500/swagger
+
 ---
+
 ### API Authentication & Integrations
 
 #### Java Portal Integration
+
 - **Header:** `X-Api-Key`
 - **Secret Value:** `SwiftParcel_Java_Integration_Shared_Secret_2026!`
+
 ## Database Connections
 
 ### Connection Credentials
@@ -91,15 +97,28 @@ This document contains the pre-configured (seeded) data for testing the SwiftPar
 | :--- | :--- | :--- | :--- |
 | Customer 1 | customer1@example.com | No | Default test customer |
 | Customer 2 | customer2@example.com | Yes | For testing high-priority cases |
+| Customer 3 | - | No | Seeded test customer |
+| Customer 4 | - | No | Seeded test customer |
+| Customer 5 | - | No | Seeded test customer |
+| Customer 7 | - | No | Seeded test customer |
 
 ## 3. Parcels
 
-| Tracking Number | Status (ParcelStatus) | Customer | Purpose |
+| Tracking Number | Status | Customer | Purpose |
 | :--- | :--- | :--- | :--- |
-| SP-20261016 | InTransit | Customer 1 | Normal delivery process testing |
-| SP-20261017 | Delivered | Customer 1 | Successfully delivered parcel |
-| SP-20261018 | Delivery attempt failed | Customer 2 | |
-| SP-20261019 | Lost | Customer 2 | |
+| SP-20230101 | delivered | Customer 1 | |
+| SP-20230102 | delivered | Customer 2 | |
+| SP-20230103 | lost | Customer 3 | |
+| SP-20230104 | damaged | Customer 4 | |
+| SP-20230105 | in_transit | Customer 5 | |
+| SP-20230106 | delivered | Customer 1 | |
+| SP-20230107 | delivered | Customer 7 | |
+| SP-20230108 | in_transit | Customer 2 | |
+| SP-20230109 | delivered | Customer 4 | |
+| SP-20261016 | in_transit | Customer 1 | Normal delivery process testing |
+| SP-20261017 | delivered | Customer 1 | Successfully delivered parcel |
+| SP-20261018 | delivery_attempt_failed | Customer 2 | |
+| SP-20261019 | lost | Customer 2 | |
 
 ## 4. Cases
 
@@ -112,6 +131,53 @@ This document contains the pre-configured (seeded) data for testing the SwiftPar
 | Resolved | Billing | Medium | operator | Solution within SLA deadline |
 | Escalated | DeliveryChange | Critical | supervisor | Escalated case, visible/manageable only by supervisor |
 | Closed | Other | Low | operator | Fully closed case |
+
+## 5. Tags
+
+| ID | Name |
+| :--- | :--- |
+| 1 | investigation |
+| 2 | refund |
+| 3 | electronics |
+| 4 | neighbor |
+| 5 | duplicate_charge |
+| 6 | sla_breach |
+| 7 | fragile |
+| 8 | insurance |
+| 9 | tracking |
+| 10 | stuck |
+| 11 | compensation |
+| 12 | international |
+| 13 | long_running |
+| 14 | wrong_item |
+| 15 | swap |
+
+## 6. Handlers
+
+| ID | User ID | Department | Hire Date | Max Cases | Is Active |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | 1 | Customer Support | 2019-03-15 00:00:00+00 | 20 | true |
+| 2 | 2 | Customer Support | 2020-06-15 00:00:00+00 | 25 | true |
+| 3 | 3 | Escalations | 2021-01-10 00:00:00+00 | 15 | true |
+| 4 | 4 | Customer Support | 2022-04-01 00:00:00+00 | 20 | true |
+| 6 | 6 | Investigations | 2020-08-08 00:00:00+00 | 10 | true |
+| 7 | 16 | Customer Support | 2024-08-07 12:54:39.090028+00 | 2 | true |
+| 8 | 14 | Customer Support | 2025-08-07 12:54:39.200401+00 | 10 | true |
+| 9 | 15 | Escalations | 2024-08-07 12:54:39.200403+00 | 5 | true |
+
+## 7. Regions
+
+| ID | Name | Country Code | Business Hours | Manager Email | Is Active | Business Days |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | Budapest | HU | 08:00:00 - 18:00:00 | bp.manager@swiftparcel.com | true | {monday,tuesday,wednesday,thursday,friday} |
+| 2 | Wien | AT | 08:00:00 - 17:00:00 | vienna.mgr@swiftparcel.com | true | {monday,tuesday,wednesday,thursday,friday} |
+| 3 | Prague | CZ | 09:00:00 - 17:30:00 | prague.manager@swiftparcel.com | true | {monday,tuesday,wednesday,thursday,friday} |
+| 4 | Warsaw | PL | 08:00:00 - 17:00:00 | warsaw.mgr@swiftparcel.com | true | {monday,tuesday,wednesday,thursday,friday} |
+| 5 | Graz | AT | 08:00:00 - 17:00:00 | graz.mgr@swiftparcel.com | true | {monday,tuesday,wednesday,thursday,friday} |
+| 6 | Linz | AT | 08:00:00 - 17:00:00 | | true | {monday,tuesday,wednesday,thursday,friday} |
+| 7 | Bratislava | SK | 08:00:00 - 16:30:00 | bratislava.mgr@swiftparcel.com | false | {monday,tuesday,wednesday,thursday,friday} |
+
+---
 
 ## Useful Commands
 
