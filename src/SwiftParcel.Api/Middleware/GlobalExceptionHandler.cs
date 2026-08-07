@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.Exceptions;
 using SwiftParcel.Domain.Exceptions;
 
@@ -14,69 +13,46 @@ public class GlobalExceptionHandler : IExceptionHandler
         _logger = logger;
     }
 
-    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, 
-        Exception exception, CancellationToken cancellationToken)
+    public async ValueTask<bool> TryHandleAsync(
+        HttpContext httpContext, 
+        Exception exception, 
+        CancellationToken cancellationToken)
     {
-        if (exception is ValidationException valEx)
+        var (statusCode, message) = exception switch
         {
-            _logger.LogWarning("Validation failed: {Message}", valEx.Message);
-            
-            var validationProblemDetails = new HttpValidationProblemDetails(valEx.Errors)
-            {
-                Status = StatusCodes.Status400BadRequest,
-                Title = "Validation Error",
-                Detail = valEx.Message,
-                Instance = httpContext.Request.Path,
-                Extensions = 
-                {
-                    ["code"] = "validation_error"
-                }
-            };
-            
-            httpContext.Response.StatusCode = validationProblemDetails.Status.Value;
-            await httpContext.Response.WriteAsJsonAsync(validationProblemDetails, cancellationToken);
-            return true;
-        }
-        
-        var (statusCode, title, code) = exception switch
-        {
+            ValidationException valEx => (
+                StatusCodes.Status400BadRequest, 
+                valEx.Message
+            ),
+            UnauthorizedException unauthEx => (
+                StatusCodes.Status401Unauthorized, 
+                string.IsNullOrWhiteSpace(unauthEx.Message) ? "Unauthorized" : unauthEx.Message
+            ),
+            ForbiddenException forbiddenEx => (
+                StatusCodes.Status403Forbidden, 
+                string.IsNullOrWhiteSpace(forbiddenEx.Message) ? "Forbidden" : forbiddenEx.Message
+            ),
             DomainException domainEx => (
                 (int)domainEx.StatusCode, 
-                domainEx.StatusCode.ToString(),
-                domainEx.Code
+                domainEx.Message
             ),
             _ => (
                 StatusCodes.Status500InternalServerError, 
-                "InternalServerError", 
-                "internal_server_error"
+                "An unexpected error occurred."
             )
         };
 
         if (statusCode >= 500)
         {
-            _logger.LogError(exception, "An unhandled exception occurred:{Message}",
-                exception.Message);
+            _logger.LogError(exception, "Unhandled exception occurred: {Message}", exception.Message);
         }
         else
         {
-            _logger.LogWarning("Domain exception occurred: {Code} - {Message}",
-                code, exception.Message);
+            _logger.LogWarning("Handled exception occurred ({StatusCode}): {Message}", statusCode, exception.Message);
         }
-        
-        var problemDetails = new ProblemDetails
-        {
-            Status = statusCode,
-            Title = title,
-            Detail = exception.InnerException?.Message ?? exception.Message, 
-            Instance = httpContext.Request.Path,
-            Extensions =
-            {
-                ["code"] = code
-            }
-        };
 
         httpContext.Response.StatusCode = statusCode;
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+        await httpContext.Response.WriteAsJsonAsync(new { message }, cancellationToken);
 
         return true;
     }
