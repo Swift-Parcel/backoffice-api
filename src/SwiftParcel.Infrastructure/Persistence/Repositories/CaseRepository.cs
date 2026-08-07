@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces.Repositories;
+using SwiftParcel.Application.DTO.Cases;
 using SwiftParcel.Domain.Entities;
 
 namespace SwiftParcel.Infrastructure.Persistence.Repositories;
@@ -42,6 +43,29 @@ public class CaseRepository : ICaseRepository
     {
         return await _context.Tags
             .Where(t => ids.Contains(t.Id))
+            .ToListAsync(cancellationToken);
+    }
+    
+    public async Task<bool> ExistsByCaseNumberAsync(string caseNumber, CancellationToken cancellationToken = default)
+    {
+        return await _context.Cases
+            .AnyAsync(c => c.CaseNumber == caseNumber, cancellationToken);
+    }
+
+    public async Task<List<CaseNoteDto>> GetCaseNotesAsync(string caseNumber, CancellationToken cancellationToken = default)
+    {
+        return await _context.CaseNotes
+            .AsNoTracking()
+            .Where(n => n.Case.CaseNumber == caseNumber)
+            .OrderBy(n => n.CreatedDate)
+            .Select(n => new CaseNoteDto(
+                n.CreatedDate,
+                n.NoteText, 
+                n.HandlerId, 
+                n.Handler!.FullName, 
+                n.CustomerId, 
+                n.Customer!.FullName,  
+                n.Attachment))
             .ToListAsync(cancellationToken);
     }
 }
