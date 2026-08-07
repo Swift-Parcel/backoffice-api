@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Domain.ValueObjects;
 using SwiftParcel.Infrastructure.Authentication;
 using SwiftParcel.Infrastructure.Services;
 
@@ -214,8 +215,8 @@ public class TestDataSeeder
         {
             new Parcel
             {
-                TrackingNumber = "SP-20261016", 
-                Customer = customer1, 
+                TrackingNumber = TrackingNumber.Create("SP-20261016").Value,
+                Customer = customer1,
                 SenderAddress = new Address
                 (
                     Street : "Fő utca",
@@ -245,7 +246,7 @@ public class TestDataSeeder
             },
             new Parcel
             {
-                TrackingNumber = "SP-20261017", 
+                TrackingNumber = TrackingNumber.Create("SP-20261017").Value,
                 Customer = customer1,
                 SenderAddress = new Address
                 (
@@ -276,8 +277,8 @@ public class TestDataSeeder
             },
             new Parcel
             {
-                TrackingNumber = "SP-20261018", 
-                Customer = customer2, 
+                TrackingNumber = TrackingNumber.Create("SP-20261018").Value,
+                Customer = customer2,
                 SenderAddress = new Address
                 (
                     Street : "Vaci utca",
@@ -306,8 +307,8 @@ public class TestDataSeeder
             },
             new Parcel
             {
-                TrackingNumber = "SP-20261019", 
-                Customer = customer2, 
+                TrackingNumber = TrackingNumber.Create("SP-20261019").Value,
+                Customer = customer2,
                 SenderAddress = new Address
                 (
                     Street : "Leopold-Frank Straße",

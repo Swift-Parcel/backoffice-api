@@ -1,31 +1,43 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Domain.Entities;
+using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Users.Commands.UpdateUser;
 
-public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Result<Unit>>
+public class UpdateUserCommandHandler(
+    IUserRepository userRepository,
+    IRoleRepository roleRepository,
+    IRegionRepository regionRepository) 
+    : IRequestHandler<UpdateUserCommand, Result<Unit>>
 {
-    private readonly IAppDbContext _context;
-
-    public UpdateUserCommandHandler(IAppDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<Result<Unit>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
     {
-        var user = await _context.Users
-            .Include(u => u.Regions)
-            .FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
+        var user = await userRepository.GetByIdWithRegionsForUpdateAsync(request.Id, cancellationToken);
 
         if (user == null)
             return Result<Unit>.Failure(Error.NotFound("User.NotFound", $"User with ID {request.Id} not found."));
 
-        List<int>? regionsToApply = request.RegionIds;
+        if (request.RoleId.HasValue)
+        {
+            if (!await roleRepository.ExistsAsync(request.RoleId.Value, cancellationToken))
+                return Result<Unit>.Failure(Error.Validation("Role.Invalid", "The specified Role ID does not exist."));
+        }
 
+        var fetchedRegions = new List<Region>();
+        if (request.RegionIds != null && request.RegionIds.Any())
+        {
+            var distinctRegionIds = request.RegionIds.Distinct().ToList();
+            fetchedRegions = await regionRepository.GetByIdsAsync(distinctRegionIds, cancellationToken);
+            
+            if (fetchedRegions.Count != distinctRegionIds.Count)
+            {
+                return Result<Unit>.Failure(Error.Validation("Region.Invalid", "One or more specified Region IDs do not exist."));
+            }
+        }
+
+        List<int>? regionsToApply = request.RegionIds;
         var finalRoleId = request.RoleId ?? user.RoleId;
         var finalRegionCount = regionsToApply != null ? regionsToApply.Count : user.Regions.Count;
 
@@ -33,6 +45,7 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Resul
         {
             regionsToApply = new List<int>();
             finalRegionCount = 0;
+            fetchedRegions = new List<Region>();
         }
 
         if (finalRoleId == 2 && finalRegionCount != 1) // Operator
@@ -58,12 +71,10 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Resul
 
         if (regionsToApply != null)
         {
-            user.Regions = regionsToApply.Any()
-                ? await _context.Regions.Where(r => regionsToApply.Contains(r.Id)).ToListAsync(cancellationToken)
-                : new List<Region>();
+            user.Regions = fetchedRegions;
         }
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await userRepository.UpdateAsync(user, cancellationToken);
 
         return Result<Unit>.Success(Unit.Value);
     }

@@ -1,19 +1,20 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Domain.Entities;
+using SwiftParcel.Domain.Shared;
+
+namespace SwiftParcel.Application.Cases.Commands.AddCaseNote;
 
 public class AddCustomerNoteCommandHandler : IRequestHandler<AddCustomerNoteCommand, Result<int>>
 {
-    private readonly IAppDbContext _context;
-    public AddCustomerNoteCommandHandler(IAppDbContext context) => _context = context;
+    private readonly ICaseRepository _caseRepository;
+    
+    public AddCustomerNoteCommandHandler(ICaseRepository caseRepository) => _caseRepository = caseRepository;
 
-    public async Task<Result<int>> Handle(AddCustomerNoteCommand request, CancellationToken ct)
+    public async Task<Result<int>> Handle(AddCustomerNoteCommand request, CancellationToken cancellationToken)
     {
-        var caseEntity = await _context.Cases
-            .Include(c => c.Customer)
-            .FirstOrDefaultAsync(c => c.CaseNumber == request.CaseNumber, ct);
+        var caseEntity = await _caseRepository.GetByCaseNumberWithCustomerAsync(request.CaseNumber, cancellationToken);
             
         if (caseEntity == null)
             return Result<int>.Failure(Error.NotFound("case_not_found", "Case not found."));
@@ -35,7 +36,7 @@ public class AddCustomerNoteCommandHandler : IRequestHandler<AddCustomerNoteComm
         caseEntity.Notes.Add(note);
         caseEntity.UpdatedDate = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync(ct);
+        await _caseRepository.UpdateAsync(caseEntity, cancellationToken);
         
         return Result<int>.Success(note.Id);
     }

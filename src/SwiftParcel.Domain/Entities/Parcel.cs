@@ -1,3 +1,5 @@
+using SwiftParcel.Domain.ValueObjects;
+
 namespace SwiftParcel.Domain.Entities;
 
 using Enums;
@@ -5,7 +7,7 @@ using Enums;
 public class Parcel
 {
     public int Id { get; set; }
-    public string TrackingNumber { get; set; } = string.Empty;
+    public TrackingNumber TrackingNumber { get; init; }
 
     public int CustomerId { get; set; }
     public Customer Customer { get; set; } = null!;

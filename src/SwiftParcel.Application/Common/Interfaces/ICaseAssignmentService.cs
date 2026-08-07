@@ -1,5 +1,6 @@
 using SwiftParcel.Application.Cases.Dtos;
 using SwiftParcel.Application.Common.Models;
+using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Common.Interfaces;
 

@@ -1,92 +1,67 @@
-using System.Text.Json;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
-using SwiftParcel.Application.Common.Models;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.DTO.Parcels;
-using SwiftParcel.Application.Helpers;
 using SwiftParcel.Domain.Enums;
-using SwiftParcel.Infrastructure.Integration.Models;
+using SwiftParcel.Domain.Shared;
+using SwiftParcel.Domain.ValueObjects;
 
 namespace SwiftParcel.Application.Parcels.Queries.GetParcelTracking;
 
 public class GetParcelTrackingQueryHandler : IRequestHandler<GetParcelTrackingQuery, Result<ParcelTrackingResponse>>
 {
-    private readonly IAppDbContext _context;
+    private readonly IParcelRepository _parcelRepository;
+    private readonly IParcelInformationService _parcelInformationService;
 
-    public GetParcelTrackingQueryHandler(IAppDbContext context)
+    public GetParcelTrackingQueryHandler(IParcelRepository parcelRepository, IParcelInformationService parcelInformationService)
     {
-        _context = context;
+        _parcelRepository = parcelRepository;
+        _parcelInformationService = parcelInformationService;
     }
 
     public async Task<Result<ParcelTrackingResponse>> Handle(GetParcelTrackingQuery request, CancellationToken cancellationToken)
     {
-        var formattedTrackingNumber = FormatHelper.FormatTrackingNumber(request.TrackingNumber);
+        var trackingNumberResult = TrackingNumber.Create(request.TrackingNumber);
+        
+        if (!trackingNumberResult.IsSuccess)
+        {
+            return Result<ParcelTrackingResponse>.Failure(trackingNumberResult.Error!);
+        }
 
-        var parcel = await _context.Parcels
-            .Select(p => new { p.TrackingNumber, p.Status })
-            .FirstOrDefaultAsync(p => p.TrackingNumber == formattedTrackingNumber, cancellationToken);
-
-        if (parcel == null)
+        var parcelStatus = await _parcelRepository.GetStatusByTrackingNumberAsync(
+            trackingNumberResult.Value, 
+            cancellationToken);
+        
+        if (parcelStatus == null)
         {
             return Result<ParcelTrackingResponse>.Failure(
                 Error.NotFound("parcel_not_found", $"Parcel with tracking number '{request.TrackingNumber}' was not found."));
         }
 
-        var filePath = Path.Combine(AppContext.BaseDirectory, "Integration", "Mocks", "eurotrack_mock.json");
+        var shipmentData = await _parcelInformationService.GetShipmentByTrackingNumberAsync(trackingNumberResult.Value, cancellationToken);
         
-        if (!File.Exists(filePath))
+        if (shipmentData == null)
         {
             return Result<ParcelTrackingResponse>.Failure(
-                Error.Failure("mock_file_missing", "Eurotrack mock file not found."));
+                Error.NotFound("shipment_not_found", $"There is no tracking information " +
+                                                     $"available for parcel with tracking number {trackingNumberResult.Value}"));
         }
-
-        var jsonString = await File.ReadAllTextAsync(filePath, cancellationToken);
-        var mockApiData = JsonSerializer.Deserialize<EuroTrackResponseDto>(jsonString);
-
-        var shipmentData = mockApiData?.Shipments.FirstOrDefault(s =>
-            FormatHelper.FormatTrackingNumber(s.TrackingNumber) == formattedTrackingNumber);
-
-        var trackingHistory = new List<TrackingHistoryDto>();
-        LocationDto? currentLocation = null;
-
-        var currentParcelStatus = shipmentData != null
-            ? MapEuroTrackStatus(shipmentData.CurrentStatus, parcel.Status)
-            : parcel.Status;
-
-        if (shipmentData != null && shipmentData.Events.Any())
+        
+        var currentParcelStatus = MapEuroTrackStatus(shipmentData.CurrentStatus, parcelStatus.Value);
+        var lastEvent = shipmentData.Events.LastOrDefault();
+        if(lastEvent == null)
         {
-            var sortedEvents = shipmentData.Events.OrderBy(e => e.Timestamp).ToList();
-
-            foreach (var e in sortedEvents)
-            {
-                var eventLocation = new LocationDto(
-                    Facility: e.Location.Facility,
-                    City: e.Location.City,
-                    CountryCode: e.Location.CountryCode,
-                    PostalCode: e.Location.PostalCode,
-                    Lat: e.Location.Lat ?? 0.0,
-                    Lon: e.Location.Lon ?? 0.0
-                );
-
-                trackingHistory.Add(new TrackingHistoryDto(
-                    Timestamp: e.Timestamp,
-                    ParcelStatus: MapEuroTrackStatus(e.StatusCode, parcel.Status),
-                    Description: e.Description,
-                    Location: eventLocation
-                ));
-            }
-
-            currentLocation = trackingHistory.Last().Location;
+            return Result<ParcelTrackingResponse>.Failure(
+                Error.NotFound("event_not_found", $"No shipment event has been found for parcel with tracking number {trackingNumberResult.Value}"));
         }
-
-        currentLocation ??= new LocationDto(null, "Unknown", "Unknown", "Unknown", 0.0, 0.0);
-
-        return Result<ParcelTrackingResponse>.Success(new ParcelTrackingResponse(
+        
+        var response = new ParcelTrackingResponse(
             ParcelStatus: currentParcelStatus,
-            Location: currentLocation,
-            TrackingHistory: trackingHistory
-        ));
+            Location: lastEvent.Location,
+            TrackingHistory: shipmentData.Events
+        );
+
+        return Result<ParcelTrackingResponse>.Success(response);
     }
 
     private static ParcelStatus MapEuroTrackStatus(string euroTrackStatusCode, ParcelStatus fallbackStatus) =>

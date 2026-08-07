@@ -1,29 +1,29 @@
-using System.Text.Json.Serialization;
+using SwiftParcel.Application.DTO.Parcels;
 
-namespace SwiftParcel.Infrastructure.Integration.Models;
+namespace SwiftParcel.Application.DTO;
 
 public record EuroTrackResponseDto(
-    [property: JsonPropertyName("shipments")] List<EuroTrackShipmentDto> Shipments
+    List<EuroTrackShipmentDto> Shipments
 );
 
 public record EuroTrackShipmentDto(
-    [property: JsonPropertyName("trackingNumber")] string TrackingNumber,
-    [property: JsonPropertyName("currentStatus")] string CurrentStatus,
-    [property: JsonPropertyName("events")] List<EuroTrackEventDto> Events
+    string TrackingNumber,
+    string CurrentStatus,
+    List<TrackingHistoryEventDto> Events
 );
 
 public record EuroTrackEventDto(
-    [property: JsonPropertyName("timestamp")] DateTime Timestamp,
-    [property: JsonPropertyName("statusCode")] string StatusCode,
-    [property: JsonPropertyName("description")] string Description,
-    [property: JsonPropertyName("location")] EuroTrackLocation Location
+    DateTime Timestamp,
+    string StatusCode,
+    string Description,
+    LocationDto Location
 );
 
 public record EuroTrackLocation(
-    [property: JsonPropertyName("facility")] string Facility,
-    [property: JsonPropertyName("city")] string City,
-    [property: JsonPropertyName("countryCode")] string CountryCode,
-    [property: JsonPropertyName("postalCode")] string PostalCode,
-    [property: JsonPropertyName("lat")] double? Lat,
-    [property: JsonPropertyName("lon")] double? Lon
+    string Facility,
+    string City,
+    string CountryCode,
+    string PostalCode,
+    double? Lat,
+    double? Lon
 );

@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace SwiftParcel.Application.Cases.Commands.ProcessDeliveryChange;
+namespace SwiftParcel.Application.Cases.Commands.DeliveryChangeCommand;
 
 public class ProcessDeliveryChangeCommandValidator : AbstractValidator<ProcessDeliveryChangeCommand>
 {

@@ -1,4 +1,4 @@
-namespace SwiftParcel.Application.Common.Models;
+namespace SwiftParcel.Domain.Shared;
 
 public class Result
 {

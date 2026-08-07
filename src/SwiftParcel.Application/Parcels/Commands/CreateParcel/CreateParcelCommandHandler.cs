@@ -2,28 +2,34 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Domain.Shared;
+using SwiftParcel.Domain.ValueObjects;
 
 namespace SwiftParcel.Application.Parcels.Commands.CreateParcel;
 
 public class CreateParcelCommandHandler : IRequestHandler<CreateParcelCommand, Result<CreateParcelResponse>>
 {
-    private readonly IAppDbContext _context;
+    private readonly IParcelRepository _parcelRepository;
+    private readonly ICustomerRepository _customerRepository;
     private readonly IWebhookClient _webhookClient;
     private readonly IParcelNumberGenerator _parcelNumberGenerator;
     private readonly ILogger<CreateParcelCommandHandler> _logger;
 
     public CreateParcelCommandHandler(
-        IAppDbContext context, 
+        IParcelRepository parcelRepository,
+        ICustomerRepository customerRepository,
         IWebhookClient webhookClient, 
         IParcelNumberGenerator parcelNumberGenerator,
         ILogger<CreateParcelCommandHandler> logger)
     {
-        _context = context;
+        _parcelRepository = parcelRepository;
+        _customerRepository = customerRepository;
         _webhookClient = webhookClient;
         _parcelNumberGenerator = parcelNumberGenerator;
         _logger = logger;
@@ -31,8 +37,7 @@ public class CreateParcelCommandHandler : IRequestHandler<CreateParcelCommand, R
 
     public async Task<Result<CreateParcelResponse>> Handle(CreateParcelCommand request, CancellationToken cancellationToken)
     {
-        var customer = await _context.Customers
-            .FirstOrDefaultAsync(c => c.Email == request.Sender.Email, cancellationToken);
+        var customer = await _customerRepository.GetByEmailAsync(request.Sender.Email, cancellationToken);
 
         if (customer == null)
         {
@@ -45,7 +50,7 @@ public class CreateParcelCommandHandler : IRequestHandler<CreateParcelCommand, R
 
         var newParcel = new Parcel
         {
-            TrackingNumber = trackingNumber,
+            TrackingNumber = TrackingNumber.Create(trackingNumber).Value,
             CustomerId = customer.Id,
             RecipientName = request.Recipient.Name,
             Weight = request.Parcel.Weight,
@@ -75,8 +80,7 @@ public class CreateParcelCommandHandler : IRequestHandler<CreateParcelCommand, R
             )
         };
 
-        _context.Parcels.Add(newParcel);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _parcelRepository.AddAsync(newParcel, cancellationToken);
 
         try
         {

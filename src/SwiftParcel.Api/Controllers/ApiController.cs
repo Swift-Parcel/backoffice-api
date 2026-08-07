@@ -1,6 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SwiftParcel.Application.Common.Models;
+using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Api.Controllers;
 
@@ -40,6 +40,7 @@ public class ApiController : ControllerBase
             ErrorType.NotFound => NotFound(new { message = error.Description }),
             ErrorType.Validation => BadRequest(new { message = error.Description }),
             ErrorType.Conflict => Conflict(new { message = error.Description }),
+            ErrorType.Forbidden => StatusCode(StatusCodes.Status403Forbidden, new { message = error.Description }),
             _ => BadRequest(new { message = error?.Description ?? "An unexpected error occurred." })
         };
     }

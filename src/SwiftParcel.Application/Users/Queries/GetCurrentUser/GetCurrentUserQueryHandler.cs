@@ -1,32 +1,22 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Users;
+using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Users.Queries.GetCurrentUser;
 
-public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, Result<UserDetailsDto>>
+public class GetCurrentUserQueryHandler(
+    IUserRepository userRepository,
+    ICurrentUserService currentUserService) 
+    : IRequestHandler<GetCurrentUserQuery, Result<UserDetailsDto>>
 {
-    private readonly IAppDbContext _context;
-    private readonly ICurrentUserService _currentUserService;
-
-    public GetCurrentUserQueryHandler(
-        IAppDbContext context, 
-        ICurrentUserService currentUserService)
-    {
-        _context = context;
-        _currentUserService = currentUserService;
-    }
-
     public async Task<Result<UserDetailsDto>> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
     {
-        var currentUserId = (int)_currentUserService.UserId;
+        var currentUserId = (int)currentUserService.UserId;
 
-        var user = await _context.Users
-            .AsNoTracking()
-            .Include(u => u.Regions)
-            .FirstOrDefaultAsync(u => u.Id == currentUserId, cancellationToken);
+        var user = await userRepository.GetByIdWithRegionsAsync(currentUserId, cancellationToken);
 
         if (user == null)
             return Result<UserDetailsDto>.Failure(Error.NotFound("User.NotFound", "Current user not found."));

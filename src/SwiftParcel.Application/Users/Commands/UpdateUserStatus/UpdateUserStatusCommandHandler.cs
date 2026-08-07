@@ -1,23 +1,21 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
-using SwiftParcel.Application.Users.Commands.ActivateUser;
+using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Users.Commands.UpdateUserStatus;
 
-public class UpdateUserStatusCommandHandler : IRequestHandler<UpdateUserStatusCommand, Result<Unit>>
+public class UpdateUserStatusCommandHandler(IUserRepository userRepository) 
+    : IRequestHandler<UpdateUserStatusCommand, Result<Unit>>
 {
-    private readonly IAppDbContext _context;
-
-    public UpdateUserStatusCommandHandler(IAppDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<Result<Unit>> Handle(UpdateUserStatusCommand request, CancellationToken cancellationToken)
     {
-        var user = await _context.Users.FirstAsync(u => u.Id == request.Id, cancellationToken);
+        var user = await userRepository.GetByIdAsync(request.Id, cancellationToken);
+
+        if (user == null)
+        {
+            return Result<Unit>.Failure(Error.NotFound("User.NotFound", "The specified user does not exist."));
+        }
 
         if (user.IsActive == request.IsActive)
         {
@@ -26,7 +24,8 @@ public class UpdateUserStatusCommandHandler : IRequestHandler<UpdateUserStatusCo
         }
 
         user.IsActive = request.IsActive;
-        await _context.SaveChangesAsync(cancellationToken);
+        
+        await userRepository.UpdateAsync(user, cancellationToken);
 
         return Result<Unit>.Success(Unit.Value);
     }
