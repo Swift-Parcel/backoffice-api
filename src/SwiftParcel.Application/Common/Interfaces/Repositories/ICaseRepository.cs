@@ -13,4 +13,11 @@ public interface ICaseRepository
     Task<List<Tag>> GetTagsByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
     Task<bool> ExistsByCaseNumberAsync(string caseNumber, CancellationToken cancellationToken = default);
     Task<List<CaseNoteDto>> GetCaseNotesAsync(string caseNumber, CancellationToken cancellationToken = default);
+    Task<List<CaseDto>> GetFilteredCasesAsync(
+        IEnumerable<int>? allowedRegionIds,
+        bool canAccessAllRegions,
+        int? customerId,
+        string? customerEmail,
+        string? customerPhone,
+        CancellationToken cancellationToken = default);
 }
