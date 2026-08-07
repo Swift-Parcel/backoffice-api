@@ -32,4 +32,20 @@ public class UserRepository : IUserRepository
         _dbContext.Users.Update(user);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
+    
+    public async Task AddAsync(User user, CancellationToken cancellationToken = default)
+    {
+        await _dbContext.Users.AddAsync(user, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<bool> IsUsernameUniqueAsync(string username, CancellationToken cancellationToken = default)
+    {
+        return !await _dbContext.Users.AnyAsync(u => u.Username == username, cancellationToken);
+    }
+
+    public async Task<bool> IsEmailUniqueAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return !await _dbContext.Users.AnyAsync(u => u.Email == email, cancellationToken);
+    }
 }
