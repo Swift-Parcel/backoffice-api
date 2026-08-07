@@ -1,4 +1,5 @@
 using SwiftParcel.Application.DTO;
+using SwiftParcel.Application.DTO.Tags;
 using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Application.Cases.Dtos;
