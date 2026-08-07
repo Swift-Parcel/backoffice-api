@@ -76,6 +76,7 @@ public static class DependencyInjection
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IRegionRepository, RegionRepository>();
         services.AddScoped<ICaseRepository, CaseRepository>();
+        services.AddScoped<ITagRepository, TagRepository>();
         services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
         services.AddScoped<IRegionRoutingService, RegionRoutingService>();
         
