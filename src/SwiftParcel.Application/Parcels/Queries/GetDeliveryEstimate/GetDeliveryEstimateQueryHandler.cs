@@ -4,6 +4,7 @@ using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Services;
 using SwiftParcel.Domain.Shared;
+using SwiftParcel.Domain.ValueObjects; // Ezt hozzá kell adni!
 
 namespace SwiftParcel.Application.Parcels.Queries.GetDeliveryEstimate;
 
@@ -22,15 +23,25 @@ public class GetDeliveryEstimateQueryHandler : IRequestHandler<GetDeliveryEstima
 
     public async Task<Result<DeliveryEstimateResponse>> Handle(GetDeliveryEstimateQuery request, CancellationToken cancellationToken)
     {
-        var parcelExists = await _parcelRepository.ExistsByTrackingNumberAsync(request.TrackingNumber, cancellationToken);
+        var trackingNumberResult = TrackingNumber.Create(request.TrackingNumber);
+
+        if (!trackingNumberResult.IsSuccess)
+        {
+            return Result<DeliveryEstimateResponse>.Failure(Error.Validation("code","Invalid tracking number."));
+        }
+
+        var trackingNumber = trackingNumberResult.Value;
+
+        
+        var parcelExists = await _parcelRepository.ExistsByTrackingNumberAsync(trackingNumber, cancellationToken);
 
         if (!parcelExists)
         {
             return Result<DeliveryEstimateResponse>.Failure(
-                Error.NotFound("parcel_not_found", $"Parcel with tracking number '{request.TrackingNumber}' was not found."));
+                Error.NotFound("parcel_not_found", $"Parcel with tracking number '{trackingNumber.Value}' was not found."));
         }
 
-        var estimate = await _estimationService.CalculateForParcelAsync(request.TrackingNumber, cancellationToken);
+        var estimate = await _estimationService.CalculateForParcelAsync(trackingNumber, cancellationToken);
 
         if (estimate == null)
         {

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Domain.ValueObjects;
 
 namespace SwiftParcel.Infrastructure.Persistence
 {
@@ -131,6 +132,13 @@ namespace SwiftParcel.Infrastructure.Persistence
 
             modelBuilder.Entity<Parcel>(b =>
             {
+                b.Property(e => e.TrackingNumber)
+                    .HasConversion(
+                        vo => vo.Value,
+                        dbValue => TrackingNumber.Create(dbValue).Value
+                    )
+                    .IsRequired();
+
                 b.HasIndex(e => e.TrackingNumber).IsUnique();
                 b.Property(e => e.Status).HasColumnType("enum_parcel_status").HasDefaultValue(ParcelStatus.PendingPickup);
                 b.Property(e => e.ServiceType).HasColumnType("enum_service_type");

@@ -9,6 +9,7 @@ using SwiftParcel.Application.Services;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
 using SwiftParcel.Domain.Shared;
+using SwiftParcel.Domain.ValueObjects;
 
 namespace SwiftParcel.Application.Parcels.Commands.ChangeDelivery;
 
@@ -38,7 +39,9 @@ public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryComman
     public async Task<Result<DeliveryChangeResponse>> Handle(ChangeDeliveryCommand request,
         CancellationToken cancellationToken)
     {
-        var parcel = await _parcelRepository.GetByTrackingNumberAsync(request.TrackingNumber, cancellationToken);
+        var trackingNumber = TrackingNumber.Create(request.TrackingNumber).Value;
+        
+        var parcel = await _parcelRepository.GetByTrackingNumberAsync(trackingNumber, cancellationToken);
 
         if (parcel == null)
             return Result<DeliveryChangeResponse>.Failure(Error.NotFound("parcel_not_found",
@@ -50,7 +53,6 @@ public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryComman
                 Error.Failure("customer_address_missing", "Customer does not have a valid address."));
         }
 
-        var countryCode = parcel.Customer.Address.CountryCode;
         var regionId = await _regionRoutingService.DetermineRegionAsync(parcel, cancellationToken);
         
         var caseNumber = await _caseNumberGenerator.GenerateNextAsync(cancellationToken);

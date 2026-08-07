@@ -7,7 +7,7 @@ using Enums;
 public class Parcel
 {
     public int Id { get; set; }
-    public TrackingNumber TrackingNumber { get; set; }
+    public TrackingNumber TrackingNumber { get; init; }
 
     public int CustomerId { get; set; }
     public Customer Customer { get; set; } = null!;

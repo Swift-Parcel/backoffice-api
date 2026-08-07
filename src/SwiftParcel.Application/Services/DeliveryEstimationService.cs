@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Domain.ValueObjects;
 
 namespace SwiftParcel.Application.Services;
 
@@ -14,7 +15,7 @@ public class DeliveryEstimationService : IDeliveryEstimationService
         _context = context;
     }
 
-    public async Task<DeliveryEstimateResponse> CalculateForParcelAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public async Task<DeliveryEstimateResponse> CalculateForParcelAsync(TrackingNumber trackingNumber, CancellationToken cancellationToken = default)
     {
         var parcel = await _context.Parcels
             .AsNoTracking()
