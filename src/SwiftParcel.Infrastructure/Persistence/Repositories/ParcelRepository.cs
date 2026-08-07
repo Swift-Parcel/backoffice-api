@@ -82,4 +82,10 @@ public class ParcelRepository : IParcelRepository
             ))
             .ToListAsync(cancellationToken);
     }
+    
+    public async Task<bool> ExistsByTrackingNumberAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    {
+        return await _context.Parcels
+            .AnyAsync(p => p.TrackingNumber == trackingNumber, cancellationToken);
+    }
 }

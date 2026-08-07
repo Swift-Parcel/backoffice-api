@@ -12,4 +12,5 @@ public interface IParcelRepository
     Task UpdateAsync(Parcel parcel, CancellationToken cancellationToken = default);
     Task DeleteAsync(Parcel parcel, CancellationToken cancellationToken = default);
     Task<List<CustomerParcelDto>> GetCustomerParcelsByEmailAsync(string email, CancellationToken cancellationToken = default);
+    Task<bool> ExistsByTrackingNumberAsync(string trackingNumber, CancellationToken cancellationToken = default);
 }
