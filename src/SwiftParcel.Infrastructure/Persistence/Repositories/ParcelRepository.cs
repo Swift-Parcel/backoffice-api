@@ -1,3 +1,6 @@
+using SwiftParcel.Application.DTO;
+using SwiftParcel.Application.DTO.Parcels;
+
 namespace SwiftParcel.Infrastructure.Persistence.Repositories;
 
 using Microsoft.EntityFrameworkCore;
@@ -45,5 +48,38 @@ public class ParcelRepository : IParcelRepository
     {
         _context.Parcels.Remove(parcel);
         await _context.SaveChangesAsync(cancellationToken);
+    }
+    
+    public async Task<List<CustomerParcelDto>> GetCustomerParcelsByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return await _context.Parcels
+            .Where(p => p.Customer.Email == email)
+            .Select(p => new CustomerParcelDto(
+                p.TrackingNumber,
+                p.Status,
+                new CustomerParcelSenderDto(
+                    p.Customer.Email,
+                    new AddressDto(
+                        p.Customer.Address.City,
+                        p.Customer.Address.CountryCode,
+                        p.Customer.Address.PostalCode,
+                        p.Customer.Address.Street,
+                        p.Customer.Address.StreetNumber
+                    )
+                ),
+                new CustomerParcelRecipientDto(
+                    p.RecipientName,
+                    new AddressDto(
+                        p.RecipientAddress.City,
+                        p.RecipientAddress.CountryCode,
+                        p.RecipientAddress.PostalCode,
+                        p.RecipientAddress.Street,
+                        p.RecipientAddress.StreetNumber
+                    )
+                ),
+                p.CreatedDate,
+                p.ServiceType
+            ))
+            .ToListAsync(cancellationToken);
     }
 }
