@@ -1,6 +1,6 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.Common.Settings;
@@ -12,16 +12,22 @@ namespace SwiftParcel.Application.Parcels.Commands.ChangeDelivery;
 
 public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryCommand, Result<DeliveryChangeResponse>>
 {
-    private readonly IAppDbContext _context;
+    private readonly IParcelRepository _parcelRepository;
+    private readonly IRegionRepository _regionRepository;
+    private readonly ICaseRepository _caseRepository;
     private readonly ICaseNumberGenerator _caseNumberGenerator;
     private readonly SlaOptions _slaOptions;
 
     public ChangeDeliveryCommandHandler(
-        IAppDbContext context,
+        IParcelRepository parcelRepository,
+        IRegionRepository regionRepository,
+        ICaseRepository caseRepository,
         ICaseNumberGenerator caseNumberGenerator,
         IOptions<SlaOptions> slaOptions)
     {
-        _context = context;
+        _parcelRepository = parcelRepository;
+        _regionRepository = regionRepository;
+        _caseRepository = caseRepository;
         _caseNumberGenerator = caseNumberGenerator;
         _slaOptions = slaOptions.Value;
     }
@@ -29,15 +35,11 @@ public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryComman
     public async Task<Result<DeliveryChangeResponse>> Handle(ChangeDeliveryCommand request,
         CancellationToken cancellationToken)
     {
-        var parcel = await _context.Parcels
-            .Include(p => p.Customer)
-            .ThenInclude(c => c.Address)
-            .FirstOrDefaultAsync(p => p.TrackingNumber == request.TrackingNumber, cancellationToken);
+        var parcel = await _parcelRepository.GetByTrackingNumberAsync(request.TrackingNumber, cancellationToken);
 
         if (parcel == null)
             return Result<DeliveryChangeResponse>.Failure(Error.NotFound("parcel_not_found",
                 $"Parcel with tracking number '{request.TrackingNumber}' was not found."));
-
 
         if (parcel.Customer?.Address == null)
         {
@@ -46,11 +48,7 @@ public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryComman
         }
 
         var countryCode = parcel.Customer.Address.CountryCode;
-        var regionId = await _context.Regions
-            .Where(r => r.CountryCode == countryCode && r.IsActive)
-            .Select(r => r.Id)
-            .FirstOrDefaultAsync(cancellationToken);
-
+        var regionId = await _regionRepository.GetActiveRegionIdByCountryCodeAsync(countryCode, cancellationToken);
 
         var caseNumber = await _caseNumberGenerator.GenerateNextAsync(cancellationToken);
         var slaHours = _slaOptions.DefaultHours.GetValueOrDefault(CaseType.DeliveryChange, 72);
@@ -64,9 +62,7 @@ public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryComman
             slaHours: slaHours
         );
 
-
-        _context.Cases.Add(newCase);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _caseRepository.AddAsync(newCase, cancellationToken);
 
         return Result<DeliveryChangeResponse>.Success(new DeliveryChangeResponse(newCase.CaseNumber));
     }
