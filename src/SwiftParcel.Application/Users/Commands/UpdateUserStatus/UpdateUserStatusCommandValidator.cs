@@ -1,5 +1,4 @@
 using FluentValidation;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Users.Commands.ActivateUser;

@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace SwiftParcel.Infrastructure.Integration.Models;
 
 public record EuroTrackResponseDto(

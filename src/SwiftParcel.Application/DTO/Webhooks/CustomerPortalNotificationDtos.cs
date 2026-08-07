@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace SwiftParcel.Application.DTO.Webhooks;
 
 public record ParcelStatusNotificationDto(
