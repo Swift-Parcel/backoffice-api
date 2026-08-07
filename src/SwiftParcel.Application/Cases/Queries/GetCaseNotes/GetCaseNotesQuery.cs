@@ -1,4 +1,3 @@
-using FluentValidation;
 using MediatR;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Cases;

@@ -1,5 +1,6 @@
 using FluentValidation;
-using SwiftParcel.Application.Cases.Queries.GetCustomerCaseNotes;
+
+namespace SwiftParcel.Application.Cases.Queries.GetCustomerCaseNotes;
 
 public class GetCustomerCaseNotesQueryValidator : AbstractValidator<GetCustomerCaseNotesQuery>
 {

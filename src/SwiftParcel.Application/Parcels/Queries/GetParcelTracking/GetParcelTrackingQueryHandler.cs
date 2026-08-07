@@ -3,10 +3,10 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Models;
+using SwiftParcel.Application.DTO;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Helpers;
 using SwiftParcel.Domain.Enums;
-using SwiftParcel.Infrastructure.Integration.Models;
 
 namespace SwiftParcel.Application.Parcels.Queries.GetParcelTracking;
 

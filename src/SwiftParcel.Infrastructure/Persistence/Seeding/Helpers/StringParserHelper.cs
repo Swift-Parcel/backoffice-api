@@ -1,7 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Net.Mail;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;

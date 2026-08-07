@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Services;
 using SwiftParcel.Domain.Entities;
+
+namespace SwiftParcel.Infrastructure.Services;
 
 public class RegionRoutingService : IRegionRoutingService
 {

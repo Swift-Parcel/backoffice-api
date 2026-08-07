@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace SwiftParcel.Application.Cases.Commands.UpdateCaseStatus;
+namespace SwiftParcel.Application.Cases.Commands.UpdateCaseStatusCommand;
 
 public class UpdateCaseStatusCommandValidator : AbstractValidator<UpdateCaseStatusCommand>
 {

@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices.JavaScript;
 using SwiftParcel.Domain.Exceptions;
 
 namespace SwiftParcel.Domain.Entities;

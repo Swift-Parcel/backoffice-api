@@ -2,7 +2,7 @@ using MediatR;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Domain.Enums;
 
-namespace SwiftParcel.Application.Cases.Commands.ProcessDeliveryChange;
+namespace SwiftParcel.Application.Cases.Commands.DeliveryChangeCommand;
 
 public record ProcessDeliveryChangeCommand(
     string CaseNumber, 

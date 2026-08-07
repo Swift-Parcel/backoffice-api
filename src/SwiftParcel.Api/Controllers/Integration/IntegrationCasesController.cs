@@ -5,8 +5,6 @@ using SwiftParcel.Application.Cases.Queries.GetCaseStatus;
 using SwiftParcel.Application.Cases.Queries.GetCustomerCases;
 using SwiftParcel.Application.Cases.Commands.AddCaseFeedback;
 using SwiftParcel.Application.Cases.Commands.CreateCustomerCase;
-using SwiftParcel.Application.Cases.Queries.GetCustomerCaseNotes;
-using SwiftParcel.Application.Integration.Dtos;
 using SwiftParcel.Infrastructure.Authentication;
 
 namespace SwiftParcel.Api.Controllers.Integration;

@@ -1,12 +1,10 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using SwiftParcel.Application.Cases.Commands.CreateCase;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.Common.Settings;
 using SwiftParcel.Application.DTO.Parcels;
-using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
 

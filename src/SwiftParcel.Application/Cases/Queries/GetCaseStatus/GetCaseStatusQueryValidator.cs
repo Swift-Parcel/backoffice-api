@@ -1,5 +1,6 @@
 using FluentValidation;
-using SwiftParcel.Application.Cases.Queries.GetCaseStatus;
+
+namespace SwiftParcel.Application.Cases.Queries.GetCaseStatus;
 
 public class GetCaseStatusQueryValidator : AbstractValidator<GetCaseStatusQuery>
 {

@@ -1,9 +1,10 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Cases.Queries.GetCaseStatus;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Cases;
+
+namespace SwiftParcel.Application.Cases.Queries.GetCaseStatus;
 
 public class GetCaseStatusQueryHandler : IRequestHandler<GetCaseStatusQuery, Result<CaseStatusResponse>>
 {

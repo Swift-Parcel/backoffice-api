@@ -2,10 +2,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.Cases.Commands.AssignCase;
 using SwiftParcel.Application.Cases.Commands.CreateCase;
-using SwiftParcel.Application.Cases.Commands.ProcessDeliveryChange;
+using SwiftParcel.Application.Cases.Commands.DeliveryChangeCommand;
 using SwiftParcel.Application.DTO.Cases;
 using SwiftParcel.Domain.Enums;
-using SwiftParcel.Application.Cases.Commands.UpdateCaseStatus;
+using SwiftParcel.Application.Cases.Commands.UpdateCaseStatusCommand;
 using SwiftParcel.Application.Cases.Queries.GetCases;
 
 namespace SwiftParcel.Api.Controllers;
