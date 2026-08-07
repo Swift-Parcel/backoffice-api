@@ -1,3 +1,5 @@
+using SwiftParcel.Domain.Enums;
+
 namespace SwiftParcel.Infrastructure.Persistence.Repositories;
 
 using Microsoft.EntityFrameworkCore;
@@ -32,5 +34,18 @@ public class ReportRepository : IReportRepository
                 Math.Round(g.Average(c => (c.ResolvedDate - c.CreatedDate).TotalHours), 2)
             ))
             .ToList();
+    }
+    
+    public async Task<IReadOnlyList<HandlerWorkloadReportDto>> GetHandlerWorkloadReportAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Handlers
+            .Include(h => h.User)
+            .Select(h => new HandlerWorkloadReportDto(
+                h.Id,
+                h.User.FullName,
+                h.Cases.Count(c => c.Status != CaseStatus.Closed && c.Status != CaseStatus.Resolved),
+                h.MaxCases
+            ))
+            .ToListAsync(cancellationToken);
     }
 }
