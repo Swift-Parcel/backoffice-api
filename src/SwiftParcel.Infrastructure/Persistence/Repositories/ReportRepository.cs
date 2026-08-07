@@ -60,4 +60,21 @@ public class ReportRepository : IReportRepository
             ))
             .ToListAsync(cancellationToken);
     }
+    
+    public async Task<SlaBreachesReportDto> GetSlaBreachesReportAsync(CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+
+        var currentBreaches = await _context.Cases
+            .Where(c => c.Status != CaseStatus.Closed && c.Status != CaseStatus.Resolved)
+            .Where(c => c.SlaDeadline < now)
+            .CountAsync(cancellationToken);
+
+        var historicalBreaches = await _context.Cases
+            .Where(c => c.Status == CaseStatus.Closed || c.Status == CaseStatus.Resolved)
+            .Where(c => (c.ResolvedDate ?? c.UpdatedDate) > c.SlaDeadline)
+            .CountAsync(cancellationToken);
+
+        return new SlaBreachesReportDto(currentBreaches, historicalBreaches);
+    }
 }
