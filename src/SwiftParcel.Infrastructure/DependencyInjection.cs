@@ -76,7 +76,7 @@ public static class DependencyInjection
         services.AddScoped<IParcelNumberGenerator, ParcelNumberGenerator>();
         
         services.AddScoped<IRoleRepository, RoleRepository>();
-        services.AddScoped<IRegionRepository, Persistence.Repositories.RegionRepository.RegionRepository>();
+        services.AddScoped<IRegionRepository, RegionRepository>();
         services.AddScoped<ICaseRepository, CaseRepository>();
         services.AddScoped<ITagRepository, TagRepository>();
         services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
