@@ -36,9 +36,9 @@ public class CaseAssignmentService : ICaseAssignmentService
 
         if (handler is null) return Result<CaseSummaryDto>.Failure(Error.NotFound("Handler.NotFound", "..."));
 
-        if (_currentUser.Role != "Admin")
+        if (_currentUser.Role != UserRole.Admin)
         {
-            if (_currentUser.Role == "Operator" || _currentUser.Role == "Supervisor")
+            if (_currentUser.Role == UserRole.Operator || _currentUser.Role == UserRole.Supervisor)
             {
                 if (!_currentUser.HasAccessToRegion(@case.RegionId))
                 {
