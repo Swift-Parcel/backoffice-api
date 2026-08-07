@@ -1,23 +1,27 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 
 namespace SwiftParcel.Application.Handlers.Commands.UpdateHandler;
 
 public class UpdateHandlerCommandHandler : IRequestHandler<UpdateHandlerCommand, Result>
 {
-    private readonly IAppDbContext _context;
+    private readonly IHandlerRepository _handlerRepository;
 
-    public UpdateHandlerCommandHandler(IAppDbContext context)
+    public UpdateHandlerCommandHandler(IHandlerRepository handlerRepository)
     {
-        _context = context;
+        _handlerRepository = handlerRepository;
     }
 
     public async Task<Result> Handle(UpdateHandlerCommand command, CancellationToken cancellationToken)
     {
-        var handler = await _context.Handlers
-            .FirstAsync(h => h.Id == command.Id, cancellationToken);
+        var handler = await _handlerRepository.GetByIdAsync(command.Id, cancellationToken);
+
+        if (handler == null)
+        {
+            // Failsafe in case it was deleted between validation and execution
+            return Result.Failure(new Error("Handler.NotFound", "The specified handler no longer exists.", ErrorType.Failure));
+        }
 
         handler.UpdateHandler(
             userId: command.UserId,
@@ -26,7 +30,7 @@ public class UpdateHandlerCommandHandler : IRequestHandler<UpdateHandlerCommand,
             maxCases: command.MaxCases,
             isActive: command.IsActive);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await _handlerRepository.UpdateAsync(handler, cancellationToken);
 
         return Result.Success();
     }

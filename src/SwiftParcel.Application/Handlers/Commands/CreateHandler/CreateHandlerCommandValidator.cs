@@ -1,7 +1,6 @@
 using FluentValidation;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Interfaces.Repositories;
-using SwiftParcel.Domain.Entities;
 
 namespace SwiftParcel.Application.Handlers.Commands.CreateHandler;
 
