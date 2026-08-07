@@ -66,6 +66,7 @@ public static class DependencyInjection
         services.AddScoped<TestDataSeeder>();
         
         services.AddScoped<IHandlerRepository, HandlerRepository>();
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<IParcelRepository, ParcelRepository>();
         services.AddScoped<ICaseNumberGenerator, CaseNumberGenerator>();
         services.AddScoped<IParcelNumberGenerator, ParcelNumberGenerator>();
