@@ -1,7 +1,8 @@
-namespace SwiftParcel.Infrastructure.Persistence.Repositories;
-
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces.Repositories;
+using SwiftParcel.Domain.Entities;
+
+namespace SwiftParcel.Infrastructure.Persistence.Repositories;
 
 public class RegionRepository : IRegionRepository
 {
@@ -24,5 +25,12 @@ public class RegionRepository : IRegionRepository
     {
         return await _context.Regions
             .AnyAsync(r => r.Id == regionId && r.IsActive, cancellationToken);
+    }
+
+    public async Task<List<Region>> GetByIdsAsync(IEnumerable<int> regionIds, CancellationToken cancellationToken = default)
+    {
+        return await _context.Regions
+            .Where(r => regionIds.Contains(r.Id))
+            .ToListAsync(cancellationToken);
     }
 }
