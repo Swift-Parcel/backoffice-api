@@ -8,4 +8,5 @@ public interface ICaseRepository
     Task<Case?> GetByCaseNumberAsync(string caseNumber, CancellationToken cancellationToken = default);
     Task UpdateAsync(Case caseEntity, CancellationToken cancellationToken = default);
     Task<Case?> GetByCaseNumberWithCustomerAsync(string caseNumber, CancellationToken cancellationToken = default);
+    Task<List<Tag>> GetTagsByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
 }

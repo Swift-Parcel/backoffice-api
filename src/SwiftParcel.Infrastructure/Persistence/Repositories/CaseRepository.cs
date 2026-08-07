@@ -37,4 +37,11 @@ public class CaseRepository : ICaseRepository
             .Include(c => c.Customer)
             .FirstOrDefaultAsync(c => c.CaseNumber == caseNumber, cancellationToken);
     }
+    
+    public async Task<List<Tag>> GetTagsByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
+    {
+        return await _context.Tags
+            .Where(t => ids.Contains(t.Id))
+            .ToListAsync(cancellationToken);
+    }
 }
