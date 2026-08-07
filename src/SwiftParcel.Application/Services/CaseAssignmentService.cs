@@ -4,6 +4,7 @@ using SwiftParcel.Application.Cases.Dtos;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
+using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Application.Services;
 
