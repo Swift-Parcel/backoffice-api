@@ -24,4 +24,10 @@ public class CustomerRepository : ICustomerRepository
         return await _context.Customers
             .AnyAsync(c => c.Email == email, cancellationToken);
     }
+
+    public async Task AddAsync(Customer customer, CancellationToken cancellationToken = default)
+    {
+        await _context.Customers.AddAsync(customer, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }
