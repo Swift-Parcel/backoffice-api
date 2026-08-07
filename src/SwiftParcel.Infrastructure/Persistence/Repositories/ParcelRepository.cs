@@ -90,12 +90,11 @@ public class ParcelRepository : IParcelRepository
             .AnyAsync(p => p.TrackingNumber == trackingNumber, cancellationToken);
     }
     
-    public async Task<ParcelStatus?> GetStatusByTrackingNumberAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public async Task<ParcelStatus?> GetStatusByTrackingNumberAsync(TrackingNumber trackingNumber, CancellationToken cancellationToken = default)
     {
-        var parcel = await _context.Parcels
-            .Select(p => new { p.TrackingNumber, p.Status })
-            .FirstOrDefaultAsync(p => p.TrackingNumber == trackingNumber, cancellationToken);
-
-        return parcel?.Status;
+        return await _context.Parcels
+            .Where(p => p.TrackingNumber == trackingNumber.Value)
+            .Select(p => (ParcelStatus?)p.Status)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }
