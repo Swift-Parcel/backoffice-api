@@ -2,6 +2,7 @@ using MediatR;
 using SwiftParcel.Application.Common.Interfaces.Authorization;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO;
+using SwiftParcel.Domain.Shared;
 using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Application.Reports.Queries.GetOpenCasesByType;

@@ -1,6 +1,7 @@
 using SwiftParcel.Application.DTO;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Domain.ValueObjects;
 
 namespace SwiftParcel.Infrastructure.Persistence.Repositories;
 
@@ -32,12 +33,12 @@ public class ParcelRepository : IParcelRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Parcel?> GetByTrackingNumberAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public async Task<Parcel?> GetByTrackingNumberAsync(TrackingNumber trackingNumber, CancellationToken cancellationToken = default)
     {
         return await _context.Parcels
             .Include(p => p.Customer)
             .Include(p => p.Cases)
-            .FirstOrDefaultAsync(p => p.TrackingNumber == trackingNumber, cancellationToken);
+            .FirstOrDefaultAsync(p => p.TrackingNumber == trackingNumber, cancellationToken); 
     }
 
     public async Task AddAsync(Parcel parcel, CancellationToken cancellationToken = default)
@@ -91,22 +92,21 @@ public class ParcelRepository : IParcelRepository
             .ToListAsync(cancellationToken);
     }
     
-    public async Task<bool> ExistsByTrackingNumberAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsByTrackingNumberAsync(TrackingNumber trackingNumber, CancellationToken cancellationToken = default)
     {
         return await _context.Parcels
             .AnyAsync(p => p.TrackingNumber == trackingNumber, cancellationToken);
     }
     
-    public async Task<ParcelStatus?> GetStatusByTrackingNumberAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    public async Task<ParcelStatus?> GetStatusByTrackingNumberAsync(TrackingNumber trackingNumber, CancellationToken cancellationToken = default)
     {
-        var parcel = await _context.Parcels
-            .Select(p => new { p.TrackingNumber, p.Status })
-            .FirstOrDefaultAsync(p => p.TrackingNumber == trackingNumber, cancellationToken);
-
-        return parcel?.Status;
+        return await _context.Parcels
+            .Where(p => p.TrackingNumber == trackingNumber)
+            .Select(p => (ParcelStatus?)p.Status)
+            .FirstOrDefaultAsync(cancellationToken);
     }
     
-    public async Task<List<Parcel>> GetByTrackingNumbersAsync(IEnumerable<string> trackingNumbers, CancellationToken cancellationToken = default)
+    public async Task<List<Parcel>> GetByTrackingNumbersAsync(IEnumerable<TrackingNumber> trackingNumbers, CancellationToken cancellationToken = default)
     {
         return await _context.Parcels
             .Where(p => trackingNumbers.Contains(p.TrackingNumber))

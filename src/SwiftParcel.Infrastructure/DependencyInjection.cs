@@ -71,14 +71,17 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IReportRepository, ReportRepository>();
         services.AddScoped<ISlaRuleRepository, SlaRuleRepository>();
+        
         services.AddScoped<ICaseNumberGenerator, CaseNumberGenerator>();
         services.AddScoped<IParcelNumberGenerator, ParcelNumberGenerator>();
+        
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IRegionRepository, RegionRepository>();
         services.AddScoped<ICaseRepository, CaseRepository>();
         services.AddScoped<ITagRepository, TagRepository>();
         services.AddScoped<IDeliveryEstimationService, DeliveryEstimationService>();
         services.AddScoped<IRegionRoutingService, RegionRoutingService>();
+        services.AddScoped<IParcelInformationService, MockParcelInformationService>();
         
         services.AddHttpClient<IWebhookClient, WebhookClient>(client =>
         {

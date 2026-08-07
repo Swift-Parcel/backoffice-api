@@ -4,6 +4,8 @@ using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Domain.Shared;
+using SwiftParcel.Domain.ValueObjects;
 
 namespace SwiftParcel.Application.Parcels.Commands.ConfirmDelivery;
 
@@ -25,7 +27,8 @@ public class ConfirmDeliveryCommandHandler : IRequestHandler<ConfirmDeliveryComm
 
     public async Task<Result<bool>> Handle(ConfirmDeliveryCommand request, CancellationToken cancellationToken)
     {
-        var parcel = await _parcelRepository.GetByTrackingNumberAsync(request.TrackingNumber, cancellationToken);
+        var trackingNumber =  TrackingNumber.Create(request.TrackingNumber).Value;
+        var parcel = await _parcelRepository.GetByTrackingNumberAsync(trackingNumber, cancellationToken);
 
         if (parcel == null)
         {

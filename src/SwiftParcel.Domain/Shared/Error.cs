@@ -1,4 +1,4 @@
-namespace SwiftParcel.Application.Common.Models;
+namespace SwiftParcel.Domain.Shared;
 
 public record Error(string Code, string Description, ErrorType Type)
 {

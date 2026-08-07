@@ -6,6 +6,7 @@ using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.Common.Settings;
 using SwiftParcel.Application.Services;
 using SwiftParcel.Domain.Entities;
+using SwiftParcel.Domain.Shared;
 using SwiftParcel.Application.Common.Interfaces.Repositories;
 
 namespace SwiftParcel.Application.Cases.Commands.CreateCase;

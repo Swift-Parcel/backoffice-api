@@ -3,6 +3,7 @@ using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Cases.Commands.UpdateCaseStatusCommand;
 

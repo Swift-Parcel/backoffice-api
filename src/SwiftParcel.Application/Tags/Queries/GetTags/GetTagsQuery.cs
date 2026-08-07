@@ -3,6 +3,7 @@ using SwiftParcel.Application.Common.Interfaces.Authorization;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Tags;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Tags.Queries.GetTags;
 

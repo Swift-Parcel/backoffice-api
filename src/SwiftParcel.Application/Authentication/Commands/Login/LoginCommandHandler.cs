@@ -4,6 +4,7 @@ using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Interfaces.Authentication;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.Common.Models.Authentication;
+using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Authentication.Commands.Login;
 

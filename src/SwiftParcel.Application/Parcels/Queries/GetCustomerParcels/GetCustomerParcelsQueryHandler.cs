@@ -2,6 +2,7 @@ using MediatR;
 using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Parcels;
+using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Parcels.Queries.GetCustomerParcels;
 

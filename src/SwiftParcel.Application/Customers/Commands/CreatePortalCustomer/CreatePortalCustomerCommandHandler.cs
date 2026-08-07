@@ -3,6 +3,7 @@ using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Customers;
 using SwiftParcel.Domain.Entities;
+using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Customers.Commands.CreatePortalCustomer;
 

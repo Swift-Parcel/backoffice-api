@@ -8,6 +8,8 @@ using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Domain.Shared;
+using SwiftParcel.Domain.ValueObjects;
 
 namespace SwiftParcel.Application.Parcels.Commands.CreateParcel;
 
@@ -48,7 +50,7 @@ public class CreateParcelCommandHandler : IRequestHandler<CreateParcelCommand, R
 
         var newParcel = new Parcel
         {
-            TrackingNumber = trackingNumber,
+            TrackingNumber = TrackingNumber.Create(trackingNumber).Value,
             CustomerId = customer.Id,
             RecipientName = request.Recipient.Name,
             Weight = request.Parcel.Weight,

@@ -5,6 +5,7 @@ using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Users;
 using SwiftParcel.Domain.Entities;
+using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Users.Commands.CreateUser;
 
