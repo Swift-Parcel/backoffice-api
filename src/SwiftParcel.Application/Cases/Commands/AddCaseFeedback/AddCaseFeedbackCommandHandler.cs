@@ -1,20 +1,18 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 
 namespace SwiftParcel.Application.Cases.Commands.AddCaseFeedback;
 
 public class AddCaseFeedbackCommandHandler : IRequestHandler<AddCaseFeedbackCommand, Result<bool>>
 {
-    private readonly IAppDbContext _context;
+    private readonly ICaseRepository _caseRepository;
 
-    public AddCaseFeedbackCommandHandler(IAppDbContext context) => _context = context;
+    public AddCaseFeedbackCommandHandler(ICaseRepository caseRepository) => _caseRepository = caseRepository;
 
     public async Task<Result<bool>> Handle(AddCaseFeedbackCommand request, CancellationToken cancellationToken)
     {
-        var caseEntity = await _context.Cases
-            .FirstOrDefaultAsync(c => c.CaseNumber == request.CaseNumber, cancellationToken);
+        var caseEntity = await _caseRepository.GetByCaseNumberAsync(request.CaseNumber, cancellationToken);
             
         if (caseEntity == null)
         {
@@ -26,7 +24,7 @@ public class AddCaseFeedbackCommandHandler : IRequestHandler<AddCaseFeedbackComm
         caseEntity.SatisfactionScore = request.Score;
         caseEntity.UpdatedDate = DateTime.UtcNow;
         
-        await _context.SaveChangesAsync(cancellationToken);
+        await _caseRepository.UpdateAsync(caseEntity, cancellationToken);
         
         return Result<bool>.Success(true);
     }

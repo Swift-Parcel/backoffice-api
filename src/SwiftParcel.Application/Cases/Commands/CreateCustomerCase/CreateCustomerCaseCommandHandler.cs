@@ -1,7 +1,7 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.Common.Settings;
 using SwiftParcel.Application.DTO.Cases;
@@ -14,18 +14,24 @@ namespace SwiftParcel.Application.Cases.Commands.CreateCustomerCase;
 public class CreateCustomerCaseCommandHandler 
     : IRequestHandler<CreateCustomerCaseCommand, Result<CreateCustomerCaseResponse>>
 {
-    private readonly IAppDbContext _context;
+    private readonly ICaseRepository _caseRepository;
+    private readonly ICustomerRepository _customerRepository;
+    private readonly IParcelRepository _parcelRepository;
     private readonly ICaseNumberGenerator _caseNumberGenerator;
     private readonly SlaOptions _slaOptions;
     private readonly IRegionRoutingService _regionRoutingService;
 
     public CreateCustomerCaseCommandHandler(
-        IAppDbContext context, 
+        ICaseRepository caseRepository,
+        ICustomerRepository customerRepository,
+        IParcelRepository parcelRepository,
         ICaseNumberGenerator caseNumberGenerator,
         IOptions<SlaOptions> slaOptions,
         IRegionRoutingService regionRoutingService)
     {
-        _context = context;
+        _caseRepository = caseRepository;
+        _customerRepository = customerRepository;
+        _parcelRepository = parcelRepository;
         _caseNumberGenerator = caseNumberGenerator;
         _slaOptions = slaOptions.Value;
         _regionRoutingService = regionRoutingService;
@@ -33,8 +39,7 @@ public class CreateCustomerCaseCommandHandler
 
     public async Task<Result<CreateCustomerCaseResponse>> Handle(CreateCustomerCaseCommand request, CancellationToken cancellationToken)
     {
-        var customer = await _context.Customers.FirstOrDefaultAsync(c 
-            => c.Email == request.CustomerEmail, cancellationToken);
+        var customer = await _customerRepository.GetByEmailAsync(request.CustomerEmail, cancellationToken);
 
         if (customer == null)
         {
@@ -46,9 +51,7 @@ public class CreateCustomerCaseCommandHandler
         var parcels = new List<Parcel>();
         if (request.TrackingNumbers.Any())
         {
-            parcels = await _context.Parcels
-                .Where(p => request.TrackingNumbers.Contains(p.TrackingNumber))
-                .ToListAsync(cancellationToken);
+            parcels = await _parcelRepository.GetByTrackingNumbersAsync(request.TrackingNumbers, cancellationToken);
 
             var existingTrackingNumbers = parcels.Select(p => p.TrackingNumber).ToList();
             var missingTrackingNumbers = request.TrackingNumbers.Except(existingTrackingNumbers).ToList();
@@ -75,15 +78,14 @@ public class CreateCustomerCaseCommandHandler
             Priority = Priority.Low,
             Customer = customer,
             CreatedDate = now,
-            SlaDeadline = now.AddHours(slaHours), // TODO: calculate actual deadline based on operating hours?
+            SlaDeadline = now.AddHours(slaHours),
             Channel = Channel.Portal,
             Parcels = parcels
         };
 
         newCase.RegionId = await _regionRoutingService.DetermineRegionAsync(newCase, cancellationToken);
 
-        _context.Cases.Add(newCase);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _caseRepository.AddAsync(newCase, cancellationToken);
 
         return Result<CreateCustomerCaseResponse>.Success(
             new CreateCustomerCaseResponse(newCase.CaseNumber));

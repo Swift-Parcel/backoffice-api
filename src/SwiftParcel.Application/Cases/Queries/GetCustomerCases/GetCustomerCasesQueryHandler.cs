@@ -1,6 +1,5 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Cases;
 
@@ -8,25 +7,14 @@ namespace SwiftParcel.Application.Cases.Queries.GetCustomerCases;
 
 public class GetCustomerCasesQueryHandler : IRequestHandler<GetCustomerCasesQuery, Result<CustomerCasesResponse>>
 {
-    private readonly IAppDbContext _context;
+    private readonly ICaseRepository _caseRepository;
 
-    public GetCustomerCasesQueryHandler(IAppDbContext context) => _context = context;
+    public GetCustomerCasesQueryHandler(ICaseRepository caseRepository) => _caseRepository = caseRepository;
 
     public async Task<Result<CustomerCasesResponse>> Handle(
         GetCustomerCasesQuery request, CancellationToken cancellationToken)
     {
-        var cases = await _context.Cases
-            .Include(c => c.Customer)
-            .AsNoTracking()
-            .Where(c => c.Customer.Email == request.CustomerEmail)
-            .Select(c => new CustomerCaseItemDto(
-                c.CaseNumber,
-                c.CaseType,
-                c.Status,
-                c.CreatedDate,
-                c.UpdatedDate
-            ))
-            .ToListAsync(cancellationToken);
+        var cases = await _caseRepository.GetCustomerCasesByEmailAsync(request.CustomerEmail, cancellationToken);
 
         return Result<CustomerCasesResponse>.Success(new CustomerCasesResponse(cases));
     }

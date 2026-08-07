@@ -110,4 +110,14 @@ public class HandlerRepository : IHandlerRepository
 
         return await query.ToListAsync(cancellationToken);
     }
+    
+    public async Task<int?> GetIdByUserIdAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        var handler = await _dbContext.Handlers
+            .Where(h => h.UserId == userId)
+            .Select(h => new { h.Id })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return handler?.Id;
+    }
 }
