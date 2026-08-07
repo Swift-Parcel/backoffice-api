@@ -5,4 +5,5 @@ using SwiftParcel.Domain.Entities;
 public interface ICustomerRepository
 {
     Task<Customer?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
+    Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
 }
