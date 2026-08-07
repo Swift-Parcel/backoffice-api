@@ -1,23 +1,33 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 
 namespace SwiftParcel.Application.Handlers.Commands.UpdateHandler;
 
-public class UpdateHandlerCommandHandler : IRequestHandler<UpdateHandlerCommand, Result>
+public class UpdateHandlerCommandHandler(
+    IHandlerRepository handlerRepository,
+    ICurrentUserService currentUserService) 
+    : IRequestHandler<UpdateHandlerCommand, Result>
 {
-    private readonly IAppDbContext _context;
-
-    public UpdateHandlerCommandHandler(IAppDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<Result> Handle(UpdateHandlerCommand command, CancellationToken cancellationToken)
     {
-        var handler = await _context.Handlers
-            .FirstAsync(h => h.Id == command.Id, cancellationToken);
+        var handler = await handlerRepository.GetByIdWithUserRegionsAsync(command.Id, cancellationToken);
+        if (handler == null)
+            return Result.Failure(Error.NotFound("Handler.NotFound", "The specified handler does not exist."));
+
+        if (!currentUserService.CanAccessAllRegions)
+        {
+            if (!handler.User.Regions.Any(r => currentUserService.HasAccessToRegion(r.Id)))
+                return Result.Failure(Error.Forbidden("Handler.Forbidden", "No permission to modify a handler in this region."));
+        }
+
+        if (command.MaxCases > 0)
+        {
+            var activeCasesCount = await handlerRepository.GetActiveCasesCountAsync(command.Id, cancellationToken);
+            if (command.MaxCases < activeCasesCount)
+                return Result.Failure(Error.Validation("Handler.MaxCases", "MaxCases cannot be set lower than the currently active cases."));
+        }
 
         handler.UpdateHandler(
             userId: command.UserId,
@@ -26,7 +36,7 @@ public class UpdateHandlerCommandHandler : IRequestHandler<UpdateHandlerCommand,
             maxCases: command.MaxCases,
             isActive: command.IsActive);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await handlerRepository.UpdateAsync(handler, cancellationToken);
 
         return Result.Success();
     }
