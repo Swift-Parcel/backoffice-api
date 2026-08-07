@@ -1,30 +1,32 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
+
 namespace SwiftParcel.Application.Handlers.Commands.UpdateHandlerStatus;
 
-public class UpdateHandlerStatusCommandHandler : IRequestHandler<UpdateHandlerStatusCommand, Result<Unit>>
+public class UpdateHandlerStatusCommandHandler(
+    IHandlerRepository handlerRepository,
+    ICurrentUserService currentUserService) 
+    : IRequestHandler<UpdateHandlerStatusCommand, Result<Unit>>
 {
-    private readonly IAppDbContext _context;
-
-    public UpdateHandlerStatusCommandHandler(IAppDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<Result<Unit>> Handle(UpdateHandlerStatusCommand request, CancellationToken cancellationToken)
     {
-        var handler = await _context.Handlers
-            .FirstAsync(h => h.Id == request.Id, cancellationToken);
+        var handler = await handlerRepository.GetByIdWithUserRegionsAsync(request.Id, cancellationToken);
+        if (handler == null)
+            return Result<Unit>.Failure(Error.NotFound("Handler.NotFound", "The specified handler does not exist."));
 
-        if (handler.IsActive == request.IsActive)
+        if (!currentUserService.CanAccessAllRegions)
         {
-            return Result<Unit>.Failure(Error.Conflict("Handler.Status", $"Handler is already {(request.IsActive ? "active" : "deactivated")}."));
+            if (!handler.User.Regions.Any(r => currentUserService.HasAccessToRegion(r.Id)))
+                return Result<Unit>.Failure(Error.Forbidden("Handler.Forbidden", "No permission to change the status of a handler in this region."));
         }
 
+        if (handler.IsActive == request.IsActive)
+            return Result<Unit>.Failure(Error.Conflict("Handler.Status", $"Handler is already {(request.IsActive ? "active" : "deactivated")}."));
+
         handler.IsActive = request.IsActive;
-        await _context.SaveChangesAsync(cancellationToken);
+        await handlerRepository.UpdateAsync(handler, cancellationToken);
 
         return Result<Unit>.Success(Unit.Value);
     }
