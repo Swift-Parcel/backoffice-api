@@ -1,3 +1,5 @@
+using SwiftParcel.Application.DTO.Parcels;
+
 namespace SwiftParcel.Application.DTO;
 
 public record EuroTrackResponseDto(
@@ -7,14 +9,14 @@ public record EuroTrackResponseDto(
 public record EuroTrackShipmentDto(
     string TrackingNumber,
     string CurrentStatus,
-    List<EuroTrackEventDto> Events
+    List<TrackingHistoryEventDto> Events
 );
 
 public record EuroTrackEventDto(
     DateTime Timestamp,
     string StatusCode,
     string Description,
-    EuroTrackLocation Location
+    LocationDto Location
 );
 
 public record EuroTrackLocation(

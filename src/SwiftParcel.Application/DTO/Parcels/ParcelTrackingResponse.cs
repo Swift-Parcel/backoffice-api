@@ -5,6 +5,6 @@ namespace SwiftParcel.Application.DTO.Parcels;
 public record ParcelTrackingResponse(
      ParcelStatus ParcelStatus,
      LocationDto Location,
-     List<TrackingHistoryDto> TrackingHistory
+     List<TrackingHistoryEventDto> TrackingHistory
 );
 
