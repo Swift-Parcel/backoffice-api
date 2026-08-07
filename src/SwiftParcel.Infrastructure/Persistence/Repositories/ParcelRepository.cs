@@ -105,4 +105,11 @@ public class ParcelRepository : IParcelRepository
 
         return parcel?.Status;
     }
+    
+    public async Task<List<Parcel>> GetByTrackingNumbersAsync(IEnumerable<string> trackingNumbers, CancellationToken cancellationToken = default)
+    {
+        return await _context.Parcels
+            .Where(p => trackingNumbers.Contains(p.TrackingNumber))
+            .ToListAsync(cancellationToken);
+    }
 }
