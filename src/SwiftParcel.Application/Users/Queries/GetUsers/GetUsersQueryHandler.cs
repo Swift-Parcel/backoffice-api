@@ -1,48 +1,21 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Users;
 using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Users.Queries.GetUsers;
 
-public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, Result<List<UserDetailsDto>>>
+public class GetUsersQueryHandler(IUserRepository userRepository) 
+    : IRequestHandler<GetUsersQuery, Result<List<UserDetailsDto>>>
 {
-    private readonly IAppDbContext _context;
-
-    public GetUsersQueryHandler(IAppDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<Result<List<UserDetailsDto>>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
     {
-        var query = _context.Users
-            .AsNoTracking()
-            .Include(u => u.Regions)
-            .AsQueryable();
-
-        if (request.RoleId.HasValue)
-        {
-            query = query.Where(u => u.RoleId == request.RoleId.Value);
-        }
-
-        if (request.IsActive.HasValue)
-        {
-            query = query.Where(u => u.IsActive == request.IsActive.Value);
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.SearchTerm))
-        {
-            var searchTerm = request.SearchTerm.ToLower();
-            query = query.Where(u => 
-                u.FullName.ToLower().Contains(searchTerm) || 
-                u.Email.ToLower().Contains(searchTerm) ||
-                u.Username.ToLower().Contains(searchTerm));
-        }
-
-        var users = await query.ToListAsync(cancellationToken);
+        var users = await userRepository.GetFilteredWithRegionsAsync(
+            request.RoleId, 
+            request.IsActive, 
+            request.SearchTerm, 
+            cancellationToken);
 
         var dtos = users.Select(user => new UserDetailsDto(
             user.Id,

@@ -1,19 +1,17 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Cases;
 using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Cases.Queries.GetCaseNotes;
 
-public class GetCaseNotesQueryHandler(IAppDbContext context)
+public class GetCaseNotesQueryHandler(ICaseRepository caseRepository)
     : IRequestHandler<GetCaseNotesQuery, Result<IReadOnlyList<CaseNoteDto>>>
 {
     public async Task<Result<IReadOnlyList<CaseNoteDto>>> Handle(GetCaseNotesQuery request, CancellationToken cancellationToken)
     {
-        var caseExists = await context.Cases
-            .AnyAsync(c => c.CaseNumber == request.CaseNumber, cancellationToken);
+        var caseExists = await caseRepository.ExistsByCaseNumberAsync(request.CaseNumber, cancellationToken);
             
         if (!caseExists)
         {
@@ -22,19 +20,7 @@ public class GetCaseNotesQueryHandler(IAppDbContext context)
                 $"Case with number {request.CaseNumber} was not found."));
         }
 
-        var notes = await context.CaseNotes
-            .AsNoTracking()
-            .Where(n => n.Case.CaseNumber == request.CaseNumber)
-            .OrderBy(n => n.CreatedDate)
-            .Select(n => new CaseNoteDto(
-                n.CreatedDate,
-                n.NoteText, 
-                n.HandlerId, 
-                n.Handler!.FullName, 
-                n.CustomerId, 
-                n.Customer!.FullName,  
-                n.Attachment))
-            .ToListAsync(cancellationToken);
+        var notes = await caseRepository.GetCaseNotesAsync(request.CaseNumber, cancellationToken);
 
         return Result<IReadOnlyList<CaseNoteDto>>.Success(notes);
     }

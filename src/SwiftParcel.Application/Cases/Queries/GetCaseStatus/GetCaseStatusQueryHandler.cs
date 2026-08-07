@@ -1,6 +1,5 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Cases;
 using SwiftParcel.Domain.Shared;
@@ -9,34 +8,21 @@ namespace SwiftParcel.Application.Cases.Queries.GetCaseStatus;
 
 public class GetCaseStatusQueryHandler : IRequestHandler<GetCaseStatusQuery, Result<CaseStatusResponse>>
 {
-    private readonly IAppDbContext _context;
+    private readonly ICaseRepository _caseRepository;
 
-    public GetCaseStatusQueryHandler(IAppDbContext context) => _context = context;
+    public GetCaseStatusQueryHandler(ICaseRepository caseRepository) => _caseRepository = caseRepository;
 
     public async Task<Result<CaseStatusResponse>> Handle(GetCaseStatusQuery request, CancellationToken cancellationToken)
     {
-        var caseEntity = await _context.Cases
-            .Include(c => c.Notes)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.CaseNumber == request.CaseNumber, cancellationToken);
-            
-        if (caseEntity == null)
+        var response = await _caseRepository.GetCaseStatusAsync(request.CaseNumber, cancellationToken);
+
+        if (response == null)
         {
             return Result<CaseStatusResponse>.Failure(Error.NotFound(
                 "get_case_status__not_found", 
                 $"Case with number {request.CaseNumber} was not found."));
         }
-        
-        var notesDto = caseEntity.Notes
-            .Where(n => !n.IsInternal)
-            .OrderBy(n => n.CreatedDate)
-            .Select(n => new CustomerFacingCaseNoteDto(
-                n.CreatedDate,
-                n.NoteText))
-            .ToList();
-            
-        var response = new CaseStatusResponse(caseEntity.Status, notesDto, caseEntity.Resolution);
-        
+
         return Result<CaseStatusResponse>.Success(response);
     }
 }

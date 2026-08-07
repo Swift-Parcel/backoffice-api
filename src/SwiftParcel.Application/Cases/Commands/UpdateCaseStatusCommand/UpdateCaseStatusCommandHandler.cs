@@ -1,6 +1,5 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Domain.Enums;
@@ -10,20 +9,18 @@ namespace SwiftParcel.Application.Cases.Commands.UpdateCaseStatusCommand;
 
 public class UpdateCaseStatusCommandHandler : IRequestHandler<UpdateCaseStatusCommand, Result<Unit>>
 {
-    private readonly IAppDbContext _context;
+    private readonly ICaseRepository _caseRepository;
     private readonly IWebhookClient _webhookClient;
 
-    public UpdateCaseStatusCommandHandler(IAppDbContext context, IWebhookClient webhookClient)
+    public UpdateCaseStatusCommandHandler(ICaseRepository caseRepository, IWebhookClient webhookClient)
     {
-        _context = context;
+        _caseRepository = caseRepository;
         _webhookClient = webhookClient;
     }
 
-    public async Task<Result<Unit>> Handle(Commands.UpdateCaseStatusCommand.UpdateCaseStatusCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Unit>> Handle(UpdateCaseStatusCommand request, CancellationToken cancellationToken)
     {
-        var @case = await _context.Cases
-            .Include(c => c.Customer)
-            .FirstOrDefaultAsync(c => c.CaseNumber == request.CaseNumber, cancellationToken);
+        var @case = await _caseRepository.GetByCaseNumberWithCustomerAsync(request.CaseNumber, cancellationToken);
 
         // Business Error: Not Found
         if (@case is null)
@@ -47,7 +44,7 @@ public class UpdateCaseStatusCommandHandler : IRequestHandler<UpdateCaseStatusCo
             @case.ResolvedDate = DateTime.UtcNow;
         }
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await _caseRepository.UpdateAsync(@case, cancellationToken);
 
         await _webhookClient.NotifyCaseStatusChangedAsync(
             @case.CaseNumber,

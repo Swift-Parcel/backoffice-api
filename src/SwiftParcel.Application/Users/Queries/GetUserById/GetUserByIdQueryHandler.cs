@@ -1,27 +1,17 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Users;
 using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Users.Queries.GetUserById;
 
-public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, Result<UserDetailsDto>>
+public class GetUserByIdQueryHandler(IUserRepository userRepository) 
+    : IRequestHandler<GetUserByIdQuery, Result<UserDetailsDto>>
 {
-    private readonly IAppDbContext _context;
-
-    public GetUserByIdQueryHandler(IAppDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<Result<UserDetailsDto>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
     {
-        var user = await _context.Users
-            .AsNoTracking()
-            .Include(u => u.Regions)
-            .FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
+        var user = await userRepository.GetByIdWithRegionsAsync(request.Id, cancellationToken);
 
         if (user == null)
             return Result<UserDetailsDto>.Failure(Error.NotFound("User.NotFound", $"User with ID {request.Id} not found."));

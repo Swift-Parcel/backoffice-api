@@ -25,6 +25,13 @@ public class ParcelRepository : IParcelRepository
             .Include(p => p.Cases)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
+    
+    public async Task<List<Parcel>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
+    {
+        return await _context.Parcels
+            .Where(p => ids.Contains(p.Id))
+            .ToListAsync(cancellationToken);
+    }
 
     public async Task<Parcel?> GetByTrackingNumberAsync(string trackingNumber, CancellationToken cancellationToken = default)
     {
@@ -97,5 +104,12 @@ public class ParcelRepository : IParcelRepository
             .Where(p => p.TrackingNumber == trackingNumber.Value)
             .Select(p => (ParcelStatus?)p.Status)
             .FirstOrDefaultAsync(cancellationToken);
+    }
+    
+    public async Task<List<Parcel>> GetByTrackingNumbersAsync(IEnumerable<string> trackingNumbers, CancellationToken cancellationToken = default)
+    {
+        return await _context.Parcels
+            .Where(p => trackingNumbers.Contains(p.TrackingNumber))
+            .ToListAsync(cancellationToken);
     }
 }

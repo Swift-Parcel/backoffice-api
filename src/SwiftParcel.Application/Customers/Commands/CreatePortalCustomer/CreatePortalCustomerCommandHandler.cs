@@ -1,6 +1,5 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Customers;
 using SwiftParcel.Domain.Entities;
@@ -11,18 +10,17 @@ namespace SwiftParcel.Application.Customers.Commands.CreatePortalCustomer;
 public class CreatePortalCustomerCommandHandler
     : IRequestHandler<CreatePortalCustomerCommand, Result<CreateCustomerResponse>>
 {
-    private readonly IAppDbContext _context;
+    private readonly ICustomerRepository _customerRepository;
 
-    public CreatePortalCustomerCommandHandler(IAppDbContext context)
+    public CreatePortalCustomerCommandHandler(ICustomerRepository customerRepository)
     {
-        _context = context;
+        _customerRepository = customerRepository;
     }
 
     public async Task<Result<CreateCustomerResponse>> Handle(CreatePortalCustomerCommand request,
         CancellationToken cancellationToken)
     {
-        var emailExists = await _context.Customers
-            .AnyAsync(c => c.Email == request.Email, cancellationToken);
+        var emailExists = await _customerRepository.ExistsByEmailAsync(request.Email, cancellationToken);
 
         if (emailExists)
         {
@@ -47,8 +45,7 @@ public class CreatePortalCustomerCommandHandler
             )
         };
 
-        _context.Customers.Add(customer);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _customerRepository.AddAsync(customer, cancellationToken);
 
         return Result<CreateCustomerResponse>.Success(
             new CreateCustomerResponse(customer.RegisteredDate));
