@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Domain.ValueObjects;
 using SwiftParcel.Infrastructure.Authentication;
 using SwiftParcel.Infrastructure.Services;
 

@@ -5,16 +5,18 @@ using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.Common.Settings;
 using SwiftParcel.Application.DTO.Parcels;
+using SwiftParcel.Application.Services;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Parcels.Commands.ChangeDelivery;
 
 public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryCommand, Result<DeliveryChangeResponse>>
 {
     private readonly IParcelRepository _parcelRepository;
-    private readonly IRegionRepository _regionRepository;
     private readonly ICaseRepository _caseRepository;
+    private readonly IRegionRoutingService _regionRoutingService;
     private readonly ICaseNumberGenerator _caseNumberGenerator;
     private readonly SlaOptions _slaOptions;
 
@@ -22,12 +24,13 @@ public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryComman
         IParcelRepository parcelRepository,
         IRegionRepository regionRepository,
         ICaseRepository caseRepository,
+        IRegionRoutingService regionRoutingService,
         ICaseNumberGenerator caseNumberGenerator,
         IOptions<SlaOptions> slaOptions)
     {
         _parcelRepository = parcelRepository;
-        _regionRepository = regionRepository;
         _caseRepository = caseRepository;
+        _regionRoutingService = regionRoutingService;
         _caseNumberGenerator = caseNumberGenerator;
         _slaOptions = slaOptions.Value;
     }
@@ -48,8 +51,8 @@ public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryComman
         }
 
         var countryCode = parcel.Customer.Address.CountryCode;
-        var regionId = await _regionRepository.GetActiveRegionIdByCountryCodeAsync(countryCode, cancellationToken);
-
+        var regionId = await _regionRoutingService.DetermineRegionAsync(parcel, cancellationToken);
+        
         var caseNumber = await _caseNumberGenerator.GenerateNextAsync(cancellationToken);
         var slaHours = _slaOptions.DefaultHours.GetValueOrDefault(CaseType.DeliveryChange, 72);
         var newCase = Case.CreateForDeliveryChange(

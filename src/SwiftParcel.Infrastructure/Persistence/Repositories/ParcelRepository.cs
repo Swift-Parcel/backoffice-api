@@ -1,6 +1,7 @@
 using SwiftParcel.Application.DTO;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Domain.Enums;
+using SwiftParcel.Domain.ValueObjects;
 
 namespace SwiftParcel.Infrastructure.Persistence.Repositories;
 

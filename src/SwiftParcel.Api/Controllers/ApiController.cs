@@ -1,6 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SwiftParcel.Application.Common.Models;
+using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Api.Controllers;
 

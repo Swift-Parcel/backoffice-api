@@ -1,3 +1,5 @@
+using SwiftParcel.Domain.ValueObjects;
+
 namespace SwiftParcel.Domain.Entities;
 
 using Enums;

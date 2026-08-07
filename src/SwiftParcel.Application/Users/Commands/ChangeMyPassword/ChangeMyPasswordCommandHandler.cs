@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Interfaces.Authentication;
 using SwiftParcel.Application.Common.Models;
+using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Users.Commands.ChangeMyPassword;
 
