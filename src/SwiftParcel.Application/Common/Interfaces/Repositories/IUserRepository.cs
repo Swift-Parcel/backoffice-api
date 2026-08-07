@@ -10,4 +10,5 @@ public interface IUserRepository
     Task AddAsync(User user, CancellationToken cancellationToken = default);
     Task<bool> IsUsernameUniqueAsync(string username, CancellationToken cancellationToken = default);
     Task<bool> IsEmailUniqueAsync(string email, CancellationToken cancellationToken = default);
+    Task<User?> GetByIdWithRegionsForUpdateAsync(int userId, CancellationToken cancellationToken = default);
 }

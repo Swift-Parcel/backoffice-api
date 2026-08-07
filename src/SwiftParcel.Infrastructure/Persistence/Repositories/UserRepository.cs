@@ -48,4 +48,11 @@ public class UserRepository : IUserRepository
     {
         return !await _dbContext.Users.AnyAsync(u => u.Email == email, cancellationToken);
     }
+    
+    public async Task<User?> GetByIdWithRegionsForUpdateAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Users
+            .Include(u => u.Regions)
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+    }
 }
