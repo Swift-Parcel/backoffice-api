@@ -1,5 +1,6 @@
 using SwiftParcel.Application.DTO;
 using SwiftParcel.Application.DTO.Parcels;
+using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Infrastructure.Persistence.Repositories;
 
@@ -87,5 +88,14 @@ public class ParcelRepository : IParcelRepository
     {
         return await _context.Parcels
             .AnyAsync(p => p.TrackingNumber == trackingNumber, cancellationToken);
+    }
+    
+    public async Task<ParcelStatus?> GetStatusByTrackingNumberAsync(string trackingNumber, CancellationToken cancellationToken = default)
+    {
+        var parcel = await _context.Parcels
+            .Select(p => new { p.TrackingNumber, p.Status })
+            .FirstOrDefaultAsync(p => p.TrackingNumber == trackingNumber, cancellationToken);
+
+        return parcel?.Status;
     }
 }
