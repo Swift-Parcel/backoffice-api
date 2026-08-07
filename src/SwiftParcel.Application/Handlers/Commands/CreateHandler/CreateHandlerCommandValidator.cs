@@ -1,18 +1,26 @@
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
+using SwiftParcel.Domain.Entities;
 
 namespace SwiftParcel.Application.Handlers.Commands.CreateHandler;
 
 public class CreateHandlerCommandValidator : AbstractValidator<CreateHandlerCommand>
 {
-    private readonly IAppDbContext _context;
+    private readonly IHandlerRepository _handlerRepository;
+    private readonly IUserRepository _userRepository;
     private readonly ICurrentUserService _currentUserService;
 
-    public CreateHandlerCommandValidator(IAppDbContext context, ICurrentUserService currentUserService)
+    public CreateHandlerCommandValidator(
+        IHandlerRepository handlerRepository,
+        IUserRepository userRepository,
+        ICurrentUserService currentUserService)
     {
-        _context = context;
+        _handlerRepository = handlerRepository;
+        _userRepository = userRepository;
         _currentUserService = currentUserService;
+
+        RuleLevelCascadeMode = CascadeMode.Stop;
 
         RuleFor(x => x.Department)
             .NotEmpty().WithMessage("Department is required.")
@@ -23,32 +31,32 @@ public class CreateHandlerCommandValidator : AbstractValidator<CreateHandlerComm
 
         RuleFor(x => x.UserId)
             .GreaterThan(0).WithMessage("User ID is required.")
-            .MustAsync(UserExists).WithMessage("The specified user does not exist.")
             .MustAsync(NotAlreadyBeAHandler).WithMessage("This user is already a handler.")
-            .MustAsync(BeInAllowedRegion).WithMessage("You do not have permission to create a handler for this user's region.");
-    }
-
-    private async Task<bool> UserExists(int userId, CancellationToken cancellationToken)
-    {
-        return await _context.Users.AnyAsync(u => u.Id == userId, cancellationToken);
+            .CustomAsync(ValidateUserAndRegionsAsync);
     }
 
     private async Task<bool> NotAlreadyBeAHandler(int userId, CancellationToken cancellationToken)
     {
-        return !await _context.Handlers.AnyAsync(h => h.UserId == userId, cancellationToken);
+        return !await _handlerRepository.ExistsByUserIdAsync(userId, cancellationToken);
     }
 
-    private async Task<bool> BeInAllowedRegion(int userId, CancellationToken cancellationToken)
+    private async Task ValidateUserAndRegionsAsync(int userId, ValidationContext<CreateHandlerCommand> context, CancellationToken cancellationToken)
     {
-        if (_currentUserService.CanAccessAllRegions) return true;
+        var targetUser = await _userRepository.GetByIdWithRegionsAsync(userId, cancellationToken);
 
-        var targetUser = await _context.Users
-            .Include(u => u.Regions)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+        if (targetUser == null)
+        {
+            context.AddFailure("The specified user does not exist.");
+            return;
+        }
 
-        if (targetUser == null) return false;
-
-        return targetUser.Regions.Any(r => _currentUserService.HasAccessToRegion(r.Id));
+        if (!_currentUserService.CanAccessAllRegions)
+        {
+            bool hasAccess = targetUser.Regions.Any(r => _currentUserService.HasAccessToRegion(r.Id));
+            if (!hasAccess)
+            {
+                context.AddFailure("You do not have permission to create a handler for this user's region.");
+            }
+        }
     }
 }

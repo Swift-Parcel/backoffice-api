@@ -1,5 +1,5 @@
 using MediatR;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Domain.Entities;
 
@@ -7,11 +7,11 @@ namespace SwiftParcel.Application.Handlers.Commands.CreateHandler;
 
 public class CreateHandlerCommandHandler : IRequestHandler<CreateHandlerCommand, Result<int>>
 {
-    private readonly IAppDbContext _context;
+    private readonly IHandlerRepository _handlerRepository;
 
-    public CreateHandlerCommandHandler(IAppDbContext context)
+    public CreateHandlerCommandHandler(IHandlerRepository handlerRepository)
     {
-        _context = context;
+        _handlerRepository = handlerRepository;
     }
 
     public async Task<Result<int>> Handle(CreateHandlerCommand request, CancellationToken cancellationToken)
@@ -24,8 +24,7 @@ public class CreateHandlerCommandHandler : IRequestHandler<CreateHandlerCommand,
             hireDate: request.HireDate ?? DateTime.UtcNow
         );
 
-        _context.Handlers.Add(newHandler);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _handlerRepository.AddAsync(newHandler, cancellationToken);
 
         return Result<int>.Success(newHandler.Id);
     }

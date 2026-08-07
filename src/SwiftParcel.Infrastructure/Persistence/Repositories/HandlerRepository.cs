@@ -20,4 +20,15 @@ public class HandlerRepository : IHandlerRepository
             .Include(h => h.Cases)
             .FirstOrDefaultAsync(cancellationToken);
     }
+    
+    public async Task AddAsync(Handler handler, CancellationToken cancellationToken = default)
+    {
+        await _dbContext.Handlers.AddAsync(handler, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+    
+    public async Task<bool> ExistsByUserIdAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Handlers.AnyAsync(h => h.UserId == userId, cancellationToken);
+    }
 }
