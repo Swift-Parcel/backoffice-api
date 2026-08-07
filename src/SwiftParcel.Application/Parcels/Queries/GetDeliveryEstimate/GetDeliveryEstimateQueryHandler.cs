@@ -1,6 +1,5 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Services;
@@ -9,19 +8,20 @@ namespace SwiftParcel.Application.Parcels.Queries.GetDeliveryEstimate;
 
 public class GetDeliveryEstimateQueryHandler : IRequestHandler<GetDeliveryEstimateQuery, Result<DeliveryEstimateResponse>>
 {
-    private readonly IAppDbContext _context;
+    private readonly IParcelRepository _parcelRepository;
     private readonly IDeliveryEstimationService _estimationService;
 
-    public GetDeliveryEstimateQueryHandler(IAppDbContext context, IDeliveryEstimationService estimationService)
+    public GetDeliveryEstimateQueryHandler(
+        IParcelRepository parcelRepository, 
+        IDeliveryEstimationService estimationService)
     {
-        _context = context;
+        _parcelRepository = parcelRepository;
         _estimationService = estimationService;
     }
 
     public async Task<Result<DeliveryEstimateResponse>> Handle(GetDeliveryEstimateQuery request, CancellationToken cancellationToken)
     {
-        var parcelExists = await _context.Parcels
-            .AnyAsync(p => p.TrackingNumber == request.TrackingNumber, cancellationToken);
+        var parcelExists = await _parcelRepository.ExistsByTrackingNumberAsync(request.TrackingNumber, cancellationToken);
 
         if (!parcelExists)
         {

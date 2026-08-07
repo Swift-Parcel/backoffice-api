@@ -1,24 +1,16 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Domain.Entities;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
+using SwiftParcel.Domain.Entities;
 
 namespace SwiftParcel.Application.SlaRules.Commands.UpdateSlaRule;
 
-public class UpdateSlaRuleCommandHandler : IRequestHandler<UpdateSlaRuleCommand, Result<SlaRuleResponse>>
+public class UpdateSlaRuleCommandHandler(ISlaRuleRepository slaRuleRepository) 
+    : IRequestHandler<UpdateSlaRuleCommand, Result<SlaRuleResponse>>
 {
-    private readonly IAppDbContext _context;
-
-    public UpdateSlaRuleCommandHandler(IAppDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<Result<SlaRuleResponse>> Handle(UpdateSlaRuleCommand request, CancellationToken cancellationToken)
     {
-        var oldRule = await _context.SlaRules
-            .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
+        var oldRule = await slaRuleRepository.GetByIdAsync(request.Id, cancellationToken);
 
         if (oldRule == null)
         {
@@ -44,9 +36,7 @@ public class UpdateSlaRuleCommandHandler : IRequestHandler<UpdateSlaRuleCommand,
             Notes = request.Notes
         };
 
-        _context.SlaRules.Add(newRule);
-
-        await _context.SaveChangesAsync(cancellationToken);
+        await slaRuleRepository.ReplaceRuleAsync(oldRule, newRule, cancellationToken);
 
         var response = new SlaRuleResponse(
             newRule.Id,

@@ -18,4 +18,10 @@ public class CustomerRepository : ICustomerRepository
         return await _context.Customers
             .FirstOrDefaultAsync(c => c.Email == email, cancellationToken);
     }
+
+    public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return await _context.Customers
+            .AnyAsync(c => c.Email == email, cancellationToken);
+    }
 }
