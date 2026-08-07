@@ -1,5 +1,4 @@
 using SwiftParcel.Application.Common.Interfaces.Authentication;
-using SwiftParcel.Application.Helpers;
 using SwiftParcel.Infrastructure.Authentication;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;

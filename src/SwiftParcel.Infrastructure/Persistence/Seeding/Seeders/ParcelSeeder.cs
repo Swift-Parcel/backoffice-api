@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Helpers;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Enums;
-using SwiftParcel.Infrastructure.Parsers;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Helpers;
 using SwiftParcel.Infrastructure.Persistence.Seeding.Interfaces;
+using AddressParserHelper = SwiftParcel.Infrastructure.Persistence.Seeding.Helpers.AddressParserHelper;
 
 namespace SwiftParcel.Infrastructure.Persistence.Seeding.Seeders;
 

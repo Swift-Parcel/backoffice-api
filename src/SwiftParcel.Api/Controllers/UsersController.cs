@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.DTO.Users;
-using SwiftParcel.Application.Users.Commands.ActivateUser;
 using SwiftParcel.Application.Users.Commands.AdminResetPassword;
 using SwiftParcel.Application.Users.Commands.ChangeMyPassword;
 using SwiftParcel.Application.Users.Commands.CreateUser;
 using SwiftParcel.Application.Users.Commands.UpdateUser;
+using SwiftParcel.Application.Users.Commands.UpdateUserStatus;
 using SwiftParcel.Application.Users.Queries.GetCurrentUser;
 using SwiftParcel.Application.Users.Queries.GetUserById;
 using SwiftParcel.Application.Users.Queries.GetUsers;

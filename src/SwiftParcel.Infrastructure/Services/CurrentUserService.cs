@@ -1,8 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using SwiftParcel.Application.Common.Interfaces;
-using SwiftParcel.Domain.Entities;
-using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Infrastructure.Services;
 

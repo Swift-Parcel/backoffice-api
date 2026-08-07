@@ -1,7 +1,6 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
-using SwiftParcel.Application.Common.Interfaces.Authentication;
 
 namespace SwiftParcel.Application.Handlers.Queries.GetHandlerById;
 

@@ -1,5 +1,6 @@
 using FluentValidation;
-using SwiftParcel.Application.Cases.Commands.AddCaseFeedback;
+
+namespace SwiftParcel.Application.Cases.Commands.AddCaseFeedback;
 
 public class AddCaseFeedbackCommandValidator : AbstractValidator<AddCaseFeedbackCommand>
 {

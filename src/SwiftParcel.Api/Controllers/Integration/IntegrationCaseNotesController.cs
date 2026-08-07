@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SwiftParcel.Application.Cases.Commands.AddCaseNote;
 using SwiftParcel.Application.Cases.Queries.GetCustomerCaseNotes;
 using SwiftParcel.Application.DTO.Cases;
 using SwiftParcel.Infrastructure.Authentication;

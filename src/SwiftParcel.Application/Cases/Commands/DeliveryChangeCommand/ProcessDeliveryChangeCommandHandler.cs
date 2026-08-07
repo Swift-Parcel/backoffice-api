@@ -4,7 +4,7 @@ using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.Integration.Interfaces;
 
-namespace SwiftParcel.Application.Cases.Commands.ProcessDeliveryChange;
+namespace SwiftParcel.Application.Cases.Commands.DeliveryChangeCommand;
 
 public class ProcessDeliveryChangeCommandHandler : IRequestHandler<ProcessDeliveryChangeCommand, Result<Unit>>
 {

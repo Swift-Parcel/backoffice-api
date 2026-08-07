@@ -2,14 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.DTO.Parcels;
 using SwiftParcel.Application.Parcels.Commands.ChangeDelivery;
 using SwiftParcel.Application.Parcels.Commands.ConfirmDelivery;
-using SwiftParcel.Application.Parcels.Commands.CreateParcel;
 using SwiftParcel.Application.Parcels.Queries.GetCustomerParcels;
 using SwiftParcel.Application.Parcels.Queries.GetDeliveryEstimate;
 using SwiftParcel.Application.Parcels.Queries.GetParcelStatus;
 using SwiftParcel.Application.Parcels.Queries.GetParcelTracking;
-using SwiftParcel.Application.Integration.Interfaces;
-using SwiftParcel.Application.Integration.Models;
-using SwiftParcel.Domain.Enums;
 using SwiftParcel.Infrastructure.Authentication;
 using CreateParcelCommand = SwiftParcel.Application.Parcels.Commands.CreateParcel.CreateParcelCommand;
 

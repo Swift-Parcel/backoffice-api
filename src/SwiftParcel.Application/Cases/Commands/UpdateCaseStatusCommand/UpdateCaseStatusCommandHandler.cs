@@ -5,7 +5,7 @@ using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Domain.Enums;
 
-namespace SwiftParcel.Application.Cases.Commands.UpdateCaseStatus;
+namespace SwiftParcel.Application.Cases.Commands.UpdateCaseStatusCommand;
 
 public class UpdateCaseStatusCommandHandler : IRequestHandler<UpdateCaseStatusCommand, Result<Unit>>
 {
@@ -18,7 +18,7 @@ public class UpdateCaseStatusCommandHandler : IRequestHandler<UpdateCaseStatusCo
         _webhookClient = webhookClient;
     }
 
-    public async Task<Result<Unit>> Handle(UpdateCaseStatusCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Unit>> Handle(Commands.UpdateCaseStatusCommand.UpdateCaseStatusCommand request, CancellationToken cancellationToken)
     {
         var @case = await _context.Cases
             .Include(c => c.Customer)

@@ -1,5 +1,4 @@
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
 
 namespace SwiftParcel.Application.Cases.Commands.CreateCase;
