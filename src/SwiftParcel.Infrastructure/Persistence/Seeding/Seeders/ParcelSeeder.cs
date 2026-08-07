@@ -58,7 +58,7 @@ public class ParcelSeeder : IEntitySeeder
             var newParcel = new Parcel
             {
                 Id = StringParserHelper.ExtractInteger(legacyParcel.id),
-                TrackingNumber = FormatHelper.FormatTrackingNumber(legacyParcel.tracking_number ?? string.Empty),
+                TrackingNumber = TrackingNumber.Create(legacyParcel.tracking_number ?? string.Empty).Value,
                 CustomerId = customerId,
                 SenderAddress = senderAddress,
                 RecipientName = legacyParcel.recipient_name ?? string.Empty,

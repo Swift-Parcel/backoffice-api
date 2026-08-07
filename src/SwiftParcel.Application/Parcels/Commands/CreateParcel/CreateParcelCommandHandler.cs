@@ -48,7 +48,7 @@ public class CreateParcelCommandHandler : IRequestHandler<CreateParcelCommand, R
 
         var newParcel = new Parcel
         {
-            TrackingNumber = trackingNumber,
+            TrackingNumber = TrackingNumber.Create(trackingNumber).Value,
             CustomerId = customer.Id,
             RecipientName = request.Recipient.Name,
             Weight = request.Parcel.Weight,

@@ -47,10 +47,10 @@ public class CreateCustomerCaseCommandHandler
         if (request.TrackingNumbers.Any())
         {
             parcels = await _context.Parcels
-                .Where(p => request.TrackingNumbers.Contains(p.TrackingNumber))
+                .Where(p => request.TrackingNumbers.Contains(p.TrackingNumber.ToString()))
                 .ToListAsync(cancellationToken);
 
-            var existingTrackingNumbers = parcels.Select(p => p.TrackingNumber).ToList();
+            var existingTrackingNumbers = parcels.Select(p => p.TrackingNumber.Value).ToList();
             var missingTrackingNumbers = request.TrackingNumbers.Except(existingTrackingNumbers).ToList();
 
             if (missingTrackingNumbers.Any())
