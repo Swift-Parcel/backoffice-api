@@ -69,6 +69,18 @@ public class CaseRepository : ICaseRepository
             .ToListAsync(cancellationToken);
     }
     
+    public async Task<List<CustomerFacingCaseNoteDto>> GetCustomerCaseNotesAsync(string caseNumber, CancellationToken cancellationToken = default)
+    {
+        return await _context.CaseNotes
+            .AsNoTracking()
+            .Where(n => n.Case.CaseNumber == caseNumber && !n.IsInternal)
+            .OrderBy(n => n.CreatedDate)
+            .Select(n => new CustomerFacingCaseNoteDto(
+                n.CreatedDate,
+                n.NoteText))
+            .ToListAsync(cancellationToken);
+    }
+    
     public async Task<CaseStatusResponse?> GetCaseStatusAsync(string caseNumber, CancellationToken cancellationToken = default)
     {
         var caseEntity = await _context.Cases
