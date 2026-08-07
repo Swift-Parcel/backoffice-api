@@ -11,4 +11,9 @@ public interface IUserRepository
     Task<bool> IsUsernameUniqueAsync(string username, CancellationToken cancellationToken = default);
     Task<bool> IsEmailUniqueAsync(string email, CancellationToken cancellationToken = default);
     Task<User?> GetByIdWithRegionsForUpdateAsync(int userId, CancellationToken cancellationToken = default);
+    Task<List<User>> GetFilteredWithRegionsAsync(
+        int? roleId, 
+        bool? isActive, 
+        string? searchTerm, 
+        CancellationToken cancellationToken = default);
 }
