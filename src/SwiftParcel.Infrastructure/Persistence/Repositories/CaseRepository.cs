@@ -30,4 +30,11 @@ public class CaseRepository : ICaseRepository
         _context.Cases.Update(caseEntity);
         await _context.SaveChangesAsync(cancellationToken);
     }
+    
+    public async Task<Case?> GetByCaseNumberWithCustomerAsync(string caseNumber, CancellationToken cancellationToken = default)
+    {
+        return await _context.Cases
+            .Include(c => c.Customer)
+            .FirstOrDefaultAsync(c => c.CaseNumber == caseNumber, cancellationToken);
+    }
 }
