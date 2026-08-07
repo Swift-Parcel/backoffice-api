@@ -1,7 +1,6 @@
 using System.Text.Json;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO;
 using SwiftParcel.Application.DTO.Parcels;
@@ -12,22 +11,20 @@ namespace SwiftParcel.Application.Parcels.Queries.GetParcelTracking;
 
 public class GetParcelTrackingQueryHandler : IRequestHandler<GetParcelTrackingQuery, Result<ParcelTrackingResponse>>
 {
-    private readonly IAppDbContext _context;
+    private readonly IParcelRepository _parcelRepository;
 
-    public GetParcelTrackingQueryHandler(IAppDbContext context)
+    public GetParcelTrackingQueryHandler(IParcelRepository parcelRepository)
     {
-        _context = context;
+        _parcelRepository = parcelRepository;
     }
 
     public async Task<Result<ParcelTrackingResponse>> Handle(GetParcelTrackingQuery request, CancellationToken cancellationToken)
     {
         var formattedTrackingNumber = FormatHelper.FormatTrackingNumber(request.TrackingNumber);
 
-        var parcel = await _context.Parcels
-            .Select(p => new { p.TrackingNumber, p.Status })
-            .FirstOrDefaultAsync(p => p.TrackingNumber == formattedTrackingNumber, cancellationToken);
+        var parcelStatus = await _parcelRepository.GetStatusByTrackingNumberAsync(formattedTrackingNumber, cancellationToken);
 
-        if (parcel == null)
+        if (parcelStatus == null)
         {
             return Result<ParcelTrackingResponse>.Failure(
                 Error.NotFound("parcel_not_found", $"Parcel with tracking number '{request.TrackingNumber}' was not found."));
@@ -51,8 +48,8 @@ public class GetParcelTrackingQueryHandler : IRequestHandler<GetParcelTrackingQu
         LocationDto? currentLocation = null;
 
         var currentParcelStatus = shipmentData != null
-            ? MapEuroTrackStatus(shipmentData.CurrentStatus, parcel.Status)
-            : parcel.Status;
+            ? MapEuroTrackStatus(shipmentData.CurrentStatus, parcelStatus.Value)
+            : parcelStatus.Value;
 
         if (shipmentData != null && shipmentData.Events.Any())
         {
@@ -71,7 +68,7 @@ public class GetParcelTrackingQueryHandler : IRequestHandler<GetParcelTrackingQu
 
                 trackingHistory.Add(new TrackingHistoryDto(
                     Timestamp: e.Timestamp,
-                    ParcelStatus: MapEuroTrackStatus(e.StatusCode, parcel.Status),
+                    ParcelStatus: MapEuroTrackStatus(e.StatusCode, parcelStatus.Value),
                     Description: e.Description,
                     Location: eventLocation
                 ));
