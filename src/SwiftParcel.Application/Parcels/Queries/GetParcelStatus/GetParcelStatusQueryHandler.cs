@@ -1,6 +1,5 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using SwiftParcel.Application.Common.Interfaces;
+using SwiftParcel.Application.Common.Interfaces.Repositories;
 using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Parcels;
 
@@ -8,17 +7,16 @@ namespace SwiftParcel.Application.Parcels.Queries.GetParcelStatus;
 
 public class GetParcelStatusQueryHandler : IRequestHandler<GetParcelStatusQuery, Result<ParcelStatusResponse>>
 {
-    private readonly IAppDbContext _context;
+    private readonly IParcelRepository _parcelRepository;
 
-    public GetParcelStatusQueryHandler(IAppDbContext context)
+    public GetParcelStatusQueryHandler(IParcelRepository parcelRepository)
     {
-        _context = context;
+        _parcelRepository = parcelRepository;
     }
 
     public async Task<Result<ParcelStatusResponse>> Handle(GetParcelStatusQuery request, CancellationToken cancellationToken)
     {
-        var parcel = await _context.Parcels
-            .FirstOrDefaultAsync(p => p.TrackingNumber == request.TrackingNumber, cancellationToken);
+        var parcel = await _parcelRepository.GetByTrackingNumberAsync(request.TrackingNumber, cancellationToken);
 
         if (parcel == null)
         {
