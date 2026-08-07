@@ -79,4 +79,35 @@ public class HandlerRepository : IHandlerRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(h => h.Id == id, cancellationToken);
     }
+    
+    public async Task<List<Handler>> GetFilteredWithDetailsAsync(
+        IEnumerable<int>? allowedRegionIds, 
+        bool? isActive, 
+        string? department, 
+        CancellationToken cancellationToken = default)
+    {
+        var query = _dbContext.Handlers
+            .Include(h => h.User)
+            .ThenInclude(u => u.Regions)
+            .Include(h => h.Cases.Where(c => Case.ActiveStatuses.Contains(c.Status))) 
+            .AsNoTracking()
+            .AsQueryable();
+
+        if (allowedRegionIds != null)
+        {
+            query = query.Where(h => h.User.Regions.Any(r => allowedRegionIds.Contains(r.Id)));
+        }
+
+        if (isActive.HasValue)
+        {
+            query = query.Where(h => h.IsActive == isActive.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(department))
+        {
+            query = query.Where(h => h.Department == department);
+        }
+
+        return await query.ToListAsync(cancellationToken);
+    }
 }

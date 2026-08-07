@@ -14,4 +14,9 @@ public interface IHandlerRepository
     Task<int> GetActiveCasesCountAsync(int handlerId, CancellationToken cancellationToken = default);
     Task<Handler?> GetByUserIdWithDetailsAsync(int userId, CancellationToken cancellationToken = default);
     Task<Handler?> GetByIdWithDetailsAsync(int id, CancellationToken cancellationToken = default);
+    Task<List<Handler>> GetFilteredWithDetailsAsync(
+        IEnumerable<int>? allowedRegionIds, 
+        bool? isActive, 
+        string? department, 
+        CancellationToken cancellationToken = default);
 }
