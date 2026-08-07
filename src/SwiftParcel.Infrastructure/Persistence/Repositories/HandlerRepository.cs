@@ -69,4 +69,14 @@ public class HandlerRepository : IHandlerRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(h => h.UserId == userId, cancellationToken);
     }
+    
+    public async Task<Handler?> GetByIdWithDetailsAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Handlers
+            .Include(h => h.User)
+            .ThenInclude(u => u.Regions)
+            .Include(h => h.Cases.Where(c => Case.ActiveStatuses.Contains(c.Status))) 
+            .AsNoTracking()
+            .FirstOrDefaultAsync(h => h.Id == id, cancellationToken);
+    }
 }
