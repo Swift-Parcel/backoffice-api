@@ -7,7 +7,6 @@ using SwiftParcel.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
 
 Action<System.Text.Json.JsonSerializerOptions> configureJsonOptions = options =>
 {
@@ -31,8 +30,14 @@ var app = builder.Build();
 
 await app.SeedDatabaseAsync();
 
-app.UseExceptionHandler();
-
+app.UseExceptionHandler(options =>
+{
+    options.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        await context.Response.WriteAsJsonAsync(new { message = "An unexpected error occurred." });
+    });
+});
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
