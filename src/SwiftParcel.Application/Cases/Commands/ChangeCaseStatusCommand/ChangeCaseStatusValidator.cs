@@ -1,10 +1,11 @@
 using FluentValidation;
+using SwiftParcel.Application.Cases.Commands.ChangeCaseStatusCommand;
 
 namespace SwiftParcel.Application.Cases.Commands.UpdateCaseStatusCommand;
 
-public class UpdateCaseStatusCommandValidator : AbstractValidator<UpdateCaseStatusCommand>
+public class ChangeCaseStatusValidator : AbstractValidator<ChangeStatusCommand>
 {
-    public UpdateCaseStatusCommandValidator()
+    public ChangeCaseStatusValidator()
     {
         RuleFor(x => x.CaseNumber)
             .NotEmpty()

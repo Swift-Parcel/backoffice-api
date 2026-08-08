@@ -6,7 +6,9 @@ using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Application.Cases.Commands.AssignCase;
 
-public record AssignCaseCommand(string CaseNumber, int HandlerId) : IRequest<Result<CaseSummaryDto>>, IAuthorizableRequest
+public record AssignCaseCommand(
+    int HandlerId,
+    string CaseNumber = "") : IRequest<Result<CaseSummaryDto>>, IAuthorizableRequest
 {
     public bool RequireAuthentication => true;
     public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Operator, UserRole.Supervisor, UserRole.Admin];

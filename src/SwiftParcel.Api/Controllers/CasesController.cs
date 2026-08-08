@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.Cases.Commands.AssignCase;
+using SwiftParcel.Application.Cases.Commands.ChangeCaseStatusCommand;
 using SwiftParcel.Application.Cases.Commands.CreateCase;
 using SwiftParcel.Application.Cases.Commands.DeliveryChangeCommand;
 using SwiftParcel.Application.DTO.Cases;
@@ -46,7 +47,7 @@ public class CasesController : ApiController
     }
     
     /// <summary>
-    /// Manually assigns a case to a specific handler. Enforces handler capacity limits.
+    /// Manually assigns a case to a specific handler.
     /// </summary>
     [HttpPost("{caseNumber}/assign")]
     [Authorize(Roles = "Operator,Supervisor,Admin")]
@@ -56,26 +57,24 @@ public class CasesController : ApiController
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AssignCase(
         [FromRoute] string caseNumber, 
-        [FromBody] AssignCaseRequest request)
+        [FromBody] AssignCaseCommand command)
     {
-        var command = new AssignCaseCommand(caseNumber, request.HandlerId);
-        
-        var result = await Mediator.Send(command);
+        var result = await Mediator.Send(command with { CaseNumber = caseNumber });
         
         return HandleResult(result);
     }
 
     /// <summary>
-    /// Updates the status of a case and triggers lifecycle notifications.
+    /// Changes the status of a case and triggers lifecycle notifications.
     /// </summary>
-    [HttpPut("{caseNumber}/status")]
+    [HttpPost("{caseNumber}/change-status")]
     [Authorize(Roles = "Operator,Supervisor,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateCaseStatus(string caseNumber, [FromBody] CaseStatus newStatus, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> ChangeCaseStatus(string caseNumber, [FromBody] ChangeStatusCommand command, CancellationToken cancellationToken = default)
     {
-        var result = await Mediator.Send(new UpdateCaseStatusCommand(caseNumber, newStatus), cancellationToken);
+        var result = await Mediator.Send(command with { CaseNumber = caseNumber }, cancellationToken);
         return HandleResult(result);
     }
     
