@@ -34,10 +34,12 @@ public class RoleSeeder : IEntitySeeder
             if (oldRole.id == "ROLE06")
                 continue;
             
+            var normalizedName = oldRole.role_name.Replace("-", "");
+            
             var newRole = new Role
             {
                 Id = StringParserHelper.ExtractInteger(oldRole.id),
-                Name = oldRole.role_name ?? string.Empty,
+                Name = normalizedName,
                 Description = oldRole.description ?? string.Empty,
                 CanAccessAllRegions = StringParserHelper.ParseBoolean(oldRole.can_access_all_regions),
                 IsActive = StringParserHelper.ParseBoolean(oldRole.is_active),
