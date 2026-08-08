@@ -42,7 +42,7 @@ public class CreateParcelCommandHandler : IRequestHandler<CreateParcelCommand, R
         if (customer == null)
         {
             return Result<CreateParcelResponse>.Failure(
-                Error.NotFound("customer_not_found", $"Customer with email '{request.Sender.Email}' was not found."));
+                Error.NotFound($"Customer with email '{request.Sender.Email}' was not found."));
         }
 
         var now = DateTime.UtcNow;

@@ -22,18 +22,14 @@ public class UpdateCaseStatusCommandHandler : IRequestHandler<UpdateCaseStatusCo
     {
         var @case = await _caseRepository.GetByCaseNumberWithCustomerAsync(request.CaseNumber, cancellationToken);
 
-        // Business Error: Not Found
         if (@case is null)
         {
-            return Result<Unit>.Failure(new Error("Case.NotFound", $"Case with number {request.CaseNumber} was not found.", ErrorType.NotFound));
+            return Result<Unit>.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
         }
 
-        // Business Error: Invalid Lifecycle Transition
         if (!IsValidStatusTransition(@case.Status, request.NewStatus))
         {
-            return Result<Unit>.Failure(new Error("Case.InvalidStatusTransition", 
-                $"Cannot transition case status from {@case.Status} to {request.NewStatus}.", 
-                ErrorType.Validation));
+            return Result<Unit>.Failure(Error.Validation($"Cannot transition case status from {@case.Status} to {request.NewStatus}."));
         }
 
         @case.Status = request.NewStatus;

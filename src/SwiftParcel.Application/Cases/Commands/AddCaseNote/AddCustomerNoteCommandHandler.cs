@@ -17,10 +17,10 @@ public class AddCustomerNoteCommandHandler : IRequestHandler<AddCustomerNoteComm
         var caseEntity = await _caseRepository.GetByCaseNumberWithCustomerAsync(request.CaseNumber, cancellationToken);
             
         if (caseEntity == null)
-            return Result<int>.Failure(Error.NotFound("case_not_found", "Case not found."));
+            return Result<int>.Failure(Error.NotFound("Case not found."));
 
         if (caseEntity.Customer.Email != request.CustomerEmail)
-            return Result<int>.Failure(Error.Conflict("unauthorized_customer", "Customer email does not match case owner."));
+            return Result<int>.Failure(Error.Conflict("Customer email does not match case owner."));
 
         var note = new CaseNote
         {

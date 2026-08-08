@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.Cases.Commands.AddCaseNote;
 using SwiftParcel.Application.Cases.Queries.GetCaseNotes;
+using SwiftParcel.Application.DTO;
 using SwiftParcel.Application.DTO.Cases;
 
 namespace SwiftParcel.Api.Controllers;
@@ -17,7 +18,7 @@ public class CaseNotesController : ApiController
     [HttpGet]
     [Authorize(Roles = "Read-Only,Operator,Supervisor,Admin")]
     [ProducesResponseType(typeof(IReadOnlyList<CaseNoteDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetNotes([FromRoute] string caseNumber)
     {
         var query = new GetCaseNotesQuery(caseNumber);

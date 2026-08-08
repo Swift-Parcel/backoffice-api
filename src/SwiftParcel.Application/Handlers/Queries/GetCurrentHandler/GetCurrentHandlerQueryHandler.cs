@@ -19,7 +19,7 @@ public class GetCurrentHandlerQueryHandler(
 
         if (handler == null)
         {
-            return Result<HandlerDto>.Failure(Error.NotFound("Handler.NotFound", "You do not have a handler profile."));
+            return Result<HandlerDto>.Failure(Error.NotFound("You do not have a handler profile."));
         }
 
         var dto = new HandlerDto(

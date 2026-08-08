@@ -4,9 +4,7 @@ namespace SwiftParcel.Domain.ValueObjects;
 
 public readonly record struct TrackingNumber
 {
-    public static readonly Error Empty = Error.Validation(
-        "TrackingNumber.Empty", 
-        "Tracking number cannot be empty or whitespace.");
+    public static readonly Error Empty = Error.Validation("Tracking number cannot be empty or whitespace.");
 
     public string Value { get; }
 

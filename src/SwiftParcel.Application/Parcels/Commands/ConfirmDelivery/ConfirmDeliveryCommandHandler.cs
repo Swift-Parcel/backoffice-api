@@ -33,7 +33,7 @@ public class ConfirmDeliveryCommandHandler : IRequestHandler<ConfirmDeliveryComm
         if (parcel == null)
         {
             return Result<bool>.Failure(
-                Error.NotFound("parcel_not_found", $"Parcel '{request.TrackingNumber}' not found."));
+                Error.NotFound($"Parcel '{request.TrackingNumber}' not found."));
         }
 
         if (parcel.Customer == null || !string.Equals(parcel.Customer.Email, request.CustomerEmail, StringComparison.OrdinalIgnoreCase))
@@ -41,7 +41,7 @@ public class ConfirmDeliveryCommandHandler : IRequestHandler<ConfirmDeliveryComm
             _logger.LogWarning("Delivery confirmation failed for Parcel {TrackingNumber}: Email mismatch.", parcel.TrackingNumber);
             
             return Result<bool>.Failure(
-                Error.Validation("invalid_customer_email", "The provided email does not match the recipient on record."));
+                Error.Validation("The provided email does not match the recipient on record."));
         }
 
         parcel.Status = ParcelStatus.Delivered;

@@ -18,9 +18,7 @@ public class GetCaseStatusQueryHandler : IRequestHandler<GetCaseStatusQuery, Res
 
         if (response == null)
         {
-            return Result<CaseStatusResponse>.Failure(Error.NotFound(
-                "get_case_status__not_found", 
-                $"Case with number {request.CaseNumber} was not found."));
+            return Result<CaseStatusResponse>.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
         }
 
         return Result<CaseStatusResponse>.Success(response);

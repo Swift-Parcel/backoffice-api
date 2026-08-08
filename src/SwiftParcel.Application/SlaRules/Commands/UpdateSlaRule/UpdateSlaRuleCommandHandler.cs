@@ -16,7 +16,7 @@ public class UpdateSlaRuleCommandHandler(ISlaRuleRepository slaRuleRepository)
         if (oldRule == null)
         {
             return Result<SlaRuleResponse>.Failure(
-                Error.NotFound("slarule_not_found", $"SLA Rule with ID {request.Id} was not found."));
+                Error.NotFound($"SLA Rule with ID {request.Id} was not found."));
         }
 
         oldRule.IsActive = false;

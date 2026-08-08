@@ -36,7 +36,7 @@ public class AddHandlerNoteCommandHandler : IRequestHandler<AddHandlerNoteComman
         var caseEntity = await _caseRepository.GetByCaseNumberAsync(request.CaseNumber, cancellationToken);
 
         if (caseEntity == null)
-            return Result<int>.Failure(Error.NotFound("case_not_found", "Case not found."));
+            return Result<int>.Failure(Error.NotFound("Case not found."));
 
         var note = new CaseNote
         {

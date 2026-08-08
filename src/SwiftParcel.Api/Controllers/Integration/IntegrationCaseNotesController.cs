@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.Cases.Commands.AddCaseNote;
 using SwiftParcel.Application.Cases.Queries.GetCustomerCaseNotes;
+using SwiftParcel.Application.DTO;
 using SwiftParcel.Application.DTO.Cases;
 using SwiftParcel.Infrastructure.Authentication;
 
@@ -16,7 +17,7 @@ public class IntegrationCaseNotesController : ApiController
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<CaseNoteDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCustomerCaseNotes([FromRoute] string caseNumber)
     {
         var query = new GetCustomerCaseNotesQuery(caseNumber);
@@ -29,8 +30,8 @@ public class IntegrationCaseNotesController : ApiController
     /// </summary>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddCustomerNote(
         [FromRoute] string caseNumber, 
         [FromBody] AddCustomerNoteRequest request)

@@ -36,15 +36,13 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<Authenti
         if (user is null)
         {
             return Result<AuthenticationResult?>.Failure(
-                Error.Failure("invalid_username_or_password"
-                    , "Invalid username or password."));
+                Error.Failure("Invalid username or password."));
         }
         
         if (!user.IsActive)
         {
             return Result<AuthenticationResult?>.Failure(
-                Error.Failure("account_disabled", 
-                    "This account has been deactivated. Please contact an administrator."));
+                Error.Failure("This account has been deactivated. Please contact an administrator."));
         }
         
         var isPasswordValid = _passwordHasher
@@ -53,8 +51,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<Authenti
         if(!isPasswordValid)
         {
             return Result<AuthenticationResult?>.Failure(
-                Error.Failure("invalid_username_or_password"
-                    , "Invalid username or password."));
+                Error.Failure("Invalid username or password."));
         }
         
         user.LastLogin = DateTime.UtcNow;
