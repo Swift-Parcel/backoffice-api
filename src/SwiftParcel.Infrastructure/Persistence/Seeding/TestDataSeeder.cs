@@ -62,7 +62,7 @@ public class TestDataSeeder
             PasswordHash = _passwordHasher.HashPassword("ReadOnly123!"),
             FullName = "Readonly User",
             RoleId = await _context.Roles
-                .Where(r => r.Name == "Read-Only")
+                .Where(r => r.Name == "ReadOnly")
                 .Select(r => r.Id)
                 .FirstOrDefaultAsync(),
             Email = "readonly@example.com",
