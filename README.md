@@ -182,6 +182,15 @@ This document contains the pre-configured (seeded) data for testing the SwiftPar
 | 6 | Linz | AT | 08:00:00 - 17:00:00 | | true | {monday,tuesday,wednesday,thursday,friday} |
 | 7 | Bratislava | SK | 08:00:00 - 16:30:00 | bratislava.mgr@swiftparcel.com | false | {monday,tuesday,wednesday,thursday,friday} |
 
+
+## Case assignment
+
+| IsEscalated | CaseType | Department |
+| :--- | :--- | :--- |
+| `true` | Any | Escalations |
+| `false` | Lost | Investigations |
+| `false` | Any other than lost | Customer Support |
+
 ---
 
 ## Useful Commands
