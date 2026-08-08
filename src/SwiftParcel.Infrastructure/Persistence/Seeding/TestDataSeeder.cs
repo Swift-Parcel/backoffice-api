@@ -88,7 +88,10 @@ public class TestDataSeeder
                 .Where(u => u.Username == "system")
                 .Select(u => u.Id)
                 .FirstOrDefaultAsync(),
-            CreatedDate = DateTime.UtcNow
+            CreatedDate = DateTime.UtcNow,
+            Regions = await _context.Regions
+                .Where(r => r.Id == 1)
+                .Select(r => r).ToListAsync()
         };
         newUsers.Add(@operator);
 
@@ -106,7 +109,7 @@ public class TestDataSeeder
                 .Where(u => u.Username == "system")
                 .Select(u => u.Id)
                 .FirstOrDefaultAsync(),
-            CreatedDate = DateTime.UtcNow
+            CreatedDate = DateTime.UtcNow,
         };
         newUsers.Add(supervisor);
 
