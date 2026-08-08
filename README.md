@@ -93,32 +93,37 @@ This document contains the pre-configured (seeded) data for testing the SwiftPar
 
 ## 2. Customers
 
-| Name | Email | VIP Status | Notes |
-| :--- | :--- | :--- | :--- |
-| Customer 1 | customer1@example.com | No | Default test customer |
-| Customer 2 | customer2@example.com | Yes | For testing high-priority cases |
-| Customer 3 | - | No | Seeded test customer |
-| Customer 4 | - | No | Seeded test customer |
-| Customer 5 | - | No | Seeded test customer |
-| Customer 7 | - | No | Seeded test customer |
+| ID | Name | Email | VIP Status | Notes |
+| :- | :--- | :--- | :--- | :--- |
+| 1 | Janos Szabo | janos.szabo@gmail.com | No | |
+| 2 | Petra Müller | petra.mueller@outlook.com | Yes | |
+| 3 | Karel Svoboda | karel.svoboda@seznam.cz | No | |
+| 4 | Ewa Kowalska | ewa.kowalska@wp.pl | No | |
+| 5 | Hans Weber | hans.weber@gmx.at | Yes | |
+| 7 | Lukas Bauer | l.bauer@gmail.com | No | |
+| 8 | Piotr Zielinski | piotr.z@onet.pl | No | |
+| 9 | Tamas Nagy | tamas.nagy@freemail.hu | No | |
+| 10 | Maria Kiss | - | No | |
+| 11 | Customer 1 | customer1@example.com | No | Default test customer |
+| 12 | Customer 2 | customer2@example.com | Yes | |
 
 ## 3. Parcels
 
-| Tracking Number | Status | Customer | Purpose |
-| :--- | :--- | :--- | :--- |
-| SP-20230101 | delivered | Customer 1 | |
-| SP-20230102 | delivered | Customer 2 | |
-| SP-20230103 | lost | Customer 3 | |
-| SP-20230104 | damaged | Customer 4 | |
-| SP-20230105 | in_transit | Customer 5 | |
-| SP-20230106 | delivered | Customer 1 | |
-| SP-20230107 | delivered | Customer 7 | |
-| SP-20230108 | in_transit | Customer 2 | |
-| SP-20230109 | delivered | Customer 4 | |
-| SP-20261016 | in_transit | Customer 1 | Normal delivery process testing |
-| SP-20261017 | delivered | Customer 1 | Successfully delivered parcel |
-| SP-20261018 | delivery_attempt_failed | Customer 2 | |
-| SP-20261019 | lost | Customer 2 | |
+| ID | Tracking Number | Status | Customer | Purpose |
+| :- | :--- | :--- | :--- | :--- |
+| 1 | SP-20230101 | delivered | Customer 1 | |
+| 2 | SP-20230102 | delivered | Customer 2 | |
+| 3 | SP-20230103 | lost | Customer 3 | |
+| 4 | SP-20230104 | damaged | Customer 4 | |
+| 5 | SP-20230105 | in_transit | Customer 5 | |
+| 6 | SP-20230106 | delivered | Customer 1 | |
+| 7 | SP-20230107 | delivered | Customer 7 | |
+| 8 | SP-20230108 | in_transit | Customer 2 | |
+| 9 | SP-20230109 | delivered | Customer 4 | |
+| 10 | SP-20261016 | in_transit | Customer 1 | Normal delivery process testing |
+| 11 | SP-20261017 | delivered | Customer 1 | Successfully delivered parcel |
+| 12 | SP-20261018 | delivery_attempt_failed | Customer 2 | |
+| 13 | SP-20261019 | lost | Customer 2 | |
 
 ## 4. Cases
 
