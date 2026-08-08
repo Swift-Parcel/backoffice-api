@@ -32,40 +32,30 @@ public class CaseAssignmentService : ICaseAssignmentService
         CancellationToken cancellationToken = default)
     {
         var @case = await _dbContext.Cases.FirstOrDefaultAsync(c => c.CaseNumber == caseNumber, cancellationToken);
-        if (@case is null) return Result<CaseSummaryDto>.Failure(Error.NotFound("Case.NotFound", "..."));
+        if (@case is null)
+            return Result<CaseSummaryDto>.Failure(Error.NotFound($"Case with case number{caseNumber} is not found."));
 
         var handler = await _handlerRepository.GetWithLockAndCasesAsync(handlerId, cancellationToken);
 
-        if (handler is null) return Result<CaseSummaryDto>.Failure(Error.NotFound("Handler.NotFound", "..."));
+        if (handler is null)
+            return Result<CaseSummaryDto>.Failure(Error.NotFound($"Handler with id {handlerId} is not found."));
 
-        if (_currentUser.Role != UserRole.Admin)
+        if (_currentUser.Role != UserRole.Admin && !_currentUser.HasAccessToRegion(@case.RegionId))
         {
-            if (_currentUser.Role == UserRole.Operator || _currentUser.Role == UserRole.Supervisor)
-            {
-                if (!_currentUser.HasAccessToRegion(@case.RegionId))
-                {
-                    return Result<CaseSummaryDto>.Failure(Error.Failure(
-                        "code which we dont use",
-                        "You do not have permission to reassign cases outside your regions."));
-                }
-            }
+            return Result<CaseSummaryDto>.Failure(Error.Failure("You do not have permission to reassign cases outside your regions."));
         }
 
 
         if (!handler.CanAssignCase())
         {
-            return Result<CaseSummaryDto>.Failure(Error.Conflict(
-                "Handler.CapacityExceeded",
-                $"Handler '{handler.Id}' has reached maximum capacity ({handler.MaxCases})."));
+            return Result<CaseSummaryDto>.Failure(Error.Conflict($"Handler '{handler.Id}' has reached maximum capacity ({handler.MaxCases})."));
         }
 
         var requiredDepartment = @case.GetRequiredDepartment();
 
         if (handler.Department != requiredDepartment)
         {
-            return Result<CaseSummaryDto>.Failure(Error.Validation(
-                "Handler.InvalidDepartment",
-                $"This case requires the '{requiredDepartment}' department, but handler is in '{handler.Department}'."));
+            return Result<CaseSummaryDto>.Failure(Error.Validation($"This case requires the '{requiredDepartment}' department, but handler is in '{handler.Department}'."));
         }
 
         handler.AssignCase(@case);

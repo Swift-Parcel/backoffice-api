@@ -5,6 +5,7 @@ using SwiftParcel.Application.Cases.Queries.GetCaseStatus;
 using SwiftParcel.Application.Cases.Queries.GetCustomerCases;
 using SwiftParcel.Application.Cases.Commands.AddCaseFeedback;
 using SwiftParcel.Application.Cases.Commands.CreateCustomerCase;
+using SwiftParcel.Application.DTO;
 using SwiftParcel.Infrastructure.Authentication;
 
 namespace SwiftParcel.Api.Controllers.Integration;
@@ -44,7 +45,7 @@ public class IntegrationCasesController : ApiController
     /// </summary>
     [HttpGet("{caseNumber}/status")]
     [ProducesResponseType(typeof(CaseStatusResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCaseStatus(string caseNumber)
     {
         var query = new GetCaseStatusQuery(caseNumber);
@@ -56,7 +57,7 @@ public class IntegrationCasesController : ApiController
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(CustomerCasesResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetCustomerCases([FromQuery] string customerEmail)
     {
         var query = new GetCustomerCasesQuery(customerEmail);
@@ -68,8 +69,8 @@ public class IntegrationCasesController : ApiController
     /// </summary>
     [HttpPost("{caseNumber}/feedback")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddCaseFeedback(
         [FromRoute] string caseNumber, 
         [FromBody] AddCaseFeedbackRequest request)

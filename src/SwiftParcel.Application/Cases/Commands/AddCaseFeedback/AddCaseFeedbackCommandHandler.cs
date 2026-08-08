@@ -17,9 +17,7 @@ public class AddCaseFeedbackCommandHandler : IRequestHandler<AddCaseFeedbackComm
             
         if (caseEntity == null)
         {
-            return Result<bool>.Failure(Error.NotFound(
-                "add_feedback__case_not_found", 
-                "Case not found."));
+            return Result<bool>.Failure(Error.NotFound("Case not found."));
         }
         
         caseEntity.SatisfactionScore = request.Score;

@@ -17,12 +17,12 @@ public class UpdateUserCommandHandler(
         var user = await userRepository.GetByIdWithRegionsForUpdateAsync(request.Id, cancellationToken);
 
         if (user == null)
-            return Result<Unit>.Failure(Error.NotFound("User.NotFound", $"User with ID {request.Id} not found."));
+            return Result<Unit>.Failure(Error.NotFound($"User with ID {request.Id} not found."));
 
         if (request.RoleId.HasValue)
         {
             if (!await roleRepository.ExistsAsync(request.RoleId.Value, cancellationToken))
-                return Result<Unit>.Failure(Error.Validation("Role.Invalid", "The specified Role ID does not exist."));
+                return Result<Unit>.Failure(Error.Validation("The specified Role ID does not exist."));
         }
 
         var fetchedRegions = new List<Region>();
@@ -33,7 +33,7 @@ public class UpdateUserCommandHandler(
             
             if (fetchedRegions.Count != distinctRegionIds.Count)
             {
-                return Result<Unit>.Failure(Error.Validation("Region.Invalid", "One or more specified Region IDs do not exist."));
+                return Result<Unit>.Failure(Error.Validation("One or more specified Region IDs do not exist."));
             }
         }
 
@@ -50,13 +50,11 @@ public class UpdateUserCommandHandler(
 
         if (finalRoleId == 2 && finalRegionCount != 1) // Operator
         {
-            return Result<Unit>.Failure(Error.Validation("User.RegionCount", 
-                "Operators must have exactly one region assigned."));
+            return Result<Unit>.Failure(Error.Validation("Operators must have exactly one region assigned."));
         }
         if (finalRoleId == 3 && finalRegionCount < 1) // Supervisor
         {
-            return Result<Unit>.Failure(Error.Validation("User.RegionCount", 
-                "Supervisors must have at least one region assigned."));
+            return Result<Unit>.Failure(Error.Validation("Supervisors must have at least one region assigned."));
         }
         
         if (request.FullName != null)

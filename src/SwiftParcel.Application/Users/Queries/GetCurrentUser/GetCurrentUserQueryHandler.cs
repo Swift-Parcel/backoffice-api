@@ -19,7 +19,7 @@ public class GetCurrentUserQueryHandler(
         var user = await userRepository.GetByIdWithRegionsAsync(currentUserId, cancellationToken);
 
         if (user == null)
-            return Result<UserDetailsDto>.Failure(Error.NotFound("User.NotFound", "Current user not found."));
+            return Result<UserDetailsDto>.Failure(Error.NotFound("Current user not found."));
 
         var dto = new UserDetailsDto(
             user.Id,

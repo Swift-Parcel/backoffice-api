@@ -46,30 +46,26 @@ public class CreateCaseCommandHandler
         var customer = await _customerRepository.GetByEmailAsync(request.CustomerEmail, cancellationToken);
 
         if (customer is null)
-            return Result<CreateCaseResponse>.Failure(Error.NotFound("code",
-                $"Customer with email '{request.CustomerEmail}' does not exist."));
+            return Result<CreateCaseResponse>.Failure(Error.NotFound($"Customer with email '{request.CustomerEmail}' does not exist."));
 
         if (request.RegionId.HasValue)
         {
             var activeRegionExists = await _regionRepository.IsActiveAsync(request.RegionId.Value, cancellationToken);
             if (!activeRegionExists)
-                return Result<CreateCaseResponse>.Failure(Error.NotFound("code", 
-                    $"Region with ID '{request.RegionId}' does not exist or is inactive."));
+                return Result<CreateCaseResponse>.Failure(Error.NotFound($"Region with ID '{request.RegionId}' does not exist or is inactive."));
         }
 
         var parcels = await _parcelRepository.GetByIdsAsync(request.ParcelIds, cancellationToken);
         
         if (parcels.Count != request.ParcelIds.Distinct().Count())
-            return Result<CreateCaseResponse>.Failure(Error.NotFound("code", 
-                "One or more specified Parcel IDs do not exist."));
+            return Result<CreateCaseResponse>.Failure(Error.NotFound("One or more specified Parcel IDs do not exist."));
 
         var tags = request.TagIds.Any()
             ? await _caseRepository.GetTagsByIdsAsync(request.TagIds, cancellationToken)
             : new List<Tag>();
         
         if (request.TagIds.Any() && tags.Count != request.TagIds.Distinct().Count())
-            return Result<CreateCaseResponse>.Failure(Error.NotFound("code", 
-                "One or more specified Tag IDs do not exist."));
+            return Result<CreateCaseResponse>.Failure(Error.NotFound("One or more specified Tag IDs do not exist."));
         
         string caseNumber = await _caseNumberGenerator.GenerateNextAsync(cancellationToken);
         int slaHours = _slaOptions.DefaultHours.GetValueOrDefault(request.CaseType, 72);

@@ -26,7 +26,7 @@ public class GetCustomerParcelsQueryHandler : IRequestHandler<GetCustomerParcels
         if (!customerExists)
         {
             return Result<List<CustomerParcelDto>>.Failure(
-                Error.NotFound("customer_not_found", $"Customer with email '{request.CustomerEmail}' was not found."));
+                Error.NotFound($"Customer with email '{request.CustomerEmail}' was not found."));
         }
 
         var parcels = await _parcelRepository.GetCustomerParcelsByEmailAsync(request.CustomerEmail, cancellationToken);

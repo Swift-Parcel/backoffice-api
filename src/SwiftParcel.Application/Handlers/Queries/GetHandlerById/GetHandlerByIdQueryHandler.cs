@@ -16,13 +16,13 @@ public class GetHandlerByIdQueryHandler(
     {
         var handler = await handlerRepository.GetByIdWithDetailsAsync(request.Id, cancellationToken);
         if (handler == null)
-            return Result<HandlerDto>.Failure(Error.NotFound("Handler.NotFound", "The specified handler was not found."));
+            return Result<HandlerDto>.Failure(Error.NotFound("The specified handler was not found."));
 
         if (!currentUserService.CanAccessAllRegions)
         {
             var userRegions = currentUserService.GetRegionIds();
             if (!handler.User.Regions.Any(r => userRegions.Contains(r.Id)))
-                return Result<HandlerDto>.Failure(Error.Forbidden("Handler.Forbidden", "You do not have permission to view this handler."));
+                return Result<HandlerDto>.Failure(Error.Forbidden("You do not have permission to view this handler."));
         }
 
         var dto = new HandlerDto(

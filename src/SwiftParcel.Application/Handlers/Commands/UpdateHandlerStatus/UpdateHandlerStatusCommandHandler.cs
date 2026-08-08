@@ -15,16 +15,16 @@ public class UpdateHandlerStatusCommandHandler(
     {
         var handler = await handlerRepository.GetByIdWithUserRegionsAsync(request.Id, cancellationToken);
         if (handler == null)
-            return Result<Unit>.Failure(Error.NotFound("Handler.NotFound", "The specified handler does not exist."));
+            return Result<Unit>.Failure(Error.NotFound("The specified handler does not exist."));
 
         if (!currentUserService.CanAccessAllRegions)
         {
             if (!handler.User.Regions.Any(r => currentUserService.HasAccessToRegion(r.Id)))
-                return Result<Unit>.Failure(Error.Forbidden("Handler.Forbidden", "No permission to change the status of a handler in this region."));
+                return Result<Unit>.Failure(Error.Forbidden("No permission to change the status of a handler in this region."));
         }
 
         if (handler.IsActive == request.IsActive)
-            return Result<Unit>.Failure(Error.Conflict("Handler.Status", $"Handler is already {(request.IsActive ? "active" : "deactivated")}."));
+            return Result<Unit>.Failure(Error.Conflict($"Handler is already {(request.IsActive ? "active" : "deactivated")}."));
 
         handler.IsActive = request.IsActive;
         await handlerRepository.UpdateAsync(handler, cancellationToken);

@@ -44,13 +44,12 @@ public class ChangeDeliveryCommandHandler : IRequestHandler<ChangeDeliveryComman
         var parcel = await _parcelRepository.GetByTrackingNumberAsync(trackingNumber, cancellationToken);
 
         if (parcel == null)
-            return Result<DeliveryChangeResponse>.Failure(Error.NotFound("parcel_not_found",
-                $"Parcel with tracking number '{request.TrackingNumber}' was not found."));
+            return Result<DeliveryChangeResponse>.Failure(Error.NotFound($"Parcel with tracking number '{request.TrackingNumber}' was not found."));
 
         if (parcel.Customer?.Address == null)
         {
             return Result<DeliveryChangeResponse>.Failure(
-                Error.Failure("customer_address_missing", "Customer does not have a valid address."));
+                Error.Failure("Customer does not have a valid address."));
         }
 
         var regionId = await _regionRoutingService.DetermineRegionAsync(parcel, cancellationToken);

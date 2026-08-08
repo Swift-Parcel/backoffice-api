@@ -15,9 +15,7 @@ public class GetCaseNotesQueryHandler(ICaseRepository caseRepository)
             
         if (!caseExists)
         {
-            return Result<IReadOnlyList<CaseNoteDto>>.Failure(Error.NotFound(
-                "get_notes__case_not_found", 
-                $"Case with number {request.CaseNumber} was not found."));
+            return Result<IReadOnlyList<CaseNoteDto>>.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
         }
 
         var notes = await caseRepository.GetCaseNotesAsync(request.CaseNumber, cancellationToken);

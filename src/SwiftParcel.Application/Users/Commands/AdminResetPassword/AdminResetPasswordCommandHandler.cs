@@ -16,7 +16,7 @@ public class AdminResetPasswordCommandHandler(
         var user = await userRepository.GetByIdAsync(request.UserId, cancellationToken);
 
         if (user == null)
-            return Result<Unit>.Failure(Error.NotFound("User.NotFound", $"User with ID {request.UserId} not found."));
+            return Result<Unit>.Failure(Error.NotFound($"User with ID {request.UserId} not found."));
 
         user.PasswordHash = passwordHasher.HashPassword(request.NewPassword);
 
