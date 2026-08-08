@@ -86,7 +86,7 @@ This document contains the pre-configured (seeded) data for testing the SwiftPar
 | Username | Password | Role | Notes |
 | :--- | :--- | :--- | :--- |
 | readonly | ReadOnly123! | Read-Only | Read-only access for auditor/finance |
-| operator | Operator123! | Operator | Standard case handler, sees own region |
+| operator | Operator123! | Operator | Standard case handler, sees own region (region id = 1) |
 | supervisor | Supervisor123! | Supervisor | Sees all regions, handles escalations |
 | admin | admin | Admin | Full access to everything |
 | handlerfull | HandlerFull123! | Operator | Handler who has reached the max (2) limit |
