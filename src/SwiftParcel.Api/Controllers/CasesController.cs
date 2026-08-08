@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Application.Cases.Commands.AssignCase;
+using SwiftParcel.Application.Cases.Commands.ChangeCaseStatusCommand;
 using SwiftParcel.Application.Cases.Commands.CreateCase;
 using SwiftParcel.Application.Cases.Commands.DeliveryChangeCommand;
 using SwiftParcel.Application.DTO.Cases;
@@ -64,16 +65,16 @@ public class CasesController : ApiController
     }
 
     /// <summary>
-    /// Updates the status of a case and triggers lifecycle notifications.
+    /// Changes the status of a case and triggers lifecycle notifications.
     /// </summary>
-    [HttpPut("{caseNumber}/status")]
+    [HttpPost("{caseNumber}/change-status")]
     [Authorize(Roles = "Operator,Supervisor,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateCaseStatus(string caseNumber, [FromBody] CaseStatus newStatus, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> ChangeCaseStatus(string caseNumber, [FromBody] ChangeStatusCommand command, CancellationToken cancellationToken = default)
     {
-        var result = await Mediator.Send(new UpdateCaseStatusCommand(caseNumber, newStatus), cancellationToken);
+        var result = await Mediator.Send(command with { CaseNumber = caseNumber }, cancellationToken);
         return HandleResult(result);
     }
     
