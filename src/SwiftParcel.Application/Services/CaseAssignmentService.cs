@@ -32,23 +32,21 @@ public class CaseAssignmentService : ICaseAssignmentService
         CancellationToken cancellationToken = default)
     {
         var @case = await _dbContext.Cases.FirstOrDefaultAsync(c => c.CaseNumber == caseNumber, cancellationToken);
-        if (@case is null) return Result<CaseSummaryDto>.Failure(Error.NotFound("Case.NotFound", "..."));
+        if (@case is null)
+            return Result<CaseSummaryDto>.Failure(Error.NotFound("Case.NotFound",
+                $"Case with case number{caseNumber} is not found."));
 
         var handler = await _handlerRepository.GetWithLockAndCasesAsync(handlerId, cancellationToken);
 
-        if (handler is null) return Result<CaseSummaryDto>.Failure(Error.NotFound("Handler.NotFound", "..."));
+        if (handler is null)
+            return Result<CaseSummaryDto>.Failure(Error.NotFound("Handler.NotFound",
+                $"Handler with id {handlerId} is not found."));
 
-        if (_currentUser.Role != UserRole.Admin)
+        if (_currentUser.Role != UserRole.Admin && !_currentUser.HasAccessToRegion(@case.RegionId))
         {
-            if (_currentUser.Role == UserRole.Operator || _currentUser.Role == UserRole.Supervisor)
-            {
-                if (!_currentUser.HasAccessToRegion(@case.RegionId))
-                {
-                    return Result<CaseSummaryDto>.Failure(Error.Failure(
-                        "code which we dont use",
-                        "You do not have permission to reassign cases outside your regions."));
-                }
-            }
+            return Result<CaseSummaryDto>.Failure(Error.Failure(
+                "code which we dont use",
+                "You do not have permission to reassign cases outside your regions."));
         }
 
 
