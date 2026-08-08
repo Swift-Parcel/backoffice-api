@@ -1,24 +1,24 @@
 using MediatR;
+using SwiftParcel.Application.Cases.Commands.UpdateCaseStatusCommand;
 using SwiftParcel.Application.Common.Interfaces.Repositories;
-using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.Integration.Interfaces;
 using SwiftParcel.Domain.Enums;
 using SwiftParcel.Domain.Shared;
 
-namespace SwiftParcel.Application.Cases.Commands.UpdateCaseStatusCommand;
+namespace SwiftParcel.Application.Cases.Commands.ChangeCaseStatusCommand;
 
-public class UpdateCaseStatusCommandHandler : IRequestHandler<UpdateCaseStatusCommand, Result<Unit>>
+public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeStatusCommand, Result<Unit>>
 {
     private readonly ICaseRepository _caseRepository;
     private readonly IWebhookClient _webhookClient;
 
-    public UpdateCaseStatusCommandHandler(ICaseRepository caseRepository, IWebhookClient webhookClient)
+    public ChangeCaseStatusCommandHandler(ICaseRepository caseRepository, IWebhookClient webhookClient)
     {
         _caseRepository = caseRepository;
         _webhookClient = webhookClient;
     }
 
-    public async Task<Result<Unit>> Handle(UpdateCaseStatusCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Unit>> Handle(ChangeStatusCommand request, CancellationToken cancellationToken)
     {
         var @case = await _caseRepository.GetByCaseNumberWithCustomerAsync(request.CaseNumber, cancellationToken);
 
