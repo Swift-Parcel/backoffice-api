@@ -50,17 +50,17 @@ public class CasesController : ApiController
     /// Manually assigns a case to a specific handler.
     /// </summary>
     [HttpPost("{caseNumber}/assign")]
-    [Authorize(Roles = "Operator,Supervisor,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AssignCase(
         [FromRoute] string caseNumber, 
-        [FromBody] AssignCaseCommand command)
+        [FromBody] AssignCaseRequest request)
     {
-        var result = await Mediator.Send(command with { CaseNumber = caseNumber });
-        
+        var command = new AssignCaseCommand(caseNumber, request.HandlerId);
+
+        var result = await Mediator.Send(command);
         return HandleResult(result);
     }
 
@@ -68,13 +68,18 @@ public class CasesController : ApiController
     /// Changes the status of a case and triggers lifecycle notifications.
     /// </summary>
     [HttpPost("{caseNumber}/change-status")]
-    [Authorize(Roles = "Operator,Supervisor,Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> ChangeCaseStatus(string caseNumber, [FromBody] ChangeStatusCommand command, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> ChangeCaseStatus(
+        [FromRoute] string caseNumber, 
+        [FromBody] ChangeCaseStatusRequest request, 
+        CancellationToken cancellationToken)
     {
-        var result = await Mediator.Send(command with { CaseNumber = caseNumber }, cancellationToken);
+        var command = new ChangeStatusCommand(caseNumber, request.Status);
+        
+        var result = await Mediator.Send(command, cancellationToken);
+        
         return HandleResult(result);
     }
     
