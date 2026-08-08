@@ -46,7 +46,7 @@ public class CasesController : ApiController
     }
     
     /// <summary>
-    /// Manually assigns a case to a specific handler. Enforces handler capacity limits.
+    /// Manually assigns a case to a specific handler.
     /// </summary>
     [HttpPost("{caseNumber}/assign")]
     [Authorize(Roles = "Operator,Supervisor,Admin")]
@@ -56,11 +56,9 @@ public class CasesController : ApiController
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AssignCase(
         [FromRoute] string caseNumber, 
-        [FromBody] AssignCaseRequest request)
+        [FromBody] AssignCaseCommand command)
     {
-        var command = new AssignCaseCommand(caseNumber, request.HandlerId);
-        
-        var result = await Mediator.Send(command);
+        var result = await Mediator.Send(command with { CaseNumber = caseNumber });
         
         return HandleResult(result);
     }
