@@ -23,10 +23,7 @@ public class ProcessDeliveryChangeCommandHandler : IRequestHandler<ProcessDelive
 
         if (@case is null)
         {
-            return Result<Unit>.Failure(new Error(
-                "Case.NotFound", 
-                $"Case with number {request.CaseNumber} was not found.", 
-                ErrorType.NotFound));
+            return Result<Unit>.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
         }
 
         @case.UpdatedDate = DateTime.UtcNow;

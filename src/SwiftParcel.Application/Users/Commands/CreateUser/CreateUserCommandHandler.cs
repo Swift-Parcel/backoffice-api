@@ -20,13 +20,13 @@ public class CreateUserCommandHandler(
     public async Task<Result<CreateUserResponse>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
         if (!await roleRepository.ExistsAsync(request.RoleId, cancellationToken))
-            return Result<CreateUserResponse>.Failure(Error.Validation("Role.Invalid", "The specified Role ID does not exist."));
+            return Result<CreateUserResponse>.Failure(Error.Validation("The specified Role ID does not exist."));
 
         if (!await userRepository.IsUsernameUniqueAsync(request.Username, cancellationToken))
-            return Result<CreateUserResponse>.Failure(Error.Conflict("User.UsernameTaken", "The specified username is already taken."));
+            return Result<CreateUserResponse>.Failure(Error.Conflict("The specified username is already taken."));
 
         if (!await userRepository.IsEmailUniqueAsync(request.Email, cancellationToken))
-            return Result<CreateUserResponse>.Failure(Error.Conflict("User.EmailTaken", "A user with this email already exists."));
+            return Result<CreateUserResponse>.Failure(Error.Conflict("A user with this email already exists."));
 
         var regions = new List<Region>();
         if (request.RegionIds != null && request.RegionIds.Any())
@@ -36,7 +36,7 @@ public class CreateUserCommandHandler(
             
             if (regions.Count != distinctRegionIds.Count)
             {
-                return Result<CreateUserResponse>.Failure(Error.Validation("Region.Invalid", "One or more specified Region IDs do not exist."));
+                return Result<CreateUserResponse>.Failure(Error.Validation("One or more specified Region IDs do not exist."));
             }
         }
 

@@ -1,21 +1,21 @@
 namespace SwiftParcel.Domain.Shared;
 
-public record Error(string Code, string Description, ErrorType Type)
+public record Error(string Message, ErrorType Type)
 {
-    public static Error NotFound(string code, string description) 
-        => new(code, description, ErrorType.NotFound);
+    public static Error NotFound(string message) 
+        => new(message, ErrorType.NotFound);
     
-    public static Error Validation(string code, string description) 
-        => new(code, description, ErrorType.Validation);
+    public static Error Validation(string message) 
+        => new(message, ErrorType.Validation);
     
-    public static Error Conflict(string code, string description) 
-        => new(code, description, ErrorType.Conflict);
+    public static Error Conflict(string message) 
+        => new(message, ErrorType.Conflict);
     
-    public static Error Failure(string code, string description) 
-        => new(code, description, ErrorType.Failure);
+    public static Error Failure(string message) 
+        => new(message, ErrorType.Failure);
 
-    public static Error Forbidden(string code, string description) 
-        => new(code, description, ErrorType.Forbidden);
+    public static Error Forbidden(string message) 
+        => new(message, ErrorType.Forbidden);
 }
 
 public enum ErrorType

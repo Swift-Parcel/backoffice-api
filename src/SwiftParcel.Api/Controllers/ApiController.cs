@@ -37,11 +37,11 @@ public class ApiController : ControllerBase
     {
         return error?.Type switch
         {
-            ErrorType.NotFound => NotFound(new { message = error.Description }),
-            ErrorType.Validation => BadRequest(new { message = error.Description }),
-            ErrorType.Conflict => Conflict(new { message = error.Description }),
-            ErrorType.Forbidden => StatusCode(StatusCodes.Status403Forbidden, new { message = error.Description }),
-            _ => BadRequest(new { message = error?.Description ?? "An unexpected error occurred." })
+            ErrorType.NotFound => NotFound(new { message = error.Message }),
+            ErrorType.Validation => BadRequest(new { message = error.Message }),
+            ErrorType.Conflict => Conflict(new { message = error.Message }),
+            ErrorType.Forbidden => StatusCode(StatusCodes.Status403Forbidden, new { message = error.Message }),
+            _ => BadRequest(new { message = error?.Message ?? "An unexpected error occurred." })
         };
     }
 }

@@ -25,7 +25,7 @@ public class GetParcelStatusQueryHandler : IRequestHandler<GetParcelStatusQuery,
         if (parcel == null)
         {
             return Result<ParcelStatusResponse>.Failure(
-                Error.NotFound("parcel_not_found", $"Parcel with tracking number '{request.TrackingNumber}' was not found."));
+                Error.NotFound($"Parcel with tracking number '{request.TrackingNumber}' was not found."));
         }
 
         return Result<ParcelStatusResponse>.Success(new ParcelStatusResponse(parcel.Status));

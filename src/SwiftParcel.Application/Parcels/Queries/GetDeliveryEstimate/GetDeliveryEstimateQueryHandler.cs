@@ -27,7 +27,7 @@ public class GetDeliveryEstimateQueryHandler : IRequestHandler<GetDeliveryEstima
 
         if (!trackingNumberResult.IsSuccess)
         {
-            return Result<DeliveryEstimateResponse>.Failure(Error.Validation("code","Invalid tracking number."));
+            return Result<DeliveryEstimateResponse>.Failure(Error.Validation("Invalid tracking number."));
         }
 
         var trackingNumber = trackingNumberResult.Value;
@@ -38,7 +38,7 @@ public class GetDeliveryEstimateQueryHandler : IRequestHandler<GetDeliveryEstima
         if (!parcelExists)
         {
             return Result<DeliveryEstimateResponse>.Failure(
-                Error.NotFound("parcel_not_found", $"Parcel with tracking number '{trackingNumber.Value}' was not found."));
+                Error.NotFound($"Parcel with tracking number '{trackingNumber.Value}' was not found."));
         }
 
         var estimate = await _estimationService.CalculateForParcelAsync(trackingNumber, cancellationToken);
@@ -46,7 +46,7 @@ public class GetDeliveryEstimateQueryHandler : IRequestHandler<GetDeliveryEstima
         if (estimate == null)
         {
             return Result<DeliveryEstimateResponse>.Failure(
-                Error.Failure("estimate_calculation_failed", "Could not calculate delivery estimate."));
+                Error.Failure("Could not calculate delivery estimate."));
         }
 
         return Result<DeliveryEstimateResponse>.Success(estimate);

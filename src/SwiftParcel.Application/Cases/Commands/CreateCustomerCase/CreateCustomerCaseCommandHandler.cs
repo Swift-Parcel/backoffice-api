@@ -45,9 +45,7 @@ public class CreateCustomerCaseCommandHandler
 
     if (customer == null)
     {
-        return Result<CreateCustomerCaseResponse>.Failure(Error.NotFound(
-            "create_customer_case__customer_not_found", 
-            $"Customer with email '{request.CustomerEmail}' not found."));
+        return Result<CreateCustomerCaseResponse>.Failure(Error.NotFound($"Customer with email '{request.CustomerEmail}' not found."));
     }
 
     var parcels = new List<Parcel>();
@@ -73,9 +71,7 @@ public class CreateCustomerCaseCommandHandler
 
         if (invalidFormats.Any())
         {
-            return Result<CreateCustomerCaseResponse>.Failure(Error.Validation(
-                "create_customer_case__invalid_tracking_format",
-                $"The following tracking numbers have invalid formats: {string.Join(", ", invalidFormats)}"));
+            return Result<CreateCustomerCaseResponse>.Failure(Error.Validation($"The following tracking numbers have invalid formats: {string.Join(", ", invalidFormats)}"));
         }
 
         var normalizedNumbers = validTrackingNumbers.Select(tn => tn.Value).ToList();
@@ -87,9 +83,7 @@ public class CreateCustomerCaseCommandHandler
 
         if (missingTrackingNumbers.Any())
         {
-            return Result<CreateCustomerCaseResponse>.Failure(Error.Validation(
-                "create_customer_case__tracking_not_found", 
-                $"The following tracking numbers do not exist: {string.Join(", ", missingTrackingNumbers)}"));
+            return Result<CreateCustomerCaseResponse>.Failure(Error.Validation($"The following tracking numbers do not exist: {string.Join(", ", missingTrackingNumbers)}"));
         }
     }
 

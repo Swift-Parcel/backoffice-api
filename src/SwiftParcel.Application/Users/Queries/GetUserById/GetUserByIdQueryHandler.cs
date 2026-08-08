@@ -14,7 +14,7 @@ public class GetUserByIdQueryHandler(IUserRepository userRepository)
         var user = await userRepository.GetByIdWithRegionsAsync(request.Id, cancellationToken);
 
         if (user == null)
-            return Result<UserDetailsDto>.Failure(Error.NotFound("User.NotFound", $"User with ID {request.Id} not found."));
+            return Result<UserDetailsDto>.Failure(Error.NotFound($"User with ID {request.Id} not found."));
 
         var dto = new UserDetailsDto(
             user.Id,

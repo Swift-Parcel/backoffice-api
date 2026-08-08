@@ -35,7 +35,7 @@ public class GetParcelTrackingQueryHandler : IRequestHandler<GetParcelTrackingQu
         if (parcelStatus == null)
         {
             return Result<ParcelTrackingResponse>.Failure(
-                Error.NotFound("parcel_not_found", $"Parcel with tracking number '{request.TrackingNumber}' was not found."));
+                Error.NotFound($"Parcel with tracking number '{request.TrackingNumber}' was not found."));
         }
 
         var shipmentData = await _parcelInformationService.GetShipmentByTrackingNumberAsync(trackingNumberResult.Value, cancellationToken);
@@ -43,8 +43,8 @@ public class GetParcelTrackingQueryHandler : IRequestHandler<GetParcelTrackingQu
         if (shipmentData == null)
         {
             return Result<ParcelTrackingResponse>.Failure(
-                Error.NotFound("shipment_not_found", $"There is no tracking information " +
-                                                     $"available for parcel with tracking number {trackingNumberResult.Value}"));
+                Error.NotFound($"There is no tracking information " +
+                               $"available for parcel with tracking number {trackingNumberResult.Value}"));
         }
         
         var currentParcelStatus = MapEuroTrackStatus(shipmentData.CurrentStatus, parcelStatus.Value);
@@ -52,7 +52,7 @@ public class GetParcelTrackingQueryHandler : IRequestHandler<GetParcelTrackingQu
         if(lastEvent == null)
         {
             return Result<ParcelTrackingResponse>.Failure(
-                Error.NotFound("event_not_found", $"No shipment event has been found for parcel with tracking number {trackingNumberResult.Value}"));
+                Error.NotFound($"No shipment event has been found for parcel with tracking number {trackingNumberResult.Value}"));
         }
         
         var response = new ParcelTrackingResponse(

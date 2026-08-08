@@ -25,7 +25,7 @@ public class CreatePortalCustomerCommandHandler
         if (emailExists)
         {
             return Result<CreateCustomerResponse>.Failure(
-                Error.Failure("Customer.EmailAlreadyInUse", "A customer already has this email."));
+                Error.Failure("A customer already has this email."));
         }
 
         var customer = new Customer

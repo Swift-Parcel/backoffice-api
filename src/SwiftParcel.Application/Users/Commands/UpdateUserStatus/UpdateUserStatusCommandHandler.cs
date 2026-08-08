@@ -14,13 +14,13 @@ public class UpdateUserStatusCommandHandler(IUserRepository userRepository)
 
         if (user == null)
         {
-            return Result<Unit>.Failure(Error.NotFound("User.NotFound", "The specified user does not exist."));
+            return Result<Unit>.Failure(Error.NotFound("The specified user does not exist."));
         }
 
         if (user.IsActive == request.IsActive)
         {
             var statusString = request.IsActive ? "active" : "deactivated";
-            return Result<Unit>.Failure(Error.Conflict("User.Status", $"User is already {statusString}."));
+            return Result<Unit>.Failure(Error.Conflict($"User is already {statusString}."));
         }
 
         user.IsActive = request.IsActive;

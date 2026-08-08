@@ -15,19 +15,19 @@ public class UpdateHandlerCommandHandler(
     {
         var handler = await handlerRepository.GetByIdWithUserRegionsAsync(command.Id, cancellationToken);
         if (handler == null)
-            return Result.Failure(Error.NotFound("Handler.NotFound", "The specified handler does not exist."));
+            return Result.Failure(Error.NotFound("The specified handler does not exist."));
 
         if (!currentUserService.CanAccessAllRegions)
         {
             if (!handler.User.Regions.Any(r => currentUserService.HasAccessToRegion(r.Id)))
-                return Result.Failure(Error.Forbidden("Handler.Forbidden", "No permission to modify a handler in this region."));
+                return Result.Failure(Error.Forbidden("No permission to modify a handler in this region."));
         }
 
         if (command.MaxCases > 0)
         {
             var activeCasesCount = await handlerRepository.GetActiveCasesCountAsync(command.Id, cancellationToken);
             if (command.MaxCases < activeCasesCount)
-                return Result.Failure(Error.Validation("Handler.MaxCases", "MaxCases cannot be set lower than the currently active cases."));
+                return Result.Failure(Error.Validation("MaxCases cannot be set lower than the currently active cases."));
         }
 
         handler.UpdateHandler(

@@ -21,13 +21,13 @@ public class ChangeMyPasswordCommandHandler(
 
         if (user == null)
         {
-            return Result<Unit>.Failure(Error.NotFound("User.NotFound", "User not found."));
+            return Result<Unit>.Failure(Error.NotFound("User not found."));
         }
 
         var isOldPasswordValid = passwordHasher.VerifyPassword(request.OldPassword, user.PasswordHash);
         if (!isOldPasswordValid)
         {
-            return Result<Unit>.Failure(Error.Validation("Password.InvalidOldPassword", "The old password provided is incorrect."));
+            return Result<Unit>.Failure(Error.Validation("The old password provided is incorrect."));
         }
 
         user.PasswordHash = passwordHasher.HashPassword(request.NewPassword);
