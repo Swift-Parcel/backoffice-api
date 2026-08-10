@@ -3,7 +3,7 @@ using SwiftParcel.Application.Cases.Commands.ChangeCaseStatusCommand;
 
 namespace SwiftParcel.Application.Cases.Commands.UpdateCaseStatusCommand;
 
-public class ChangeCaseStatusValidator : AbstractValidator<ChangeStatusCommand>
+public class ChangeCaseStatusValidator : AbstractValidator<ChangeCaseStatusCommand.ChangeCaseStatusCommand>
 {
     public ChangeCaseStatusValidator()
     {

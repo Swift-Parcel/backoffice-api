@@ -7,7 +7,7 @@ using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Cases.Commands.ChangeCaseStatusCommand;
 
-public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeStatusCommand, Result>
+public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCommand, Result>
 {
     private readonly ICaseRepository _caseRepository;
     private readonly IWebhookClient _webhookClient;
@@ -18,7 +18,7 @@ public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeStatusComman
         _webhookClient = webhookClient;
     }
 
-    public async Task<Result> Handle(ChangeStatusCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(ChangeCaseStatusCommand request, CancellationToken cancellationToken)
     {
         var @case = await _caseRepository.GetByCaseNumberWithCustomerAsync(request.CaseNumber, cancellationToken);
 
