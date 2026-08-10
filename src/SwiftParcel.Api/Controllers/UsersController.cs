@@ -14,14 +14,12 @@ namespace SwiftParcel.Api.Controllers;
 
 [ApiController]
 [Route("api/users")]
-[Authorize]
 public class UsersController : ApiController
 {
     /// <summary>
     /// Retrieves a list of all users. Supports optional filtering by Role, Status, and Search text.
     /// </summary>
     [HttpGet]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(List<UserDetailsDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUsers(
         [FromQuery] int? roleId, 
@@ -38,7 +36,6 @@ public class UsersController : ApiController
     /// Retrieves a specific user's details by their unique ID.
     /// </summary>
     [HttpGet("{id:int}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(UserDetailsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetUserById([FromRoute] int id, CancellationToken cancellationToken)
@@ -52,7 +49,6 @@ public class UsersController : ApiController
     /// Retrieves the profile of the currently authenticated user.
     /// </summary>
     [HttpGet("me")]
-    [Authorize]
     [ProducesResponseType(typeof(UserDetailsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCurrentUser(CancellationToken cancellationToken)
@@ -66,7 +62,6 @@ public class UsersController : ApiController
     /// Creates a new back-office user. Returns the ID of the newly created user.
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(CreateUserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -81,7 +76,6 @@ public class UsersController : ApiController
     /// Enforces business rules regarding Region and Role assignments.
     /// </summary>
     [HttpPatch("{id:int}")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -101,7 +95,6 @@ public class UsersController : ApiController
     /// Reactivates a soft-deleted user.
     /// </summary>
     [HttpPatch("{id:int}/activate")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -115,7 +108,6 @@ public class UsersController : ApiController
     /// Deactivates a user (soft delete). Deactivated users cannot log in or be assigned new cases.
     /// </summary>
     [HttpPatch("{id:int}/deactivate")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -129,7 +121,6 @@ public class UsersController : ApiController
     /// Allows any authenticated user to change their own password. Requires the current password.
     /// </summary>
     [HttpPut("me/password")]
-    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ChangeMyPassword([FromBody] ChangeMyPasswordCommand command, CancellationToken cancellationToken)
@@ -142,7 +133,6 @@ public class UsersController : ApiController
     /// Allows an Admin to forcefully reset another user's password without knowing their current password.
     /// </summary>
     [HttpPut("{id:int}/password/reset")]
-    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

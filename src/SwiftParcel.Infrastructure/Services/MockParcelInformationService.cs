@@ -9,6 +9,11 @@ namespace SwiftParcel.Infrastructure.Services;
 
 public class MockParcelInformationService : IParcelInformationService
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+    
     public async Task<LocationDto?> GetLocationByTrackingNumberAsync(TrackingNumber trackingNumber, CancellationToken cancellationToken = default)
     {
         var shipment = await GetShipmentByTrackingNumberAsync(trackingNumber, cancellationToken);
@@ -20,16 +25,16 @@ public class MockParcelInformationService : IParcelInformationService
     public async Task<EuroTrackShipmentDto?> GetShipmentByTrackingNumberAsync(TrackingNumber trackingNumber, CancellationToken cancellationToken = default)
     {
         var filePath = Path.Combine(AppContext.BaseDirectory, "Integration", "Mocks", "eurotrack_mock.json");
-        
+
         if (!File.Exists(filePath))
         {
             throw new InvalidOperationException("Missing mock data about parcels' location.");
         }
         
         var jsonString = await File.ReadAllTextAsync(filePath, cancellationToken);
-        var mockApiData = JsonSerializer.Deserialize<EuroTrackResponseDto>(jsonString);
+        var mockApiData = JsonSerializer.Deserialize<EuroTrackResponseDto>(jsonString, JsonOptions);
 
-        return mockApiData?.Shipments.FirstOrDefault(s => s.TrackingNumber == trackingNumber.Value);
+        return mockApiData?.Shipments?.FirstOrDefault(s => s.TrackingNumber == trackingNumber.Value);
     }
     
 }

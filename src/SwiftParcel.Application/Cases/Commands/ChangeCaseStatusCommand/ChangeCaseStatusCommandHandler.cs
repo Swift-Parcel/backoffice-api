@@ -5,7 +5,8 @@ using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Cases.Commands.ChangeCaseStatusCommand;
 
-public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCommand, Result<Unit>>
+public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCommand, Result>
+
 {
     private readonly ICaseRepository _caseRepository;
     private readonly IPublisher _publisher;
@@ -16,19 +17,27 @@ public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCo
         _publisher = publisher;
     }
 
-    public async Task<Result<Unit>> Handle(ChangeCaseStatusCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(ChangeCaseStatusCommand request, CancellationToken cancellationToken)
     {
         var @case = await _caseRepository.GetByCaseNumberWithCustomerAsync(request.CaseNumber, cancellationToken);
 
         if (@case is null)
         {
-            return Result<Unit>.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
+            return Result.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
         }
 
         var statusResult = @case.ChangeStatus(request.NewStatus);
         if (!statusResult.IsSuccess)
         {
-            return Result<Unit>.Failure(statusResult.Error);
+            return Result.Failure(Error.Validation($"Cannot transition case status from {@case.Status} to {request.NewStatus}."));
+        }
+
+        @case.Status = request.NewStatus;
+        @case.UpdatedDate = DateTime.UtcNow;
+
+        if (request.NewStatus == CaseStatus.Resolved)
+        {
+            @case.ResolvedDate = DateTime.UtcNow;
         }
 
         await _caseRepository.UpdateAsync(@case, cancellationToken);
@@ -39,6 +48,6 @@ public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCo
             @case.Status
         ), cancellationToken);
 
-        return Result<Unit>.Success(Unit.Value);
+        return Result.Success();
     }
 }
