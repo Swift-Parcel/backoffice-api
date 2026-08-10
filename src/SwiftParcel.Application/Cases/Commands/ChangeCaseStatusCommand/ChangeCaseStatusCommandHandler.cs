@@ -25,17 +25,14 @@ public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCo
             return Result<Unit>.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
         }
 
-        // 1. Státuszváltás és validáció az entitásban
         var statusResult = @case.ChangeStatus(request.NewStatus);
         if (!statusResult.IsSuccess)
         {
             return Result<Unit>.Failure(statusResult.Error);
         }
 
-        // 2. Mentés adatbázisba
         await _caseRepository.UpdateAsync(@case, cancellationToken);
 
-        // 3. Értesítési event publikálása
         await _publisher.Publish(new CaseStatusChangedEvent(
             @case.CaseNumber,
             @case.Customer.Email,
