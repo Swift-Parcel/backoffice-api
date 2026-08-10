@@ -1,3 +1,4 @@
+using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Cases;
 
 namespace SwiftParcel.Application.Common.Interfaces.Repositories;
@@ -16,11 +17,13 @@ public interface ICaseRepository
     Task<CaseStatusResponse?> GetCaseStatusAsync(string caseNumber, CancellationToken cancellationToken = default);
     Task<List<CustomerFacingCaseNoteDto>> GetCustomerCaseNotesAsync(string caseNumber, CancellationToken cancellationToken = default);
     Task<List<CustomerCaseItemDto>> GetCustomerCasesByEmailAsync(string customerEmail, CancellationToken cancellationToken = default);
-    Task<List<CaseDto>> GetFilteredCasesAsync(
+    Task<PagedList<Case>> GetCasesFilteredPagedAsync(
         IEnumerable<int>? allowedRegionIds,
         bool canAccessAllRegions,
         int? customerId,
         string? customerEmail,
         string? customerPhone,
+        int pageNumber,
+        int pageSize,
         CancellationToken cancellationToken = default);
 }

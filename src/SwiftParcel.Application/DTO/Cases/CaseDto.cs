@@ -1,3 +1,4 @@
+using SwiftParcel.Application.DTO.Tags;
 using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Application.DTO.Cases;
@@ -30,10 +31,4 @@ public class CaseDto
     public string RegionName { get; set; } = string.Empty;
 
     public List<TagDto> Tags { get; set; } = new();
-}
-
-public class TagDto
-{
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
 }
