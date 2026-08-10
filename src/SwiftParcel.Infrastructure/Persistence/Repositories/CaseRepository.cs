@@ -66,7 +66,7 @@ public class CaseRepository : ICaseRepository
                 n.CreatedDate,
                 n.NoteText,
                 n.HandlerId,
-                n.Handler!.FullName,
+                n.Handler!.User.FullName,
                 n.CustomerId,
                 n.Customer!.FullName,
                 n.Attachment))
