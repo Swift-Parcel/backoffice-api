@@ -1,28 +1,28 @@
 namespace SwiftParcel.Application.Common.Models;
 
-public record PagedQuery
+public abstract record PagedQuery
 {
     private const int MaxPageSize = 100;
-    private int _pageSize = 20;
+    private const int DefaultPageSize = 20;
 
-    public int PageNumber { get; init; } = 1;
+    private readonly int _pageNumber = 1;
+    private readonly int _pageSize = DefaultPageSize;
+
+    public int PageNumber
+    {
+        get => _pageNumber;
+        init => _pageNumber = value < 1 ? 1 : value;
+    }
 
     public int PageSize
     {
         get => _pageSize;
-        init
+        init => _pageSize = value switch
         {
-            if (value > MaxPageSize)
-            {
-                _pageSize = MaxPageSize;
-            }
-
-            if (value < 0)
-            {
-                _pageSize = 20;
-            }
-            _pageSize = value;
-        }
+            < 1 => DefaultPageSize,
+            > MaxPageSize => MaxPageSize,
+            _ => value
+        };
     }
 }
 
