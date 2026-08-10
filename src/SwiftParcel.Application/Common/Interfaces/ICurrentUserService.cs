@@ -9,6 +9,7 @@ public interface ICurrentUserService
     UserRole? Role { get; }
     bool CanAccessAllRegions { get; }
     bool IsAuthenticated { get; }
+    Task<bool> IsActiveAsync(CancellationToken cancellationToken = default);
     
     List<int> GetRegionIds();
     bool HasAccessToRegion(int regionId);

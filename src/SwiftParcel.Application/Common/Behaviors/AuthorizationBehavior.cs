@@ -22,6 +22,11 @@ public class AuthorizationBehavior<TRequest, TResponse>
             return await next();
         }
         
+        if (!await _currentUserService.IsActiveAsync(cancellationToken))
+        {
+            throw new ForbiddenException("Your account has been disabled."); 
+        }
+        
         if (authorizableRequest.RequireAuthentication && !_currentUserService.IsAuthenticated)
         {
             throw new UnauthorizedException();
