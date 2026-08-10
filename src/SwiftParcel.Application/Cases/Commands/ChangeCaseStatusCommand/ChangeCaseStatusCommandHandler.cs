@@ -1,6 +1,7 @@
 using MediatR;
 using SwiftParcel.Application.Cases.Events;
 using SwiftParcel.Application.Common.Interfaces.Repositories;
+using SwiftParcel.Domain.Enums;
 using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Cases.Commands.ChangeCaseStatusCommand;
