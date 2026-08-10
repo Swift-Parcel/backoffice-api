@@ -32,6 +32,17 @@ public class ApiController : ControllerBase
 
         return HandleFailure(result.Error);
     }
+    
+    protected IActionResult HandleCreatedResult<T>(Result<T> result)
+    {
+        if (result.IsSuccess)
+        {
+            return StatusCode(StatusCodes.Status201Created, result.Value);
+        }
+
+        return HandleFailure(result.Error);
+    }
+    
 
     private IActionResult HandleFailure(Error? error)
     {

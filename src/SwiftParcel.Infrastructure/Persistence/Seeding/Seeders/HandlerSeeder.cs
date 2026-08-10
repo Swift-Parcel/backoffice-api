@@ -42,6 +42,20 @@ public class HandlerSeeder : IEntitySeeder
             newHandlers.Add(newHandler);
         }
         
+        //admin
+        var adminUser = await dbContext.Users.FirstAsync(u => u.Username == "admin", cancellationToken);
+        var id = legacyHandlers.Select(h => StringParserHelper.ExtractInteger(h.id)).DefaultIfEmpty(0).Max() + 1;
+        var adminHandler = new Handler(
+            id: id,
+            userId: adminUser.Id,
+            department: "Escalations",
+            hireDate: DateTime.UtcNow.AddYears(-5),
+            maxCases: 10,
+            isActive:true
+        );
+        
+        newHandlers.Add(adminHandler);
+        
         await dbContext.Handlers.AddRangeAsync(newHandlers, cancellationToken);
     }
     

@@ -27,7 +27,7 @@ public class CaseNotesController : ApiController
     /// Allows a handler or operator to add a timestamped note (internal or customer-visible) to a case.
     /// </summary>
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddHandlerNote(
@@ -43,6 +43,6 @@ public class CaseNotesController : ApiController
 
         var result = await Mediator.Send(command);
 
-        return HandleResult(result);
+        return HandleCreatedResult(result);
     }
 }

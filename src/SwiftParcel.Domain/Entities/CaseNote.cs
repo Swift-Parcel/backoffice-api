@@ -12,6 +12,6 @@ public class CaseNote
     public string? Attachment { get; set; } = string.Empty;
     
     public Case Case { get; set; } = null!;
-    public User? Handler { get; set; }
+    public Handler? Handler { get; set; }
     public Customer? Customer { get; set; }
 }

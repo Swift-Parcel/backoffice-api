@@ -79,15 +79,13 @@ public class CreateCaseCommandHandler
 
         DateTime now = DateTime.UtcNow;
         
-        var status = request.CaseStatus;
-        
         var newCase = new Case
         {
             CaseNumber = caseNumber,
             Title = request.Title,
             Description = request.Description,
             CaseType = request.CaseType,
-            Status = status,
+            Status = request.CaseStatus,
             Priority = priority,
             Customer = customer,
             HandlerId = request.HandlerId,
@@ -103,6 +101,6 @@ public class CreateCaseCommandHandler
         await _caseRepository.AddAsync(newCase, cancellationToken);
         
         return Result<CreateCaseResponse>.Success(new 
-            CreateCaseResponse(newCase.CaseNumber, status, priority, now));
+            CreateCaseResponse(newCase.CaseNumber, priority, now));
     }
 }
