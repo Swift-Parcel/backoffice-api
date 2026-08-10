@@ -11,7 +11,7 @@ public record GetCasesQuery(
     int? CustomerId = null,
     string? CustomerEmail = null,
     string? CustomerPhone = null
-) : IRequest<Result<List<CaseDto>>>, IAuthorizableRequest
+) : PagedQuery, IRequest<Result<PagedList<CaseDto>>>, IAuthorizableRequest
 {
     public bool RequireAuthentication => true;
     public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Operator, UserRole.Supervisor, UserRole.Admin];

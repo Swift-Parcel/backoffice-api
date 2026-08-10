@@ -14,7 +14,7 @@ public class TagsController : ApiController
     /// Retrieves a paginated list of all tags. Supports optional filtering by name.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(PagedResult<TagDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedList<TagDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetTags(
         [FromQuery] string? nameFilter, 
         [FromQuery] int pageNumber = 1, 
