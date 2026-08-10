@@ -16,7 +16,7 @@ public class HandlerRepository : IHandlerRepository
     public async Task<Handler?> GetWithLockAndCasesAsync(int handlerId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Handlers
-            .FromSql($"SELECT * FROM \"handlers\" WHERE \"Id\" = {handlerId} FOR UPDATE")
+            .FromSql($"SELECT * FROM \"handlers\" WHERE \"id\" = {handlerId} FOR UPDATE")
             .Include(h => h.Cases)
             .FirstOrDefaultAsync(cancellationToken);
     }
