@@ -10,7 +10,7 @@ namespace SwiftParcel.Application.Tags.Queries.GetTags;
 public record GetTagsQuery(
     string? NameFilter,
     int PageNumber = 1,
-    int PageSize = 10) : IRequest<Result<PagedResult<TagDto>>>, IAuthorizableRequest
+    int PageSize = 10) : IRequest<Result<PagedList<TagDto>>>, IAuthorizableRequest
 {
     public bool RequireAuthentication => true;
     public IReadOnlyList<UserRole> AllowedRoles => [UserRole.ReadOnly, UserRole.Operator, UserRole.Supervisor, UserRole.Admin];
