@@ -21,16 +21,96 @@
       "carrierReference": "ETL-HU-88213401",
       "service": "standard",
       "currentStatus": "DELIVERED",
-      "origin": { "city": "Budapest", "countryCode": "HU", "postalCode": "1052" },
-      "destination": { "city": "Debrecen", "countryCode": "HU", "postalCode": "4024" },
+      "origin": {
+        "city": "Budapest",
+        "countryCode": "HU",
+        "postalCode": "1052"
+      },
+      "destination": {
+        "city": "Debrecen",
+        "countryCode": "HU",
+        "postalCode": "4024"
+      },
       "estimatedDelivery": "2024-01-12T18:00:00Z",
       "events": [
-        { "timestamp": "2024-01-10T08:12:00Z", "statusCode": "PICKED_UP", "description": "Parcel picked up from sender", "location": { "facility": "Budapest Pickup Point 03", "city": "Budapest", "countryCode": "HU", "postalCode": "1052", "lat": 47.4979, "lon": 19.0402 } },
-        { "timestamp": "2024-01-10T14:40:00Z", "statusCode": "ARRIVED_AT_FACILITY", "description": "Arrived at origin sorting hub", "location": { "facility": "Budapest Central Hub", "city": "Budapest", "countryCode": "HU", "postalCode": "1097", "lat": 47.4611, "lon": 19.0680 } },
-        { "timestamp": "2024-01-11T02:05:00Z", "statusCode": "DEPARTED_FACILITY", "description": "Departed origin hub", "location": { "facility": "Budapest Central Hub", "city": "Budapest", "countryCode": "HU", "postalCode": "1097", "lat": 47.4611, "lon": 19.0680 } },
-        { "timestamp": "2024-01-11T09:30:00Z", "statusCode": "ARRIVED_AT_DELIVERY_DEPOT", "description": "Arrived at destination depot", "location": { "facility": "Debrecen Depot", "city": "Debrecen", "countryCode": "HU", "postalCode": "4025", "lat": 47.5316, "lon": 21.6273 } },
-        { "timestamp": "2024-01-12T07:50:00Z", "statusCode": "OUT_FOR_DELIVERY", "description": "Out for delivery on route DEB-14", "location": { "facility": "Debrecen Depot", "city": "Debrecen", "countryCode": "HU", "postalCode": "4025", "lat": 47.5316, "lon": 21.6273 } },
-        { "timestamp": "2024-01-12T13:22:00Z", "statusCode": "DELIVERED", "description": "Delivered - signed by neighbour", "location": { "facility": "Recipient address", "city": "Debrecen", "countryCode": "HU", "postalCode": "4024", "lat": 47.5290, "lon": 21.6250 } }
+        {
+          "timestamp": "2024-01-10T08:12:00Z",
+          "statusCode": "PICKED_UP",
+          "description": "Parcel picked up from sender",
+          "location": {
+            "facility": "Budapest Pickup Point 03",
+            "city": "Budapest",
+            "countryCode": "HU",
+            "postalCode": "1052",
+            "lat": 47.4979,
+            "lon": 19.0402
+          }
+        },
+        {
+          "timestamp": "2024-01-10T14:40:00Z",
+          "statusCode": "ARRIVED_AT_FACILITY",
+          "description": "Arrived at origin sorting hub",
+          "location": {
+            "facility": "Budapest Central Hub",
+            "city": "Budapest",
+            "countryCode": "HU",
+            "postalCode": "1097",
+            "lat": 47.4611,
+            "lon": 19.0680
+          }
+        },
+        {
+          "timestamp": "2024-01-11T02:05:00Z",
+          "statusCode": "DEPARTED_FACILITY",
+          "description": "Departed origin hub",
+          "location": {
+            "facility": "Budapest Central Hub",
+            "city": "Budapest",
+            "countryCode": "HU",
+            "postalCode": "1097",
+            "lat": 47.4611,
+            "lon": 19.0680
+          }
+        },
+        {
+          "timestamp": "2024-01-11T09:30:00Z",
+          "statusCode": "ARRIVED_AT_DELIVERY_DEPOT",
+          "description": "Arrived at destination depot",
+          "location": {
+            "facility": "Debrecen Depot",
+            "city": "Debrecen",
+            "countryCode": "HU",
+            "postalCode": "4025",
+            "lat": 47.5316,
+            "lon": 21.6273
+          }
+        },
+        {
+          "timestamp": "2024-01-12T07:50:00Z",
+          "statusCode": "OUT_FOR_DELIVERY",
+          "description": "Out for delivery on route DEB-14",
+          "location": {
+            "facility": "Debrecen Depot",
+            "city": "Debrecen",
+            "countryCode": "HU",
+            "postalCode": "4025",
+            "lat": 47.5316,
+            "lon": 21.6273
+          }
+        },
+        {
+          "timestamp": "2024-01-12T13:22:00Z",
+          "statusCode": "DELIVERED",
+          "description": "Delivered - signed by neighbour",
+          "location": {
+            "facility": "Recipient address",
+            "city": "Debrecen",
+            "countryCode": "HU",
+            "postalCode": "4024",
+            "lat": 47.5290,
+            "lon": 21.6250
+          }
+        }
       ]
     },
     {
@@ -38,15 +118,83 @@
       "carrierReference": "ETL-AT-40551190",
       "service": "express",
       "currentStatus": "DELIVERED",
-      "origin": { "city": "Vienna", "countryCode": "AT", "postalCode": "1060" },
-      "destination": { "city": "Salzburg", "countryCode": "AT", "postalCode": "5020" },
+      "origin": {
+        "city": "Vienna",
+        "countryCode": "AT",
+        "postalCode": "1060"
+      },
+      "destination": {
+        "city": "Salzburg",
+        "countryCode": "AT",
+        "postalCode": "5020"
+      },
       "estimatedDelivery": "2024-01-13T12:00:00Z",
       "events": [
-        { "timestamp": "2024-01-12T09:05:00Z", "statusCode": "PICKED_UP", "description": "Express pickup", "location": { "facility": "Vienna Mariahilf Point", "city": "Vienna", "countryCode": "AT", "postalCode": "1060", "lat": 48.1968, "lon": 16.3480 } },
-        { "timestamp": "2024-01-12T12:30:00Z", "statusCode": "DEPARTED_FACILITY", "description": "Express line departed Vienna hub", "location": { "facility": "Vienna Express Hub", "city": "Vienna", "countryCode": "AT", "postalCode": "1230", "lat": 48.1400, "lon": 16.3000 } },
-        { "timestamp": "2024-01-13T06:15:00Z", "statusCode": "ARRIVED_AT_DELIVERY_DEPOT", "description": "Arrived Salzburg depot", "location": { "facility": "Salzburg Depot", "city": "Salzburg", "countryCode": "AT", "postalCode": "5020", "lat": 47.8095, "lon": 13.0550 } },
-        { "timestamp": "2024-01-13T08:00:00Z", "statusCode": "OUT_FOR_DELIVERY", "description": "Out for delivery", "location": { "facility": "Salzburg Depot", "city": "Salzburg", "countryCode": "AT", "postalCode": "5020", "lat": 47.8095, "lon": 13.0550 } },
-        { "timestamp": "2024-01-14T10:41:00Z", "statusCode": "DELIVERED", "description": "Delivered to recipient", "location": { "facility": "Recipient address", "city": "Salzburg", "countryCode": "AT", "postalCode": "5020", "lat": 47.8010, "lon": 13.0430 } }
+        {
+          "timestamp": "2024-01-12T09:05:00Z",
+          "statusCode": "PICKED_UP",
+          "description": "Express pickup",
+          "location": {
+            "facility": "Vienna Mariahilf Point",
+            "city": "Vienna",
+            "countryCode": "AT",
+            "postalCode": "1060",
+            "lat": 48.1968,
+            "lon": 16.3480
+          }
+        },
+        {
+          "timestamp": "2024-01-12T12:30:00Z",
+          "statusCode": "DEPARTED_FACILITY",
+          "description": "Express line departed Vienna hub",
+          "location": {
+            "facility": "Vienna Express Hub",
+            "city": "Vienna",
+            "countryCode": "AT",
+            "postalCode": "1230",
+            "lat": 48.1400,
+            "lon": 16.3000
+          }
+        },
+        {
+          "timestamp": "2024-01-13T06:15:00Z",
+          "statusCode": "ARRIVED_AT_DELIVERY_DEPOT",
+          "description": "Arrived Salzburg depot",
+          "location": {
+            "facility": "Salzburg Depot",
+            "city": "Salzburg",
+            "countryCode": "AT",
+            "postalCode": "5020",
+            "lat": 47.8095,
+            "lon": 13.0550
+          }
+        },
+        {
+          "timestamp": "2024-01-13T08:00:00Z",
+          "statusCode": "OUT_FOR_DELIVERY",
+          "description": "Out for delivery",
+          "location": {
+            "facility": "Salzburg Depot",
+            "city": "Salzburg",
+            "countryCode": "AT",
+            "postalCode": "5020",
+            "lat": 47.8095,
+            "lon": 13.0550
+          }
+        },
+        {
+          "timestamp": "2024-01-14T10:41:00Z",
+          "statusCode": "DELIVERED",
+          "description": "Delivered to recipient",
+          "location": {
+            "facility": "Recipient address",
+            "city": "Salzburg",
+            "countryCode": "AT",
+            "postalCode": "5020",
+            "lat": 47.8010,
+            "lon": 13.0430
+          }
+        }
       ]
     },
     {
@@ -54,16 +202,96 @@
       "carrierReference": "ETL-CZ-33019277",
       "service": "standard",
       "currentStatus": "LOST_IN_NETWORK",
-      "origin": { "city": "Prague", "countryCode": "CZ", "postalCode": "11000" },
-      "destination": { "city": "Brno", "countryCode": "CZ", "postalCode": "60200" },
+      "origin": {
+        "city": "Prague",
+        "countryCode": "CZ",
+        "postalCode": "11000"
+      },
+      "destination": {
+        "city": "Brno",
+        "countryCode": "CZ",
+        "postalCode": "60200"
+      },
       "estimatedDelivery": "2024-01-17T18:00:00Z",
       "events": [
-        { "timestamp": "2024-01-15T10:20:00Z", "statusCode": "PICKED_UP", "description": "Picked up from sender", "location": { "facility": "Prague Narodni Point", "city": "Prague", "countryCode": "CZ", "postalCode": "11000", "lat": 50.0810, "lon": 14.4200 } },
-        { "timestamp": "2024-01-15T18:45:00Z", "statusCode": "ARRIVED_AT_FACILITY", "description": "Arrived at Prague hub", "location": { "facility": "Prague South Hub", "city": "Prague", "countryCode": "CZ", "postalCode": "14000", "lat": 50.0400, "lon": 14.4500 } },
-        { "timestamp": "2024-01-16T04:10:00Z", "statusCode": "DEPARTED_FACILITY", "description": "Loaded onto line-haul to Brno (handed to subcontractor)", "location": { "facility": "Prague South Hub", "city": "Prague", "countryCode": "CZ", "postalCode": "14000", "lat": 50.0400, "lon": 14.4500 } },
-        { "timestamp": "2024-01-16T05:00:00Z", "statusCode": "IN_TRANSIT", "description": "Last successful GPS ping on line-haul vehicle", "location": { "facility": "Highway D1 near Jihlava", "city": "Jihlava", "countryCode": "CZ", "postalCode": "58601", "lat": 49.3961, "lon": 15.5912 } },
-        { "timestamp": "2024-01-24T09:00:00Z", "statusCode": "EXCEPTION", "description": "No scan recorded at destination hub - investigation opened", "location": { "facility": "Brno Hub (expected)", "city": "Brno", "countryCode": "CZ", "postalCode": "60200", "lat": 49.1951, "lon": 16.6068 } },
-        { "timestamp": "2024-02-05T12:00:00Z", "statusCode": "LOST_IN_NETWORK", "description": "Parcel cannot be located; possible misroute abroad", "location": { "facility": "Unknown", "city": "Unknown", "countryCode": "CZ", "postalCode": null, "lat": null, "lon": null } }
+        {
+          "timestamp": "2024-01-15T10:20:00Z",
+          "statusCode": "PICKED_UP",
+          "description": "Picked up from sender",
+          "location": {
+            "facility": "Prague Narodni Point",
+            "city": "Prague",
+            "countryCode": "CZ",
+            "postalCode": "11000",
+            "lat": 50.0810,
+            "lon": 14.4200
+          }
+        },
+        {
+          "timestamp": "2024-01-15T18:45:00Z",
+          "statusCode": "ARRIVED_AT_FACILITY",
+          "description": "Arrived at Prague hub",
+          "location": {
+            "facility": "Prague South Hub",
+            "city": "Prague",
+            "countryCode": "CZ",
+            "postalCode": "14000",
+            "lat": 50.0400,
+            "lon": 14.4500
+          }
+        },
+        {
+          "timestamp": "2024-01-16T04:10:00Z",
+          "statusCode": "DEPARTED_FACILITY",
+          "description": "Loaded onto line-haul to Brno (handed to subcontractor)",
+          "location": {
+            "facility": "Prague South Hub",
+            "city": "Prague",
+            "countryCode": "CZ",
+            "postalCode": "14000",
+            "lat": 50.0400,
+            "lon": 14.4500
+          }
+        },
+        {
+          "timestamp": "2024-01-16T05:00:00Z",
+          "statusCode": "IN_TRANSIT",
+          "description": "Last successful GPS ping on line-haul vehicle",
+          "location": {
+            "facility": "Highway D1 near Jihlava",
+            "city": "Jihlava",
+            "countryCode": "CZ",
+            "postalCode": "58601",
+            "lat": 49.3961,
+            "lon": 15.5912
+          }
+        },
+        {
+          "timestamp": "2024-01-24T09:00:00Z",
+          "statusCode": "EXCEPTION",
+          "description": "No scan recorded at destination hub - investigation opened",
+          "location": {
+            "facility": "Brno Hub (expected)",
+            "city": "Brno",
+            "countryCode": "CZ",
+            "postalCode": "60200",
+            "lat": 49.1951,
+            "lon": 16.6068
+          }
+        },
+        {
+          "timestamp": "2024-02-05T12:00:00Z",
+          "statusCode": "LOST_IN_NETWORK",
+          "description": "Parcel cannot be located; possible misroute abroad",
+          "location": {
+            "facility": "Unknown",
+            "city": "Unknown",
+            "countryCode": "CZ",
+            "postalCode": null,
+            "lat": null,
+            "lon": null
+          }
+        }
       ]
     },
     {
@@ -71,17 +299,109 @@
       "carrierReference": "ETL-PL-70228815",
       "service": "standard",
       "currentStatus": "DELIVERED",
-      "origin": { "city": "Warsaw", "countryCode": "PL", "postalCode": "00-001" },
-      "destination": { "city": "Krakow", "countryCode": "PL", "postalCode": "30-001" },
+      "origin": {
+        "city": "Warsaw",
+        "countryCode": "PL",
+        "postalCode": "00-001"
+      },
+      "destination": {
+        "city": "Krakow",
+        "countryCode": "PL",
+        "postalCode": "30-001"
+      },
       "estimatedDelivery": "2024-01-21T18:00:00Z",
       "events": [
-        { "timestamp": "2024-01-18T11:00:00Z", "statusCode": "PICKED_UP", "description": "Picked up from sender", "location": { "facility": "Warsaw Marszalkowska Point", "city": "Warsaw", "countryCode": "PL", "postalCode": "00-001", "lat": 52.2297, "lon": 21.0122 } },
-        { "timestamp": "2024-01-18T20:30:00Z", "statusCode": "ARRIVED_AT_FACILITY", "description": "Arrived at Warsaw hub", "location": { "facility": "Warsaw West Hub", "city": "Warsaw", "countryCode": "PL", "postalCode": "01-100", "lat": 52.2340, "lon": 20.9200 } },
-        { "timestamp": "2024-01-19T22:15:00Z", "statusCode": "IN_TRANSIT", "description": "Line-haul to Krakow", "location": { "facility": "Highway A4 near Kielce", "city": "Kielce", "countryCode": "PL", "postalCode": "25-001", "lat": 50.8661, "lon": 20.6286 } },
-        { "timestamp": "2024-01-20T06:40:00Z", "statusCode": "ARRIVED_AT_DELIVERY_DEPOT", "description": "Arrived Krakow depot", "location": { "facility": "Krakow Depot", "city": "Krakow", "countryCode": "PL", "postalCode": "30-002", "lat": 50.0647, "lon": 19.9450 } },
-        { "timestamp": "2024-01-20T09:10:00Z", "statusCode": "EXCEPTION", "description": "Package flagged: visible crush damage to outer box", "location": { "facility": "Krakow Depot", "city": "Krakow", "countryCode": "PL", "postalCode": "30-002", "lat": 50.0647, "lon": 19.9450 } },
-        { "timestamp": "2024-01-22T08:20:00Z", "statusCode": "OUT_FOR_DELIVERY", "description": "Out for delivery (damaged, delivered on customer request)", "location": { "facility": "Krakow Depot", "city": "Krakow", "countryCode": "PL", "postalCode": "30-002", "lat": 50.0647, "lon": 19.9450 } },
-        { "timestamp": "2024-01-22T14:55:00Z", "statusCode": "DELIVERED", "description": "Delivered with damage note signed", "location": { "facility": "Recipient address", "city": "Krakow", "countryCode": "PL", "postalCode": "30-001", "lat": 50.0619, "lon": 19.9370 } }
+        {
+          "timestamp": "2024-01-18T11:00:00Z",
+          "statusCode": "PICKED_UP",
+          "description": "Picked up from sender",
+          "location": {
+            "facility": "Warsaw Marszalkowska Point",
+            "city": "Warsaw",
+            "countryCode": "PL",
+            "postalCode": "00-001",
+            "lat": 52.2297,
+            "lon": 21.0122
+          }
+        },
+        {
+          "timestamp": "2024-01-18T20:30:00Z",
+          "statusCode": "ARRIVED_AT_FACILITY",
+          "description": "Arrived at Warsaw hub",
+          "location": {
+            "facility": "Warsaw West Hub",
+            "city": "Warsaw",
+            "countryCode": "PL",
+            "postalCode": "01-100",
+            "lat": 52.2340,
+            "lon": 20.9200
+          }
+        },
+        {
+          "timestamp": "2024-01-19T22:15:00Z",
+          "statusCode": "IN_TRANSIT",
+          "description": "Line-haul to Krakow",
+          "location": {
+            "facility": "Highway A4 near Kielce",
+            "city": "Kielce",
+            "countryCode": "PL",
+            "postalCode": "25-001",
+            "lat": 50.8661,
+            "lon": 20.6286
+          }
+        },
+        {
+          "timestamp": "2024-01-20T06:40:00Z",
+          "statusCode": "ARRIVED_AT_DELIVERY_DEPOT",
+          "description": "Arrived Krakow depot",
+          "location": {
+            "facility": "Krakow Depot",
+            "city": "Krakow",
+            "countryCode": "PL",
+            "postalCode": "30-002",
+            "lat": 50.0647,
+            "lon": 19.9450
+          }
+        },
+        {
+          "timestamp": "2024-01-20T09:10:00Z",
+          "statusCode": "EXCEPTION",
+          "description": "Package flagged: visible crush damage to outer box",
+          "location": {
+            "facility": "Krakow Depot",
+            "city": "Krakow",
+            "countryCode": "PL",
+            "postalCode": "30-002",
+            "lat": 50.0647,
+            "lon": 19.9450
+          }
+        },
+        {
+          "timestamp": "2024-01-22T08:20:00Z",
+          "statusCode": "OUT_FOR_DELIVERY",
+          "description": "Out for delivery (damaged, delivered on customer request)",
+          "location": {
+            "facility": "Krakow Depot",
+            "city": "Krakow",
+            "countryCode": "PL",
+            "postalCode": "30-002",
+            "lat": 50.0647,
+            "lon": 19.9450
+          }
+        },
+        {
+          "timestamp": "2024-01-22T14:55:00Z",
+          "statusCode": "DELIVERED",
+          "description": "Delivered with damage note signed",
+          "location": {
+            "facility": "Recipient address",
+            "city": "Krakow",
+            "countryCode": "PL",
+            "postalCode": "30-001",
+            "lat": 50.0619,
+            "lon": 19.9370
+          }
+        }
       ]
     },
     {
@@ -89,15 +409,83 @@
       "carrierReference": "ETL-AT-40559902",
       "service": "express",
       "currentStatus": "IN_TRANSIT",
-      "origin": { "city": "Graz", "countryCode": "AT", "postalCode": "8010" },
-      "destination": { "city": "Vienna", "countryCode": "AT", "postalCode": "1060" },
+      "origin": {
+        "city": "Graz",
+        "countryCode": "AT",
+        "postalCode": "8010"
+      },
+      "destination": {
+        "city": "Vienna",
+        "countryCode": "AT",
+        "postalCode": "1060"
+      },
       "estimatedDelivery": "2024-02-02T12:00:00Z",
       "events": [
-        { "timestamp": "2024-02-01T09:30:00Z", "statusCode": "PICKED_UP", "description": "Express pickup", "location": { "facility": "Graz Herrengasse Point", "city": "Graz", "countryCode": "AT", "postalCode": "8010", "lat": 47.0707, "lon": 15.4395 } },
-        { "timestamp": "2024-02-01T13:10:00Z", "statusCode": "ARRIVED_AT_FACILITY", "description": "Arrived Graz hub", "location": { "facility": "Graz Hub", "city": "Graz", "countryCode": "AT", "postalCode": "8020", "lat": 47.0600, "lon": 15.4200 } },
-        { "timestamp": "2024-02-01T19:45:00Z", "statusCode": "DEPARTED_FACILITY", "description": "Express line departed - vehicle broke down en route", "location": { "facility": "Graz Hub", "city": "Graz", "countryCode": "AT", "postalCode": "8020", "lat": 47.0600, "lon": 15.4200 } },
-        { "timestamp": "2024-02-02T03:20:00Z", "statusCode": "EXCEPTION", "description": "Line-haul vehicle breakdown - parcel held pending reload", "location": { "facility": "Highway A2 near Wiener Neustadt", "city": "Wiener Neustadt", "countryCode": "AT", "postalCode": "2700", "lat": 47.8149, "lon": 16.2408 } },
-        { "timestamp": "2024-02-04T08:00:00Z", "statusCode": "IN_TRANSIT", "description": "Reloaded, continuing to Vienna hub", "location": { "facility": "Highway A2 near Wiener Neustadt", "city": "Wiener Neustadt", "countryCode": "AT", "postalCode": "2700", "lat": 47.8149, "lon": 16.2408 } }
+        {
+          "timestamp": "2024-02-01T09:30:00Z",
+          "statusCode": "PICKED_UP",
+          "description": "Express pickup",
+          "location": {
+            "facility": "Graz Herrengasse Point",
+            "city": "Graz",
+            "countryCode": "AT",
+            "postalCode": "8010",
+            "lat": 47.0707,
+            "lon": 15.4395
+          }
+        },
+        {
+          "timestamp": "2024-02-01T13:10:00Z",
+          "statusCode": "ARRIVED_AT_FACILITY",
+          "description": "Arrived Graz hub",
+          "location": {
+            "facility": "Graz Hub",
+            "city": "Graz",
+            "countryCode": "AT",
+            "postalCode": "8020",
+            "lat": 47.0600,
+            "lon": 15.4200
+          }
+        },
+        {
+          "timestamp": "2024-02-01T19:45:00Z",
+          "statusCode": "DEPARTED_FACILITY",
+          "description": "Express line departed - vehicle broke down en route",
+          "location": {
+            "facility": "Graz Hub",
+            "city": "Graz",
+            "countryCode": "AT",
+            "postalCode": "8020",
+            "lat": 47.0600,
+            "lon": 15.4200
+          }
+        },
+        {
+          "timestamp": "2024-02-02T03:20:00Z",
+          "statusCode": "EXCEPTION",
+          "description": "Line-haul vehicle breakdown - parcel held pending reload",
+          "location": {
+            "facility": "Highway A2 near Wiener Neustadt",
+            "city": "Wiener Neustadt",
+            "countryCode": "AT",
+            "postalCode": "2700",
+            "lat": 47.8149,
+            "lon": 16.2408
+          }
+        },
+        {
+          "timestamp": "2024-02-04T08:00:00Z",
+          "statusCode": "IN_TRANSIT",
+          "description": "Reloaded, continuing to Vienna hub",
+          "location": {
+            "facility": "Highway A2 near Wiener Neustadt",
+            "city": "Wiener Neustadt",
+            "countryCode": "AT",
+            "postalCode": "2700",
+            "lat": 47.8149,
+            "lon": 16.2408
+          }
+        }
       ]
     },
     {
@@ -105,16 +493,96 @@
       "carrierReference": "ETL-HU-88220573",
       "service": "standard",
       "currentStatus": "DELIVERED",
-      "origin": { "city": "Budapest", "countryCode": "HU", "postalCode": "1052" },
-      "destination": { "city": "Szeged", "countryCode": "HU", "postalCode": "6720" },
+      "origin": {
+        "city": "Budapest",
+        "countryCode": "HU",
+        "postalCode": "1052"
+      },
+      "destination": {
+        "city": "Szeged",
+        "countryCode": "HU",
+        "postalCode": "6720"
+      },
       "estimatedDelivery": "2024-02-07T18:00:00Z",
       "events": [
-        { "timestamp": "2024-02-05T08:40:00Z", "statusCode": "PICKED_UP", "description": "Picked up from sender", "location": { "facility": "Budapest Pickup Point 03", "city": "Budapest", "countryCode": "HU", "postalCode": "1052", "lat": 47.4979, "lon": 19.0402 } },
-        { "timestamp": "2024-02-05T15:20:00Z", "statusCode": "ARRIVED_AT_FACILITY", "description": "Arrived at Budapest hub", "location": { "facility": "Budapest Central Hub", "city": "Budapest", "countryCode": "HU", "postalCode": "1097", "lat": 47.4611, "lon": 19.0680 } },
-        { "timestamp": "2024-02-06T05:30:00Z", "statusCode": "IN_TRANSIT", "description": "Line-haul to Szeged", "location": { "facility": "Highway M5 near Kecskemet", "city": "Kecskemet", "countryCode": "HU", "postalCode": "6000", "lat": 46.8964, "lon": 19.6897 } },
-        { "timestamp": "2024-02-06T12:10:00Z", "statusCode": "ARRIVED_AT_DELIVERY_DEPOT", "description": "Arrived Szeged depot", "location": { "facility": "Szeged Depot", "city": "Szeged", "countryCode": "HU", "postalCode": "6721", "lat": 46.2530, "lon": 20.1414 } },
-        { "timestamp": "2024-02-07T07:35:00Z", "statusCode": "OUT_FOR_DELIVERY", "description": "Out for delivery on route SZE-02", "location": { "facility": "Szeged Depot", "city": "Szeged", "countryCode": "HU", "postalCode": "6721", "lat": 46.2530, "lon": 20.1414 } },
-        { "timestamp": "2024-02-07T11:48:00Z", "statusCode": "DELIVERED", "description": "Delivered - GPS confirmed at recipient address", "location": { "facility": "Recipient address", "city": "Szeged", "countryCode": "HU", "postalCode": "6720", "lat": 46.2510, "lon": 20.1460 } }
+        {
+          "timestamp": "2024-02-05T08:40:00Z",
+          "statusCode": "PICKED_UP",
+          "description": "Picked up from sender",
+          "location": {
+            "facility": "Budapest Pickup Point 03",
+            "city": "Budapest",
+            "countryCode": "HU",
+            "postalCode": "1052",
+            "lat": 47.4979,
+            "lon": 19.0402
+          }
+        },
+        {
+          "timestamp": "2024-02-05T15:20:00Z",
+          "statusCode": "ARRIVED_AT_FACILITY",
+          "description": "Arrived at Budapest hub",
+          "location": {
+            "facility": "Budapest Central Hub",
+            "city": "Budapest",
+            "countryCode": "HU",
+            "postalCode": "1097",
+            "lat": 47.4611,
+            "lon": 19.0680
+          }
+        },
+        {
+          "timestamp": "2024-02-06T05:30:00Z",
+          "statusCode": "IN_TRANSIT",
+          "description": "Line-haul to Szeged",
+          "location": {
+            "facility": "Highway M5 near Kecskemet",
+            "city": "Kecskemet",
+            "countryCode": "HU",
+            "postalCode": "6000",
+            "lat": 46.8964,
+            "lon": 19.6897
+          }
+        },
+        {
+          "timestamp": "2024-02-06T12:10:00Z",
+          "statusCode": "ARRIVED_AT_DELIVERY_DEPOT",
+          "description": "Arrived Szeged depot",
+          "location": {
+            "facility": "Szeged Depot",
+            "city": "Szeged",
+            "countryCode": "HU",
+            "postalCode": "6721",
+            "lat": 46.2530,
+            "lon": 20.1414
+          }
+        },
+        {
+          "timestamp": "2024-02-07T07:35:00Z",
+          "statusCode": "OUT_FOR_DELIVERY",
+          "description": "Out for delivery on route SZE-02",
+          "location": {
+            "facility": "Szeged Depot",
+            "city": "Szeged",
+            "countryCode": "HU",
+            "postalCode": "6721",
+            "lat": 46.2530,
+            "lon": 20.1414
+          }
+        },
+        {
+          "timestamp": "2024-02-07T11:48:00Z",
+          "statusCode": "DELIVERED",
+          "description": "Delivered - GPS confirmed at recipient address",
+          "location": {
+            "facility": "Recipient address",
+            "city": "Szeged",
+            "countryCode": "HU",
+            "postalCode": "6720",
+            "lat": 46.2510,
+            "lon": 20.1460
+          }
+        }
       ]
     },
     {
@@ -122,15 +590,83 @@
       "carrierReference": "ETL-AT-40560771",
       "service": "same_day",
       "currentStatus": "DELIVERED",
-      "origin": { "city": "Linz", "countryCode": "AT", "postalCode": "4020" },
-      "destination": { "city": "Vienna", "countryCode": "AT", "postalCode": "1010" },
+      "origin": {
+        "city": "Linz",
+        "countryCode": "AT",
+        "postalCode": "4020"
+      },
+      "destination": {
+        "city": "Vienna",
+        "countryCode": "AT",
+        "postalCode": "1010"
+      },
       "estimatedDelivery": "2024-02-10T16:00:00Z",
       "events": [
-        { "timestamp": "2024-02-10T08:05:00Z", "statusCode": "PICKED_UP", "description": "Same-day pickup", "location": { "facility": "Linz Landstrasse Point", "city": "Linz", "countryCode": "AT", "postalCode": "4020", "lat": 48.3069, "lon": 14.2858 } },
-        { "timestamp": "2024-02-10T09:00:00Z", "statusCode": "DEPARTED_FACILITY", "description": "Direct same-day courier to Vienna", "location": { "facility": "Linz Courier Base", "city": "Linz", "countryCode": "AT", "postalCode": "4030", "lat": 48.2800, "lon": 14.3000 } },
-        { "timestamp": "2024-02-10T12:30:00Z", "statusCode": "IN_TRANSIT", "description": "En route, delayed by traffic on A1", "location": { "facility": "Highway A1 near St. Poelten", "city": "St. Poelten", "countryCode": "AT", "postalCode": "3100", "lat": 48.2047, "lon": 15.6256 } },
-        { "timestamp": "2024-02-10T15:40:00Z", "statusCode": "OUT_FOR_DELIVERY", "description": "Arrived Vienna, final leg", "location": { "facility": "Vienna Inner City", "city": "Vienna", "countryCode": "AT", "postalCode": "1010", "lat": 48.2082, "lon": 16.3738 } },
-        { "timestamp": "2024-02-11T09:12:00Z", "statusCode": "DELIVERED", "description": "Delivered (approx. 2h after promised window)", "location": { "facility": "Recipient address", "city": "Vienna", "countryCode": "AT", "postalCode": "1010", "lat": 48.2085, "lon": 16.3720 } }
+        {
+          "timestamp": "2024-02-10T08:05:00Z",
+          "statusCode": "PICKED_UP",
+          "description": "Same-day pickup",
+          "location": {
+            "facility": "Linz Landstrasse Point",
+            "city": "Linz",
+            "countryCode": "AT",
+            "postalCode": "4020",
+            "lat": 48.3069,
+            "lon": 14.2858
+          }
+        },
+        {
+          "timestamp": "2024-02-10T09:00:00Z",
+          "statusCode": "DEPARTED_FACILITY",
+          "description": "Direct same-day courier to Vienna",
+          "location": {
+            "facility": "Linz Courier Base",
+            "city": "Linz",
+            "countryCode": "AT",
+            "postalCode": "4030",
+            "lat": 48.2800,
+            "lon": 14.3000
+          }
+        },
+        {
+          "timestamp": "2024-02-10T12:30:00Z",
+          "statusCode": "IN_TRANSIT",
+          "description": "En route, delayed by traffic on A1",
+          "location": {
+            "facility": "Highway A1 near St. Poelten",
+            "city": "St. Poelten",
+            "countryCode": "AT",
+            "postalCode": "3100",
+            "lat": 48.2047,
+            "lon": 15.6256
+          }
+        },
+        {
+          "timestamp": "2024-02-10T15:40:00Z",
+          "statusCode": "OUT_FOR_DELIVERY",
+          "description": "Arrived Vienna, final leg",
+          "location": {
+            "facility": "Vienna Inner City",
+            "city": "Vienna",
+            "countryCode": "AT",
+            "postalCode": "1010",
+            "lat": 48.2082,
+            "lon": 16.3738
+          }
+        },
+        {
+          "timestamp": "2024-02-11T09:12:00Z",
+          "statusCode": "DELIVERED",
+          "description": "Delivered (approx. 2h after promised window)",
+          "location": {
+            "facility": "Recipient address",
+            "city": "Vienna",
+            "countryCode": "AT",
+            "postalCode": "1010",
+            "lat": 48.2085,
+            "lon": 16.3720
+          }
+        }
       ]
     },
     {
@@ -138,15 +674,83 @@
       "carrierReference": "ETL-AT-40561028",
       "service": "standard",
       "currentStatus": "IN_TRANSIT",
-      "origin": { "city": "Vienna", "countryCode": "AT", "postalCode": "1060" },
-      "destination": { "city": "Graz", "countryCode": "AT", "postalCode": "8010" },
+      "origin": {
+        "city": "Vienna",
+        "countryCode": "AT",
+        "postalCode": "1060"
+      },
+      "destination": {
+        "city": "Graz",
+        "countryCode": "AT",
+        "postalCode": "8010"
+      },
       "estimatedDelivery": "2024-02-18T18:00:00Z",
       "events": [
-        { "timestamp": "2024-02-15T10:15:00Z", "statusCode": "PICKED_UP", "description": "Picked up from sender", "location": { "facility": "Vienna Mariahilf Point", "city": "Vienna", "countryCode": "AT", "postalCode": "1060", "lat": 48.1968, "lon": 16.3480 } },
-        { "timestamp": "2024-02-15T18:50:00Z", "statusCode": "ARRIVED_AT_FACILITY", "description": "Arrived at Vienna hub", "location": { "facility": "Vienna Hub", "city": "Vienna", "countryCode": "AT", "postalCode": "1230", "lat": 48.1400, "lon": 16.3000 } },
-        { "timestamp": "2024-02-16T03:40:00Z", "statusCode": "DEPARTED_FACILITY", "description": "Loaded onto line-haul to Graz", "location": { "facility": "Vienna Hub", "city": "Vienna", "countryCode": "AT", "postalCode": "1230", "lat": 48.1400, "lon": 16.3000 } },
-        { "timestamp": "2024-02-16T06:30:00Z", "statusCode": "EXCEPTION", "description": "Sorting mis-scan - parcel held for manual routing check", "location": { "facility": "Semmering transfer point", "city": "Semmering", "countryCode": "AT", "postalCode": "2680", "lat": 47.6333, "lon": 15.8333 } },
-        { "timestamp": "2024-02-16T07:00:00Z", "statusCode": "IN_TRANSIT", "description": "No further scans recorded - status stuck", "location": { "facility": "Semmering transfer point", "city": "Semmering", "countryCode": "AT", "postalCode": "2680", "lat": 47.6333, "lon": 15.8333 } }
+        {
+          "timestamp": "2024-02-15T10:15:00Z",
+          "statusCode": "PICKED_UP",
+          "description": "Picked up from sender",
+          "location": {
+            "facility": "Vienna Mariahilf Point",
+            "city": "Vienna",
+            "countryCode": "AT",
+            "postalCode": "1060",
+            "lat": 48.1968,
+            "lon": 16.3480
+          }
+        },
+        {
+          "timestamp": "2024-02-15T18:50:00Z",
+          "statusCode": "ARRIVED_AT_FACILITY",
+          "description": "Arrived at Vienna hub",
+          "location": {
+            "facility": "Vienna Hub",
+            "city": "Vienna",
+            "countryCode": "AT",
+            "postalCode": "1230",
+            "lat": 48.1400,
+            "lon": 16.3000
+          }
+        },
+        {
+          "timestamp": "2024-02-16T03:40:00Z",
+          "statusCode": "DEPARTED_FACILITY",
+          "description": "Loaded onto line-haul to Graz",
+          "location": {
+            "facility": "Vienna Hub",
+            "city": "Vienna",
+            "countryCode": "AT",
+            "postalCode": "1230",
+            "lat": 48.1400,
+            "lon": 16.3000
+          }
+        },
+        {
+          "timestamp": "2024-02-16T06:30:00Z",
+          "statusCode": "EXCEPTION",
+          "description": "Sorting mis-scan - parcel held for manual routing check",
+          "location": {
+            "facility": "Semmering transfer point",
+            "city": "Semmering",
+            "countryCode": "AT",
+            "postalCode": "2680",
+            "lat": 47.6333,
+            "lon": 15.8333
+          }
+        },
+        {
+          "timestamp": "2024-02-16T07:00:00Z",
+          "statusCode": "IN_TRANSIT",
+          "description": "No further scans recorded - status stuck",
+          "location": {
+            "facility": "Semmering transfer point",
+            "city": "Semmering",
+            "countryCode": "AT",
+            "postalCode": "2680",
+            "lat": 47.6333,
+            "lon": 15.8333
+          }
+        }
       ]
     },
     {
@@ -154,17 +758,458 @@
       "carrierReference": "ETL-PL-70235640",
       "service": "standard",
       "currentStatus": "DELIVERED",
-      "origin": { "city": "Warsaw", "countryCode": "PL", "postalCode": "00-001" },
-      "destination": { "city": "Gdansk", "countryCode": "PL", "postalCode": "80-001" },
+      "origin": {
+        "city": "Warsaw",
+        "countryCode": "PL",
+        "postalCode": "00-001"
+      },
+      "destination": {
+        "city": "Gdansk",
+        "countryCode": "PL",
+        "postalCode": "80-001"
+      },
       "estimatedDelivery": "2024-02-23T18:00:00Z",
       "events": [
-        { "timestamp": "2024-02-20T10:50:00Z", "statusCode": "PICKED_UP", "description": "Picked up from sender", "location": { "facility": "Warsaw Marszalkowska Point", "city": "Warsaw", "countryCode": "PL", "postalCode": "00-001", "lat": 52.2297, "lon": 21.0122 } },
-        { "timestamp": "2024-02-20T21:10:00Z", "statusCode": "ARRIVED_AT_FACILITY", "description": "Arrived Warsaw hub", "location": { "facility": "Warsaw West Hub", "city": "Warsaw", "countryCode": "PL", "postalCode": "01-100", "lat": 52.2340, "lon": 20.9200 } },
-        { "timestamp": "2024-02-21T23:30:00Z", "statusCode": "IN_TRANSIT", "description": "Line-haul to Gdansk", "location": { "facility": "Highway S7 near Mlawa", "city": "Mlawa", "countryCode": "PL", "postalCode": "06-500", "lat": 53.1116, "lon": 20.3800 } },
-        { "timestamp": "2024-02-22T08:20:00Z", "statusCode": "ARRIVED_AT_DELIVERY_DEPOT", "description": "Arrived Gdansk depot", "location": { "facility": "Gdansk Depot", "city": "Gdansk", "countryCode": "PL", "postalCode": "80-002", "lat": 54.3520, "lon": 18.6466 } },
-        { "timestamp": "2024-02-22T14:00:00Z", "statusCode": "DELIVERY_ATTEMPT_FAILED", "description": "Recipient not at home", "location": { "facility": "Recipient address", "city": "Gdansk", "countryCode": "PL", "postalCode": "80-001", "lat": 54.3490, "lon": 18.6530 } },
-        { "timestamp": "2024-02-23T07:45:00Z", "statusCode": "OUT_FOR_DELIVERY", "description": "Re-attempt out for delivery", "location": { "facility": "Gdansk Depot", "city": "Gdansk", "countryCode": "PL", "postalCode": "80-002", "lat": 54.3520, "lon": 18.6466 } },
-        { "timestamp": "2024-02-23T12:33:00Z", "statusCode": "DELIVERED", "description": "Delivered to recipient", "location": { "facility": "Recipient address", "city": "Gdansk", "countryCode": "PL", "postalCode": "80-001", "lat": 54.3490, "lon": 18.6530 } }
+        {
+          "timestamp": "2024-02-20T10:50:00Z",
+          "statusCode": "PICKED_UP",
+          "description": "Picked up from sender",
+          "location": {
+            "facility": "Warsaw Marszalkowska Point",
+            "city": "Warsaw",
+            "countryCode": "PL",
+            "postalCode": "00-001",
+            "lat": 52.2297,
+            "lon": 21.0122
+          }
+        },
+        {
+          "timestamp": "2024-02-20T21:10:00Z",
+          "statusCode": "ARRIVED_AT_FACILITY",
+          "description": "Arrived Warsaw hub",
+          "location": {
+            "facility": "Warsaw West Hub",
+            "city": "Warsaw",
+            "countryCode": "PL",
+            "postalCode": "01-100",
+            "lat": 52.2340,
+            "lon": 20.9200
+          }
+        },
+        {
+          "timestamp": "2024-02-21T23:30:00Z",
+          "statusCode": "IN_TRANSIT",
+          "description": "Line-haul to Gdansk",
+          "location": {
+            "facility": "Highway S7 near Mlawa",
+            "city": "Mlawa",
+            "countryCode": "PL",
+            "postalCode": "06-500",
+            "lat": 53.1116,
+            "lon": 20.3800
+          }
+        },
+        {
+          "timestamp": "2024-02-22T08:20:00Z",
+          "statusCode": "ARRIVED_AT_DELIVERY_DEPOT",
+          "description": "Arrived Gdansk depot",
+          "location": {
+            "facility": "Gdansk Depot",
+            "city": "Gdansk",
+            "countryCode": "PL",
+            "postalCode": "80-002",
+            "lat": 54.3520,
+            "lon": 18.6466
+          }
+        },
+        {
+          "timestamp": "2024-02-22T14:00:00Z",
+          "statusCode": "DELIVERY_ATTEMPT_FAILED",
+          "description": "Recipient not at home",
+          "location": {
+            "facility": "Recipient address",
+            "city": "Gdansk",
+            "countryCode": "PL",
+            "postalCode": "80-001",
+            "lat": 54.3490,
+            "lon": 18.6530
+          }
+        },
+        {
+          "timestamp": "2024-02-23T07:45:00Z",
+          "statusCode": "OUT_FOR_DELIVERY",
+          "description": "Re-attempt out for delivery",
+          "location": {
+            "facility": "Gdansk Depot",
+            "city": "Gdansk",
+            "countryCode": "PL",
+            "postalCode": "80-002",
+            "lat": 54.3520,
+            "lon": 18.6466
+          }
+        },
+        {
+          "timestamp": "2024-02-23T12:33:00Z",
+          "statusCode": "DELIVERED",
+          "description": "Delivered to recipient",
+          "location": {
+            "facility": "Recipient address",
+            "city": "Gdansk",
+            "countryCode": "PL",
+            "postalCode": "80-001",
+            "lat": 54.3490,
+            "lon": 18.6530
+          }
+        }
+      ]
+    },
+    {
+      "trackingNumber": "SP-20261016",
+      "carrierReference": "ETL-HU-88231016",
+      "service": "express",
+      "currentStatus": "IN_TRANSIT",
+      "origin": {
+        "city": "Győr",
+        "countryCode": "HU",
+        "postalCode": "9021"
+      },
+      "destination": {
+        "city": "Budapest",
+        "countryCode": "HU",
+        "postalCode": "1114"
+      },
+      "estimatedDelivery": "2026-08-11T14:00:00Z",
+      "events": [
+        {
+          "timestamp": "2026-08-10T07:30:00Z",
+          "statusCode": "PICKED_UP",
+          "description": "Express collection completed",
+          "location": {
+            "facility": "Győr Baross Point",
+            "city": "Győr",
+            "countryCode": "HU",
+            "postalCode": "9021",
+            "lat": 47.6875,
+            "lon": 17.6351
+          }
+        },
+        {
+          "timestamp": "2026-08-10T10:15:00Z",
+          "statusCode": "ARRIVED_AT_FACILITY",
+          "description": "Scanned at regional hub",
+          "location": {
+            "facility": "Győr Regional Hub",
+            "city": "Győr",
+            "countryCode": "HU",
+            "postalCode": "9027",
+            "lat": 47.6950,
+            "lon": 17.6710
+          }
+        },
+        {
+          "timestamp": "2026-08-10T11:45:00Z",
+          "statusCode": "DEPARTED_FACILITY",
+          "description": "Departed Győr hub to Budapest",
+          "location": {
+            "facility": "Győr Regional Hub",
+            "city": "Győr",
+            "countryCode": "HU",
+            "postalCode": "9027",
+            "lat": 47.6950,
+            "lon": 17.6710
+          }
+        },
+        {
+          "timestamp": "2026-08-10T12:30:00Z",
+          "statusCode": "IN_TRANSIT",
+          "description": "En route via M1 highway near Tatabánya",
+          "location": {
+            "facility": "M1 Highway Transit Check",
+            "city": "Tatabánya",
+            "countryCode": "HU",
+            "postalCode": "2800",
+            "lat": 47.5692,
+            "lon": 18.3952
+          }
+        }
+      ]
+    },
+    {
+      "trackingNumber": "SP-20261017",
+      "carrierReference": "ETL-AT-40571017",
+      "service": "standard",
+      "currentStatus": "DELIVERED",
+      "origin": {
+        "city": "Innsbruck",
+        "countryCode": "AT",
+        "postalCode": "6020"
+      },
+      "destination": {
+        "city": "Linz",
+        "countryCode": "AT",
+        "postalCode": "4020"
+      },
+      "estimatedDelivery": "2026-08-08T18:00:00Z",
+      "events": [
+        {
+          "timestamp": "2026-08-06T09:00:00Z",
+          "statusCode": "PICKED_UP",
+          "description": "Parcel picked up from business client",
+          "location": {
+            "facility": "Innsbruck Central Point",
+            "city": "Innsbruck",
+            "countryCode": "AT",
+            "postalCode": "6020",
+            "lat": 47.2692,
+            "lon": 11.4041
+          }
+        },
+        {
+          "timestamp": "2026-08-06T17:30:00Z",
+          "statusCode": "ARRIVED_AT_FACILITY",
+          "description": "Arrived Tyrol sorting center",
+          "location": {
+            "facility": "Innsbruck Hub",
+            "city": "Innsbruck",
+            "countryCode": "AT",
+            "postalCode": "6020",
+            "lat": 47.2600,
+            "lon": 11.4100
+          }
+        },
+        {
+          "timestamp": "2026-08-07T03:10:00Z",
+          "statusCode": "DEPARTED_FACILITY",
+          "description": "Line-haul departed for Upper Austria",
+          "location": {
+            "facility": "Innsbruck Hub",
+            "city": "Innsbruck",
+            "countryCode": "AT",
+            "postalCode": "6020",
+            "lat": 47.2600,
+            "lon": 11.4100
+          }
+        },
+        {
+          "timestamp": "2026-08-07T11:20:00Z",
+          "statusCode": "ARRIVED_AT_DELIVERY_DEPOT",
+          "description": "Arrived at Linz destination depot",
+          "location": {
+            "facility": "Linz Depot",
+            "city": "Linz",
+            "countryCode": "AT",
+            "postalCode": "4030",
+            "lat": 48.2800,
+            "lon": 14.3000
+          }
+        },
+        {
+          "timestamp": "2026-08-08T07:45:00Z",
+          "statusCode": "OUT_FOR_DELIVERY",
+          "description": "Out for delivery with courier",
+          "location": {
+            "facility": "Linz Depot",
+            "city": "Linz",
+            "countryCode": "AT",
+            "postalCode": "4030",
+            "lat": 48.2800,
+            "lon": 14.3000
+          }
+        },
+        {
+          "timestamp": "2026-08-08T11:15:00Z",
+          "statusCode": "DELIVERED",
+          "description": "Handed over to recipient",
+          "location": {
+            "facility": "Recipient address",
+            "city": "Linz",
+            "countryCode": "AT",
+            "postalCode": "4020",
+            "lat": 48.3069,
+            "lon": 14.2858
+          }
+        }
+      ]
+    },
+    {
+      "trackingNumber": "SP-20261018",
+      "carrierReference": "ETL-PL-70241018",
+      "service": "standard",
+      "currentStatus": "DELIVERY_ATTEMPT_FAILED",
+      "origin": {
+        "city": "Wroclaw",
+        "countryCode": "PL",
+        "postalCode": "50-001"
+      },
+      "destination": {
+        "city": "Poznan",
+        "countryCode": "PL",
+        "postalCode": "60-001"
+      },
+      "estimatedDelivery": "2026-08-09T18:00:00Z",
+      "events": [
+        {
+          "timestamp": "2026-08-07T11:30:00Z",
+          "statusCode": "PICKED_UP",
+          "description": "Parcel picked up from sender",
+          "location": {
+            "facility": "Wroclaw Market Point",
+            "city": "Wroclaw",
+            "countryCode": "PL",
+            "postalCode": "50-001",
+            "lat": 51.1100,
+            "lon": 17.0325
+          }
+        },
+        {
+          "timestamp": "2026-08-07T19:20:00Z",
+          "statusCode": "ARRIVED_AT_FACILITY",
+          "description": "Arrived Wroclaw hub",
+          "location": {
+            "facility": "Wroclaw Hub",
+            "city": "Wroclaw",
+            "countryCode": "PL",
+            "postalCode": "51-100",
+            "lat": 51.1300,
+            "lon": 17.0200
+          }
+        },
+        {
+          "timestamp": "2026-08-08T22:00:00Z",
+          "statusCode": "IN_TRANSIT",
+          "description": "Line-haul transport to Poznan",
+          "location": {
+            "facility": "S5 Express Road near Leszno",
+            "city": "Leszno",
+            "countryCode": "PL",
+            "postalCode": "64-100",
+            "lat": 51.8403,
+            "lon": 16.5749
+          }
+        },
+        {
+          "timestamp": "2026-08-09T05:50:00Z",
+          "statusCode": "ARRIVED_AT_DELIVERY_DEPOT",
+          "description": "Arrived at Poznan delivery depot",
+          "location": {
+            "facility": "Poznan Depot",
+            "city": "Poznan",
+            "countryCode": "PL",
+            "postalCode": "60-002",
+            "lat": 52.4064,
+            "lon": 16.9252
+          }
+        },
+        {
+          "timestamp": "2026-08-09T08:10:00Z",
+          "statusCode": "OUT_FOR_DELIVERY",
+          "description": "Out for delivery on route POZ-05",
+          "location": {
+            "facility": "Poznan Depot",
+            "city": "Poznan",
+            "countryCode": "PL",
+            "postalCode": "60-002",
+            "lat": 52.4064,
+            "lon": 16.9252
+          }
+        },
+        {
+          "timestamp": "2026-08-09T15:40:00Z",
+          "statusCode": "DELIVERY_ATTEMPT_FAILED",
+          "description": "Recipient not available / intercom not answering",
+          "location": {
+            "facility": "Recipient address",
+            "city": "Poznan",
+            "countryCode": "PL",
+            "postalCode": "60-001",
+            "lat": 52.4000,
+            "lon": 16.9100
+          }
+        }
+      ]
+    },
+    {
+      "trackingNumber": "SP-20261019",
+      "carrierReference": "ETL-CZ-33021019",
+      "service": "standard",
+      "currentStatus": "LOST_IN_NETWORK",
+      "origin": {
+        "city": "Ostrava",
+        "countryCode": "CZ",
+        "postalCode": "70200"
+      },
+      "destination": {
+        "city": "Prague",
+        "countryCode": "CZ",
+        "postalCode": "11000"
+      },
+      "estimatedDelivery": "2026-08-03T18:00:00Z",
+      "events": [
+        {
+          "timestamp": "2026-07-30T10:00:00Z",
+          "statusCode": "PICKED_UP",
+          "description": "Picked up from sender",
+          "location": {
+            "facility": "Ostrava Center Point",
+            "city": "Ostrava",
+            "countryCode": "CZ",
+            "postalCode": "70200",
+            "lat": 49.8209,
+            "lon": 18.2625
+          }
+        },
+        {
+          "timestamp": "2026-07-30T16:40:00Z",
+          "statusCode": "ARRIVED_AT_FACILITY",
+          "description": "Arrived Ostrava sorting hub",
+          "location": {
+            "facility": "Ostrava Regional Hub",
+            "city": "Ostrava",
+            "countryCode": "CZ",
+            "postalCode": "70900",
+            "lat": 49.8300,
+            "lon": 18.2500
+          }
+        },
+        {
+          "timestamp": "2026-07-30T22:15:00Z",
+          "statusCode": "DEPARTED_FACILITY",
+          "description": "Departed on overnight line-haul to Prague",
+          "location": {
+            "facility": "Ostrava Regional Hub",
+            "city": "Ostrava",
+            "countryCode": "CZ",
+            "postalCode": "70900",
+            "lat": 49.8300,
+            "lon": 18.2500
+          }
+        },
+        {
+          "timestamp": "2026-08-04T09:00:00Z",
+          "statusCode": "EXCEPTION",
+          "description": "Parcel missing at destination scan; trace protocol initiated",
+          "location": {
+            "facility": "Prague South Hub (expected)",
+            "city": "Prague",
+            "countryCode": "CZ",
+            "postalCode": "14000",
+            "lat": 50.0400,
+            "lon": 14.4500
+          }
+        },
+        {
+          "timestamp": "2026-08-09T12:00:00Z",
+          "statusCode": "LOST_IN_NETWORK",
+          "description": "Inquiry completed; parcel confirmed unlocatable",
+          "location": {
+            "facility": "Unknown",
+            "city": "Unknown",
+            "countryCode": "CZ",
+            "postalCode": null,
+            "lat": null,
+            "lon": null
+          }
+        }
       ]
     }
   ]
