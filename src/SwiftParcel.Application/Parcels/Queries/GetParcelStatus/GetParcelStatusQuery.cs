@@ -7,8 +7,6 @@ using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Parcels.Queries.GetParcelStatus;
 
-public record GetParcelStatusQuery(string TrackingNumber) : IRequest<Result<ParcelStatusResponse>>, IAuthorizableRequest
+public record GetParcelStatusQuery(string TrackingNumber) : IRequest<Result<ParcelStatusResponse>>
 {
-    public bool RequireAuthentication => true;
-    public IReadOnlyList<UserRole> AllowedRoles => [UserRole.ReadOnly, UserRole.Operator, UserRole.Supervisor, UserRole.Admin];
 };

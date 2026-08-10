@@ -7,8 +7,6 @@ using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Application.Cases.Queries.GetCustomerCaseNotes;
 
-public record GetCustomerCaseNotesQuery(string CaseNumber) : IRequest<Result<IReadOnlyList<CustomerFacingCaseNoteDto>>>, IAuthorizableRequest
+public record GetCustomerCaseNotesQuery(string CaseNumber) : IRequest<Result<IReadOnlyList<CustomerFacingCaseNoteDto>>>
 {
-    public bool RequireAuthentication => false;
-    public IReadOnlyList<UserRole> AllowedRoles => [];
 };

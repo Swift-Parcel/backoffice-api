@@ -19,8 +19,6 @@ public record CreateCaseCommand(
     IReadOnlyCollection<int> TagIds,
     IReadOnlyCollection<int> ParcelIds,
     Priority Priority = Priority.Low
-    ) : IRequest<Result<CreateCaseResponse>>, IAuthorizableRequest
+    ) : IRequest<Result<CreateCaseResponse>>
 {
-    public bool RequireAuthentication => true;
-    public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Operator, UserRole.Supervisor, UserRole.Admin];
 };

@@ -8,8 +8,6 @@ using SwiftParcel.Domain.Shared;
 namespace SwiftParcel.Application.Parcels.Queries.GetCustomerParcels;
 
 public record GetCustomerParcelsQuery(string CustomerEmail)
-    : IRequest<Result<List<CustomerParcelDto>>>, IAuthorizableRequest
+    : IRequest<Result<List<CustomerParcelDto>>>
 {
-    public bool RequireAuthentication => true;
-    public IReadOnlyList<UserRole> AllowedRoles => [UserRole.ReadOnly, UserRole.Operator, UserRole.Supervisor, UserRole.Admin];
 };

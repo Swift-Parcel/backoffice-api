@@ -11,8 +11,6 @@ public record ChangeDeliveryCommand(
     string TrackingNumber,
     DateTime? Date,
     Timeslot? Timeslot
-) : IRequest<Result<DeliveryChangeResponse>>, IAuthorizableRequest
+) : IRequest<Result<DeliveryChangeResponse>>
 {
-    public bool RequireAuthentication => true;
-    public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Operator, UserRole.Supervisor, UserRole.Admin];
 };
