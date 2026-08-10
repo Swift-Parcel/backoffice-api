@@ -20,12 +20,12 @@ public class GetTagsQueryHandler(ITagRepository tagRepository)
         var dtos = tags.Select(t => new TagDto(t.Id, t.Name)).ToList();
 
         var pagedResult = new PagedResult<TagDto>
-        {
-            Items = dtos,
-            TotalCount = totalCount,
-            PageNumber = request.PageNumber,
-            PageSize = request.PageSize
-        };
+        (
+            items : dtos,
+            count : totalCount,
+            pageNumber : request.PageNumber,
+            pageSize : request.PageSize
+        );
 
         return Result<PagedResult<TagDto>>.Success(pagedResult);
     }
