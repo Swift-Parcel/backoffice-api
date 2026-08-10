@@ -9,4 +9,4 @@ public record UpdateUserCommand(
     string? FullName,
     int? RoleId,
     List<int>? RegionIds
-) : IRequest<Result<Unit>>;
+) : IRequest<Result>;

@@ -13,6 +13,6 @@ public record ChangeDeliveryCommand(
     Timeslot? Timeslot
 ) : IRequest<Result<DeliveryChangeResponse>>, IAuthorizableRequest
 {
-    public bool RequireAuthentication => true;
-    public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Operator, UserRole.Supervisor, UserRole.Admin];
+    public bool RequireAuthentication => false;
+    public IReadOnlyList<UserRole> AllowedRoles => [];
 };

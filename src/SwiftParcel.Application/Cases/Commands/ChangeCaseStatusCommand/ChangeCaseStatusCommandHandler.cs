@@ -7,7 +7,7 @@ using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Cases.Commands.ChangeCaseStatusCommand;
 
-public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeStatusCommand, Result<Unit>>
+public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeStatusCommand, Result>
 {
     private readonly ICaseRepository _caseRepository;
     private readonly IWebhookClient _webhookClient;
@@ -18,18 +18,18 @@ public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeStatusComman
         _webhookClient = webhookClient;
     }
 
-    public async Task<Result<Unit>> Handle(ChangeStatusCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(ChangeStatusCommand request, CancellationToken cancellationToken)
     {
         var @case = await _caseRepository.GetByCaseNumberWithCustomerAsync(request.CaseNumber, cancellationToken);
 
         if (@case is null)
         {
-            return Result<Unit>.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
+            return Result.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
         }
 
         if (!IsValidStatusTransition(@case.Status, request.NewStatus))
         {
-            return Result<Unit>.Failure(Error.Validation($"Cannot transition case status from {@case.Status} to {request.NewStatus}."));
+            return Result.Failure(Error.Validation($"Cannot transition case status from {@case.Status} to {request.NewStatus}."));
         }
 
         @case.Status = request.NewStatus;
@@ -49,7 +49,7 @@ public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeStatusComman
             cancellationToken
         );
 
-        return Result<Unit>.Success(Unit.Value);
+        return Result.Success();
     }
 
     private static bool IsValidStatusTransition(CaseStatus currentStatus, CaseStatus newStatus)

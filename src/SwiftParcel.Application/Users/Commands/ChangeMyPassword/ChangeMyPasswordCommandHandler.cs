@@ -11,9 +11,9 @@ public class ChangeMyPasswordCommandHandler(
     IUserRepository userRepository,
     IPasswordHasher passwordHasher,
     ICurrentUserService currentUserService) 
-    : IRequestHandler<ChangeMyPasswordCommand, Result<Unit>>
+    : IRequestHandler<ChangeMyPasswordCommand, Result>
 {
-    public async Task<Result<Unit>> Handle(ChangeMyPasswordCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(ChangeMyPasswordCommand request, CancellationToken cancellationToken)
     {
         var currentUserId = (int)currentUserService.UserId;
 
@@ -21,19 +21,19 @@ public class ChangeMyPasswordCommandHandler(
 
         if (user == null)
         {
-            return Result<Unit>.Failure(Error.NotFound("User not found."));
+            return Result.Failure(Error.NotFound("User not found."));
         }
 
         var isOldPasswordValid = passwordHasher.VerifyPassword(request.OldPassword, user.PasswordHash);
         if (!isOldPasswordValid)
         {
-            return Result<Unit>.Failure(Error.Validation("The old password provided is incorrect."));
+            return Result.Failure(Error.Validation("The old password provided is incorrect."));
         }
 
         user.PasswordHash = passwordHasher.HashPassword(request.NewPassword);
 
         await userRepository.UpdateAsync(user, cancellationToken);
 
-        return Result<Unit>.Success(Unit.Value);
+        return Result.Success();
     }
 }
