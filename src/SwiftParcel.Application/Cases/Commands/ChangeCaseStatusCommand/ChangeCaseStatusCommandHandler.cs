@@ -1,21 +1,20 @@
 using MediatR;
-using SwiftParcel.Application.Cases.Commands.UpdateCaseStatusCommand;
+using SwiftParcel.Application.Cases.Events;
 using SwiftParcel.Application.Common.Interfaces.Repositories;
-using SwiftParcel.Application.Integration.Interfaces;
-using SwiftParcel.Domain.Enums;
 using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Cases.Commands.ChangeCaseStatusCommand;
 
 public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCommand, Result>
+
 {
     private readonly ICaseRepository _caseRepository;
-    private readonly IWebhookClient _webhookClient;
+    private readonly IPublisher _publisher;
 
-    public ChangeCaseStatusCommandHandler(ICaseRepository caseRepository, IWebhookClient webhookClient)
+    public ChangeCaseStatusCommandHandler(ICaseRepository caseRepository, IPublisher publisher)
     {
         _caseRepository = caseRepository;
-        _webhookClient = webhookClient;
+        _publisher = publisher;
     }
 
     public async Task<Result> Handle(ChangeCaseStatusCommand request, CancellationToken cancellationToken)
@@ -27,7 +26,8 @@ public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCo
             return Result.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
         }
 
-        if (!IsValidStatusTransition(@case.Status, request.NewStatus))
+        var statusResult = @case.ChangeStatus(request.NewStatus);
+        if (!statusResult.IsSuccess)
         {
             return Result.Failure(Error.Validation($"Cannot transition case status from {@case.Status} to {request.NewStatus}."));
         }
@@ -42,51 +42,12 @@ public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCo
 
         await _caseRepository.UpdateAsync(@case, cancellationToken);
 
-        await _webhookClient.NotifyCaseStatusChangedAsync(
+        await _publisher.Publish(new CaseStatusChangedEvent(
             @case.CaseNumber,
             @case.Customer.Email,
-            @case.Status,
-            cancellationToken
-        );
+            @case.Status
+        ), cancellationToken);
 
         return Result.Success();
-    }
-
-    private static bool IsValidStatusTransition(CaseStatus currentStatus, CaseStatus newStatus)
-    {
-        if (currentStatus == newStatus) return true;
-
-        return currentStatus switch
-        {
-            CaseStatus.Open => newStatus
-                is CaseStatus.InProgress 
-                or CaseStatus.Escalated 
-                or CaseStatus.Cancelled,
-
-            CaseStatus.InProgress => newStatus
-                is CaseStatus.AwaitingCustomer 
-                or CaseStatus.Resolved 
-                or CaseStatus.Escalated 
-                or CaseStatus.Cancelled,
-
-            CaseStatus.AwaitingCustomer => newStatus
-                is CaseStatus.InProgress 
-                or CaseStatus.Resolved 
-                or CaseStatus.Cancelled,
-
-            CaseStatus.Escalated => newStatus
-                is CaseStatus.InProgress 
-                or CaseStatus.Resolved 
-                or CaseStatus.Cancelled,
-
-            CaseStatus.Resolved => newStatus
-                is CaseStatus.Closed 
-                or CaseStatus.InProgress,
-
-            CaseStatus.Closed => false,
-            CaseStatus.Cancelled => false,
-
-            _ => false
-        };
     }
 }
