@@ -7,8 +7,6 @@ using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Application.Cases.Queries.GetCustomerCases;
 
-public record GetCustomerCasesQuery(string CustomerEmail) : IRequest<Result<CustomerCasesResponse>>, IAuthorizableRequest
+public record GetCustomerCasesQuery(string CustomerEmail) : IRequest<Result<CustomerCasesResponse>>
 {
-    public bool RequireAuthentication => true;
-    public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Operator, UserRole.Supervisor, UserRole.Admin];
 };
