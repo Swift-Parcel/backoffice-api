@@ -6,7 +6,7 @@ using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Cases.Commands.ChangeCaseStatusCommand;
 
-public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCommand, Result>
+public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCommand, Result<ChangeStatusResponse>>
 
 {
     private readonly ICaseRepository _caseRepository;
@@ -18,19 +18,19 @@ public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCo
         _publisher = publisher;
     }
 
-    public async Task<Result> Handle(ChangeCaseStatusCommand request, CancellationToken cancellationToken)
+    public async Task<Result<ChangeStatusResponse>> Handle(ChangeCaseStatusCommand request, CancellationToken cancellationToken)
     {
         var @case = await _caseRepository.GetByCaseNumberWithCustomerAsync(request.CaseNumber, cancellationToken);
 
         if (@case is null)
         {
-            return Result.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
+            return Result<ChangeStatusResponse>.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
         }
 
         var statusResult = @case.ChangeStatus(request.NewStatus);
         if (!statusResult.IsSuccess)
         {
-            return Result.Failure(Error.Validation($"Cannot transition case status from {@case.Status} to {request.NewStatus}."));
+            return Result<ChangeStatusResponse>.Failure(Error.Validation($"Cannot transition case status from {@case.Status} to {request.NewStatus}."));
         }
 
         @case.Status = request.NewStatus;
@@ -49,6 +49,8 @@ public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCo
             @case.Status
         ), cancellationToken);
 
-        return Result.Success();
+        var response = new ChangeStatusResponse(@case.Status, @case.UpdatedDate);
+        
+        return Result<ChangeStatusResponse>.Success(response);
     }
 }

@@ -65,7 +65,7 @@ public class CasesController : ApiController
     /// Changes the status of a case and triggers lifecycle notifications.
     /// </summary>
     [HttpPost("{caseNumber}/change-status")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ChangeCaseStatus(
@@ -77,7 +77,7 @@ public class CasesController : ApiController
         
         var result = await Mediator.Send(command, cancellationToken);
         
-        return HandleResult(result);
+        return HandleCreatedResult(result);
     }
     
     /// <summary>
