@@ -9,7 +9,7 @@ namespace SwiftParcel.Application.Cases.Commands.DeliveryChangeCommand;
 public record ProcessDeliveryChangeCommand(
     string CaseNumber, 
     DeliveryChangeOutcome Outcome
-) : IRequest<Result<Unit>>, IAuthorizableRequest
+) : IRequest<Result>, IAuthorizableRequest
 {
     public bool RequireAuthentication => true;
     public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Operator, UserRole.Supervisor, UserRole.Admin];

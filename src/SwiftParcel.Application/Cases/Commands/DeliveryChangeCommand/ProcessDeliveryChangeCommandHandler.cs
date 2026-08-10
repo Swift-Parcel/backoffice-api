@@ -6,7 +6,7 @@ using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Cases.Commands.DeliveryChangeCommand;
 
-public class ProcessDeliveryChangeCommandHandler : IRequestHandler<ProcessDeliveryChangeCommand, Result<Unit>>
+public class ProcessDeliveryChangeCommandHandler : IRequestHandler<ProcessDeliveryChangeCommand, Result>
 {
     private readonly ICaseRepository _caseRepository;
     private readonly IWebhookClient _webhookClient;
@@ -17,13 +17,13 @@ public class ProcessDeliveryChangeCommandHandler : IRequestHandler<ProcessDelive
         _webhookClient = webhookClient;
     }
 
-    public async Task<Result<Unit>> Handle(ProcessDeliveryChangeCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(ProcessDeliveryChangeCommand request, CancellationToken cancellationToken)
     {
         var @case = await _caseRepository.GetByCaseNumberWithCustomerAsync(request.CaseNumber, cancellationToken);
 
         if (@case is null)
         {
-            return Result<Unit>.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
+            return Result.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
         }
 
         @case.UpdatedDate = DateTime.UtcNow;
@@ -37,6 +37,6 @@ public class ProcessDeliveryChangeCommandHandler : IRequestHandler<ProcessDelive
             cancellationToken
         );
 
-        return Result<Unit>.Success(Unit.Value);
+        return Result.Success();
     }
 }
