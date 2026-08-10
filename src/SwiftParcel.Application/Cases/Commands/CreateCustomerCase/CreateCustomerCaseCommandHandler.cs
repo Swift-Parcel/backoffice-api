@@ -98,7 +98,7 @@ public class CreateCustomerCaseCommandHandler
         Description = request.Description,
         CaseType = request.CaseType,
         Status = CaseStatus.Open,
-        Priority = Priority.Low,
+        Priority = customer.Vip ? Priority.High : Priority.Low,
         Customer = customer,
         CreatedDate = now,
         SlaDeadline = now.AddHours(slaHours),
