@@ -1,3 +1,5 @@
+using SwiftParcel.Domain.Shared;
+
 namespace SwiftParcel.Domain.Entities;
 
 using Enums;
@@ -81,4 +83,32 @@ public class Case
         { IsEscalated: false, CaseType: CaseType.Lost } => "Investigations",
         _ => "Customer Support"
     };
+    
+    public Result ChangeStatus(CaseStatus newStatus)
+    {
+        if (Status == newStatus) return Result.Success();
+
+        bool isValid = Status switch
+        {
+            CaseStatus.Open => newStatus is CaseStatus.InProgress or CaseStatus.Escalated or CaseStatus.Cancelled,
+            CaseStatus.InProgress => newStatus is CaseStatus.AwaitingCustomer or CaseStatus.Resolved or CaseStatus.Escalated or CaseStatus.Cancelled,
+            CaseStatus.AwaitingCustomer => newStatus is CaseStatus.InProgress or CaseStatus.Resolved or CaseStatus.Cancelled,
+            CaseStatus.Escalated => newStatus is CaseStatus.InProgress or CaseStatus.Resolved or CaseStatus.Cancelled,
+            CaseStatus.Resolved => newStatus is CaseStatus.Closed or CaseStatus.InProgress,
+            CaseStatus.Closed => false,
+            CaseStatus.Cancelled => false,
+            _ => false
+        };
+
+        if (!isValid)
+            return Result.Failure(Error.Validation($"Cannot transition case status from {Status} to {newStatus}."));
+
+        Status = newStatus;
+        UpdatedDate = DateTime.UtcNow;
+
+        if (newStatus == CaseStatus.Resolved)
+            ResolvedDate = DateTime.UtcNow;
+
+        return Result.Success();
+    }
 }
