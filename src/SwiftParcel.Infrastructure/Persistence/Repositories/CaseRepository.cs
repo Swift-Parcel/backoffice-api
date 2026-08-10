@@ -14,6 +14,11 @@ public class CaseRepository : ICaseRepository
         _context = context;
     }
 
+    public IQueryable<Case> GetQueryable()
+    {
+        return _context.Cases.AsNoTracking();
+    }
+
     public async Task AddAsync(Case newCase, CancellationToken cancellationToken = default)
     {
         await _context.Cases.AddAsync(newCase, cancellationToken);
