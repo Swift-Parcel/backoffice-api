@@ -8,6 +8,7 @@ using SwiftParcel.Application.Services;
 using SwiftParcel.Domain.Entities;
 using SwiftParcel.Domain.Shared;
 using SwiftParcel.Application.Common.Interfaces.Repositories;
+using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Application.Cases.Commands.CreateCase;
 
@@ -67,6 +68,12 @@ public class CreateCaseCommandHandler
         if (request.TagIds.Any() && tags.Count != request.TagIds.Distinct().Count())
             return Result<CreateCaseResponse>.Failure(Error.NotFound("One or more specified Tag IDs do not exist."));
         
+        var priority = request.Priority;
+        if (customer.Vip && priority < Priority.High)
+        {
+            priority = Priority.High;
+        }
+        
         string caseNumber = await _caseNumberGenerator.GenerateNextAsync(cancellationToken);
         int slaHours = _slaOptions.DefaultHours.GetValueOrDefault(request.CaseType, 72);
 
@@ -79,7 +86,7 @@ public class CreateCaseCommandHandler
             Description = request.Description,
             CaseType = request.CaseType,
             Status = request.CaseStatus,
-            Priority = request.Priority,
+            Priority = priority,
             Customer = customer,
             HandlerId = request.HandlerId,
             CreatedDate = now,
