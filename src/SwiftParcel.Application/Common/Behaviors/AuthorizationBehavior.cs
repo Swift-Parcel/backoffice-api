@@ -24,7 +24,7 @@ public class AuthorizationBehavior<TRequest, TResponse>
         
         if (!await _currentUserService.IsActiveAsync(cancellationToken))
         {
-            throw new ForbiddenException("Your account has been disabled."); 
+            throw new ForbiddenException("This account has been deactivated. Please contact an administrator."); 
         }
         
         if (authorizableRequest.RequireAuthentication && !_currentUserService.IsAuthenticated)
