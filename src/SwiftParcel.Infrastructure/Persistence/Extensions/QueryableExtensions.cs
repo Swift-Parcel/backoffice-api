@@ -5,7 +5,7 @@ namespace SwiftParcel.Infrastructure.Persistence.Extensions;
 
 public static class QueryableExtensions
 {
-    public static async Task<PagedResult<T>> ToPagedListAsync<T>(
+    public static async Task<PagedList<T>> ToPagedListAsync<T>(
         this IQueryable<T> source, 
         int pageNumber, 
         int pageSize, 
@@ -15,7 +15,7 @@ public static class QueryableExtensions
         
         if (count == 0)
         {
-            return new PagedResult<T>(Array.Empty<T>(), 0, pageNumber, pageSize);
+            return new PagedList<T>(Array.Empty<T>(), 0, pageNumber, pageSize);
         }
 
         var items = await source
@@ -23,6 +23,6 @@ public static class QueryableExtensions
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
-        return new PagedResult<T>(items, count, pageNumber, pageSize);
+        return new PagedList<T>(items, count, pageNumber, pageSize);
     }
 }

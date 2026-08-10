@@ -7,9 +7,9 @@ using SwiftParcel.Domain.Shared;
 namespace SwiftParcel.Application.Tags.Queries.GetTags;
 
 public class GetTagsQueryHandler(ITagRepository tagRepository) 
-    : IRequestHandler<GetTagsQuery, Result<PagedResult<TagDto>>>
+    : IRequestHandler<GetTagsQuery, Result<PagedList<TagDto>>>
 {
-    public async Task<Result<PagedResult<TagDto>>> Handle(GetTagsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedList<TagDto>>> Handle(GetTagsQuery request, CancellationToken cancellationToken)
     {
         var (tags, totalCount) = await tagRepository.GetPagedAsync(
             request.NameFilter, 
@@ -19,7 +19,7 @@ public class GetTagsQueryHandler(ITagRepository tagRepository)
 
         var dtos = tags.Select(t => new TagDto(t.Id, t.Name)).ToList();
 
-        var pagedResult = new PagedResult<TagDto>
+        var pagedResult = new PagedList<TagDto>
         (
             items : dtos,
             count : totalCount,
@@ -27,6 +27,6 @@ public class GetTagsQueryHandler(ITagRepository tagRepository)
             pageSize : request.PageSize
         );
 
-        return Result<PagedResult<TagDto>>.Success(pagedResult);
+        return Result<PagedList<TagDto>>.Success(pagedResult);
     }
 }

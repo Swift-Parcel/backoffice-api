@@ -1,6 +1,6 @@
 namespace SwiftParcel.Application.Common.Models;
 
-public class PagedResult<T>
+public class PagedList<T>
 {
     public IReadOnlyList<T> Items { get; init; }
     public int PageNumber { get; init; }
@@ -10,7 +10,7 @@ public class PagedResult<T>
     public bool HasPreviousPage => PageNumber > 1;
     public bool HasNextPage => PageNumber < TotalPages;
     
-    public PagedResult(IReadOnlyList<T> items, int count, int pageNumber, int pageSize)
+    public PagedList(IReadOnlyList<T> items, int count, int pageNumber, int pageSize)
     {
         Items = items;
         TotalCount = count;
