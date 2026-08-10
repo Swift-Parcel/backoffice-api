@@ -5,7 +5,7 @@ using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Cases.Commands.ChangeCaseStatusCommand;
 
-public record ChangeStatusCommand(
+public record ChangeCaseStatusCommand(
     string CaseNumber,
     CaseStatus NewStatus) : IRequest<Result>, IAuthorizableRequest
 {

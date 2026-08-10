@@ -12,14 +12,12 @@ namespace SwiftParcel.Api.Controllers;
 
 [ApiController]
 [Route("api/handlers")]
-[Authorize(Roles = "Supervisor,Admin")]
 public class HandlersController : ApiController
 {
     /// <summary>
     /// Gets the current user's handler profile
     /// </summary>
     [HttpGet("me")]
-    [Authorize]
     [ProducesResponseType(typeof(HandlerDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCurrentHandler(CancellationToken cancellationToken)
@@ -32,7 +30,6 @@ public class HandlersController : ApiController
     /// Lists handlers
     /// </summary>
     [HttpGet]
-    [Authorize(Roles = "Supervisor,Admin")]
     [ProducesResponseType(typeof(List<HandlerDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetHandlers(
         [FromQuery] bool? isActive,
@@ -48,7 +45,6 @@ public class HandlersController : ApiController
     /// Gets a specific handler by ID
     /// </summary>
     [HttpGet("{id:int}")]
-    [Authorize(Roles = "Supervisor,Admin")]
     [ProducesResponseType(typeof(HandlerDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces;
 using SwiftParcel.Domain.Enums;
 
@@ -8,10 +9,12 @@ namespace SwiftParcel.Infrastructure.Services;
 public class CurrentUserService : ICurrentUserService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IAppDbContext _dbContext;
 
-    public CurrentUserService(IHttpContextAccessor httpContextAccessor)
+    public CurrentUserService(IHttpContextAccessor httpContextAccessor, IAppDbContext dbContext)
     {
         _httpContextAccessor = httpContextAccessor;
+        _dbContext = dbContext;
     }
 
     public int? UserId
@@ -38,6 +41,17 @@ public class CurrentUserService : ICurrentUserService
 
     public bool IsAuthenticated => _httpContextAccessor.HttpContext?
         .User?.Identity?.IsAuthenticated ?? false;
+
+    public async Task<bool> IsActiveAsync(CancellationToken cancellationToken = default)
+    {
+        if (UserId == null) 
+        {
+            return false;
+        }
+
+        return await _dbContext.Users
+            .AnyAsync(u => u.Id == UserId && u.IsActive, cancellationToken);
+    }
 
     public List<int> GetRegionIds()
     {
