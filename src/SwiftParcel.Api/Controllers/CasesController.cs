@@ -76,7 +76,7 @@ public class CasesController : ApiController
         [FromBody] ChangeCaseStatusRequest request, 
         CancellationToken cancellationToken)
     {
-        var command = new ChangeStatusCommand(caseNumber, request.Status);
+        var command = new ChangeCaseStatusCommand(caseNumber, request.Status);
         
         var result = await Mediator.Send(command, cancellationToken);
         
