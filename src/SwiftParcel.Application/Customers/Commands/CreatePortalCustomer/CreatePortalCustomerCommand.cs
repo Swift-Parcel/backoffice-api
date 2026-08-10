@@ -13,8 +13,6 @@ public record CreatePortalCustomerCommand(
     string Email,
     string Phone,
     AddressDto Address)
-    : IRequest<Result<CreateCustomerResponse>>, IAuthorizableRequest
+    : IRequest<Result<CreateCustomerResponse>>
 {
-    public bool RequireAuthentication => true;
-    public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Supervisor, UserRole.Admin];
 };

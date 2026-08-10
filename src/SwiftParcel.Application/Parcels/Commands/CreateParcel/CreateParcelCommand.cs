@@ -11,9 +11,7 @@ public record CreateParcelCommand(
      CreateParcelSenderDto Sender,
      CreateParcelRecipientDto Recipient,
      CreateParcelDetailsDto Parcel
-) : IRequest<Result<CreateParcelResponse>>, IAuthorizableRequest
+) : IRequest<Result<CreateParcelResponse>>
 
 {
-     public bool RequireAuthentication => true;
-     public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Operator, UserRole.Supervisor, UserRole.Admin];
 };

@@ -8,8 +8,6 @@ using SwiftParcel.Domain.Shared;
 namespace SwiftParcel.Application.Parcels.Queries.GetDeliveryEstimate;
 
 public record GetDeliveryEstimateQuery(string TrackingNumber)
-    : IRequest<Result<DeliveryEstimateResponse>>, IAuthorizableRequest
+    : IRequest<Result<DeliveryEstimateResponse>>
 {
-    public bool RequireAuthentication => true;
-    public IReadOnlyList<UserRole> AllowedRoles => [UserRole.ReadOnly, UserRole.Operator, UserRole.Supervisor, UserRole.Admin];
 };

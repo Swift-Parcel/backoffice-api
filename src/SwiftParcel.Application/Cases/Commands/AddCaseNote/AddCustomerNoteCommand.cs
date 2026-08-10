@@ -11,8 +11,6 @@ public record AddCustomerNoteCommand(
     string Message,
     string CustomerEmail,
     string? Attachment
-) : IRequest<Result<int>>, IAuthorizableRequest
+) : IRequest<Result<int>>
 {
-    public bool RequireAuthentication => true;
-    public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Operator, UserRole.Supervisor, UserRole.Admin];
 };

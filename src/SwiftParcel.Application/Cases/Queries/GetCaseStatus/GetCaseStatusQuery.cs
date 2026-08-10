@@ -8,8 +8,6 @@ using SwiftParcel.Domain.Enums;
 
 namespace SwiftParcel.Application.Cases.Queries.GetCaseStatus;
 
-public record GetCaseStatusQuery(string CaseNumber) : IRequest<Result<CaseStatusResponse>>, IAuthorizableRequest
+public record GetCaseStatusQuery(string CaseNumber) : IRequest<Result<CaseStatusResponse>>
 {
-    public bool RequireAuthentication => false;
-    public IReadOnlyList<UserRole> AllowedRoles => [];
 };

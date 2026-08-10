@@ -7,8 +7,6 @@ using SwiftParcel.Domain.Shared;
 namespace SwiftParcel.Application.Parcels.Commands.ConfirmDelivery;
 
 public record ConfirmDeliveryCommand(string TrackingNumber, string CustomerEmail)
-    : IRequest<Result<bool>>, IAuthorizableRequest
+    : IRequest<Result<bool>>
 {
-    public bool RequireAuthentication => true;
-    public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Operator, UserRole.Supervisor, UserRole.Admin,];
 };
