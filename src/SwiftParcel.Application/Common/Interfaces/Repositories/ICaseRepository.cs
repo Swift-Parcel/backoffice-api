@@ -6,7 +6,6 @@ using SwiftParcel.Domain.Entities;
 
 public interface ICaseRepository
 {
-    IQueryable<Case> GetQueryable();
     Task AddAsync(Case newCase, CancellationToken cancellationToken = default);
     Task<Case?> GetByCaseNumberAsync(string caseNumber, CancellationToken cancellationToken = default);
     Task UpdateAsync(Case caseEntity, CancellationToken cancellationToken = default);
