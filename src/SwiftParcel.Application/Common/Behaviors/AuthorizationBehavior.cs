@@ -22,14 +22,14 @@ public class AuthorizationBehavior<TRequest, TResponse>
             return await next();
         }
         
-        if (!await _currentUserService.IsActiveAsync(cancellationToken))
-        {
-            throw new ForbiddenException("This account has been deactivated. Please contact an administrator."); 
-        }
-        
         if (authorizableRequest.RequireAuthentication && !_currentUserService.IsAuthenticated)
         {
             throw new UnauthorizedException();
+        }
+        
+        if (!await _currentUserService.IsActiveAsync(cancellationToken))
+        {
+            throw new ForbiddenException("This account has been deactivated. Please contact an administrator."); 
         }
 
         var allowedRoles = authorizableRequest.AllowedRoles;
