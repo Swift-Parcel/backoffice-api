@@ -13,5 +13,5 @@ public record GetRolesQuery(
     int PageSize = 10) : IRequest<Result<PagedList<RoleDto>>>, IAuthorizableRequest
 {
     public bool RequireAuthentication => true;
-    public IReadOnlyList<UserRole> AllowedRoles => [UserRole.ReadOnly, UserRole.Operator, UserRole.Supervisor, UserRole.Admin];
+    public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Admin];
 }
