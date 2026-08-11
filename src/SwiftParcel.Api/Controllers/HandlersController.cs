@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Handlers;
 using SwiftParcel.Application.Handlers.Commands.CreateHandler;
 using SwiftParcel.Application.Handlers.Commands.UpdateHandler;
@@ -30,13 +31,20 @@ public class HandlersController : ApiController
     /// Lists handlers
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(List<HandlerDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedList<HandlerDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetHandlers(
         [FromQuery] bool? isActive,
         [FromQuery] string? department,
-        CancellationToken cancellationToken)
+        [FromQuery] string? searchTerm,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
-        var query = new GetHandlersQuery(isActive, department);
+        var query = new GetHandlersQuery(isActive, department, searchTerm)
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
         var result = await Mediator.Send(query, cancellationToken);
         return HandleResult(result);
     }
