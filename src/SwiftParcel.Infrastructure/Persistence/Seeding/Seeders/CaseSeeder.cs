@@ -98,6 +98,11 @@ public class CaseSeeder : IEntitySeeder
             }
             Enum.TryParse<Channel>(oldCase.channel, true, out var channel);
 
+            var createdDate = TimestampParserHelper.ParseOrFallback(oldCase.created_date);
+            
+            bool canParseResolvedDate = TimestampParserHelper.TryParse(oldCase.resolved_date, out var resolvedDate);
+            bool canParseUpdatedDate = TimestampParserHelper.TryParse(oldCase.updated_date, out var updatedDate);
+            
             var newCase = new Case
             {
                 Id = StringParserHelper.ExtractInteger(oldCase.id),
@@ -109,12 +114,12 @@ public class CaseSeeder : IEntitySeeder
                 Priority = priority,
                 Channel = channel,
                 CustomerId = customerId,
-                HandlerId = StringParserHelper.ExtractInteger(oldCase.handler_id),
+                HandlerId = handlerId,
                 RegionId = regionId,
-                CreatedDate = TimestampParserHelper.ParseOrFallback(oldCase.created_date),
-                UpdatedDate = TimestampParserHelper.ParseOrFallback(oldCase.updated_date),
+                CreatedDate = createdDate,
+                UpdatedDate = canParseUpdatedDate ? updatedDate : createdDate,
                 IsEscalated = StringParserHelper.ParseBoolean(oldCase.is_escalated),
-                ResolvedDate = TimestampParserHelper.ParseOrFallback(oldCase.resolved_date),
+                ResolvedDate = canParseResolvedDate ? resolvedDate : null,
                 SlaDeadline = TimestampParserHelper.ParseOrFallback(oldCase.sla_deadline),
                 Resolution = oldCase.resolution,
                 SatisfactionScore = StringParserHelper.ExtractIntegerOrNull(oldCase.satisfaction_score)
