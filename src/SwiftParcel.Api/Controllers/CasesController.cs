@@ -8,6 +8,7 @@ using SwiftParcel.Application.DTO.Cases;
 using SwiftParcel.Domain.Enums;
 using SwiftParcel.Application.Cases.Commands.UpdateCaseStatusCommand;
 using SwiftParcel.Application.Cases.Queries.GetCases;
+using SwiftParcel.Application.Common.Models;
 
 namespace SwiftParcel.Api.Controllers;
 
@@ -19,7 +20,7 @@ public class CasesController : ApiController
     /// Retrieves a list of cases scoped to the user's authorized regions.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(List<CaseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedList<CaseDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCases(
         [FromQuery] int? customerId,
         [FromQuery] string? customerEmail,
