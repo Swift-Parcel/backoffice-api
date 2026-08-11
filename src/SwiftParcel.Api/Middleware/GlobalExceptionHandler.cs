@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
 using SwiftParcel.Application.Exceptions;
 using SwiftParcel.Domain.Exceptions;
@@ -23,6 +24,10 @@ public class GlobalExceptionHandler : IExceptionHandler
             ValidationException valEx => (
                 StatusCodes.Status400BadRequest, 
                 valEx.Message
+            ),
+            JsonException => (
+                StatusCodes.Status400BadRequest,
+                "invalid request payload."
             ),
             UnauthorizedException unauthEx => (
                 StatusCodes.Status401Unauthorized, 
