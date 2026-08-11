@@ -14,8 +14,8 @@ public class GetCasesQueryHandler(ICaseRepository caseRepository, ICurrentUserSe
     public async Task<Result<PagedList<CaseDto>>> Handle(GetCasesQuery request, CancellationToken cancellationToken)
     {
         var pagedEntities = await caseRepository.GetCasesFilteredPagedAsync(
-            allowedRegionIds: null,
-            canAccessAllRegions: false,
+            allowedRegionIds: currentUser.GetRegionIds(),
+            canAccessAllRegions: currentUser.CanAccessAllRegions,
             customerId: request.CustomerId,
             customerEmail: request.CustomerEmail,
             customerPhone: request.CustomerPhone,
@@ -41,6 +41,8 @@ public class GetCasesQueryHandler(ICaseRepository caseRepository, ICurrentUserSe
             SatisfactionScore = c.SatisfactionScore,
             CustomerId = c.CustomerId,
             CustomerName = c.Customer.FullName,
+            HandlerName = c.Handler?.User.FullName,
+            HandlerId = c.HandlerId,
             RegionId = c.RegionId,
             RegionName = c.Region.Name,
             Tags = c.Tags.Select(t => new TagDto

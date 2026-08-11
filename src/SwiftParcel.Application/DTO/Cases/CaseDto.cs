@@ -5,7 +5,6 @@ namespace SwiftParcel.Application.DTO.Cases;
 
 public class CaseDto
 {
-    public int Id { get; set; }
     public string CaseNumber { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
