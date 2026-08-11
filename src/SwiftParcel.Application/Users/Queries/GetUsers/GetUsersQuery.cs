@@ -11,7 +11,7 @@ public record GetUsersQuery(
     int? RoleId = null,
     bool? IsActive = null,
     string? SearchTerm = null
-) : IRequest<Result<List<UserDetailsDto>>>, IAuthorizableRequest
+) : PagedQuery, IRequest<Result<PagedList<UserDetailsDto>>>, IAuthorizableRequest
 {
     public bool RequireAuthentication = true;
     public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Admin];
