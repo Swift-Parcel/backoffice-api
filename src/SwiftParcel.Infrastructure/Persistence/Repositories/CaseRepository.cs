@@ -55,13 +55,16 @@ public class CaseRepository : ICaseRepository
             .AnyAsync(c => c.CaseNumber == caseNumber, cancellationToken);
     }
 
-    public async Task<List<CaseNoteDto>> GetCaseNotesAsync(string caseNumber,
+    public async Task<PagedList<CaseNoteDto>> GetPagedCaseNotesAsync(
+        string caseNumber,
+        int pageNumber,
+        int pageSize,
         CancellationToken cancellationToken = default)
     {
-        return await _context.CaseNotes
+        var query = _context.CaseNotes
             .AsNoTracking()
             .Where(n => n.Case.CaseNumber == caseNumber)
-            .OrderBy(n => n.CreatedDate)
+            .OrderByDescending(n => n.CreatedDate)
             .Select(n => new CaseNoteDto(
                 n.CreatedDate,
                 n.NoteText,
@@ -69,8 +72,9 @@ public class CaseRepository : ICaseRepository
                 n.Handler!.User.FullName,
                 n.CustomerId,
                 n.Customer!.FullName,
-                n.Attachment))
-            .ToListAsync(cancellationToken);
+                n.Attachment
+            ));
+        return await query.ToPagedListAsync(pageNumber, pageSize, cancellationToken);
     }
 
     public async Task<List<CustomerFacingCaseNoteDto>> GetCustomerCaseNotesAsync(string caseNumber,

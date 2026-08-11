@@ -17,9 +17,17 @@ public class CaseNotesController : ApiController
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<CaseNoteDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetNotes([FromRoute] string caseNumber)
+    public async Task<IActionResult> GetNotes(
+        [FromRoute] string caseNumber,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
-        var query = new GetCaseNotesQuery(caseNumber);
+        var query = new GetCaseNotesQuery(caseNumber)
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
         return HandleResult(await Mediator.Send(query));
     }
 
