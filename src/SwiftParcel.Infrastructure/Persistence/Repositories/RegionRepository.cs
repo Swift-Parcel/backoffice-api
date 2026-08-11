@@ -35,4 +35,31 @@ public class RegionRepository : IRegionRepository
             .Where(r => regionIds.Contains(r.Id))
             .ToListAsync(cancellationToken);
     }
+    
+    public async Task<(List<Region> Items, int TotalCount)> GetPagedAsync(
+        string? nameFilter, 
+        int pageNumber, 
+        int pageSize, 
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Regions
+            .AsNoTracking()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(nameFilter))
+        {
+            var term = nameFilter.ToLower();
+            query = query.Where(r => r.Name.ToLower().Contains(term));
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderBy(r => r.Name)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
+    }
 }
