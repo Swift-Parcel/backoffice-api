@@ -8,6 +8,8 @@ using SwiftParcel.Application.DTO.Cases;
 using SwiftParcel.Domain.Enums;
 using SwiftParcel.Application.Cases.Commands.UpdateCaseStatusCommand;
 using SwiftParcel.Application.Cases.Queries.GetCases;
+using SwiftParcel.Application.Common.Models;
+using CreateCaseRequest = SwiftParcel.Application.Cases.Commands.CreateCase.CreateCaseRequest;
 
 namespace SwiftParcel.Api.Controllers;
 
@@ -19,14 +21,21 @@ public class CasesController : ApiController
     /// Retrieves a list of cases scoped to the user's authorized regions.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(List<CaseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedList<CaseDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetCases(
         [FromQuery] int? customerId,
         [FromQuery] string? customerEmail,
         [FromQuery] string? customerPhone,
-        CancellationToken cancellationToken)
+        [FromQuery] string? searchTerm,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
-        var query = new GetCasesQuery(customerId, customerEmail, customerPhone);
+        var query = new GetCasesQuery(customerId, customerEmail, customerPhone, searchTerm)
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
         return HandleResult(await Mediator.Send(query, cancellationToken));
     }
     
@@ -37,8 +46,22 @@ public class CasesController : ApiController
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Create([FromBody] CreateCaseCommand command)
+    public async Task<IActionResult> Create([FromBody] CreateCaseRequest request)
     {
+        var command = new CreateCaseCommand(
+            request.Title,
+            request.Description,
+            request.CaseType,
+            request.CaseStatus,
+            request.CustomerEmail,
+            request.HandlerId,
+            request.RegionId,
+            request.Channel,
+            request.TagIds,
+            request.ParcelIds,
+            request.Priority
+        );
+
         var result = await Mediator.Send(command);
         return HandleResult(result);
     }

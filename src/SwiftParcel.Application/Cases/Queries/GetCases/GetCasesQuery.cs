@@ -10,7 +10,8 @@ namespace SwiftParcel.Application.Cases.Queries.GetCases;
 public record GetCasesQuery(
     int? CustomerId = null,
     string? CustomerEmail = null,
-    string? CustomerPhone = null
+    string? CustomerPhone = null,
+    string? SearchTerm = null
 ) : PagedQuery, IRequest<Result<PagedList<CaseDto>>>, IAuthorizableRequest
 {
     public bool RequireAuthentication => true;

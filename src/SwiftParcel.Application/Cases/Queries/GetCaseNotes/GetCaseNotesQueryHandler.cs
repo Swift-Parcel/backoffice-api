@@ -7,19 +7,19 @@ using SwiftParcel.Domain.Shared;
 namespace SwiftParcel.Application.Cases.Queries.GetCaseNotes;
 
 public class GetCaseNotesQueryHandler(ICaseRepository caseRepository)
-    : IRequestHandler<GetCaseNotesQuery, Result<IReadOnlyList<CaseNoteDto>>>
+    : IRequestHandler<GetCaseNotesQuery, Result<PagedList<CaseNoteDto>>>
 {
-    public async Task<Result<IReadOnlyList<CaseNoteDto>>> Handle(GetCaseNotesQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedList<CaseNoteDto>>> Handle(GetCaseNotesQuery request, CancellationToken cancellationToken)
     {
         var caseExists = await caseRepository.ExistsByCaseNumberAsync(request.CaseNumber, cancellationToken);
             
         if (!caseExists)
         {
-            return Result<IReadOnlyList<CaseNoteDto>>.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
+            return Result<PagedList<CaseNoteDto>>.Failure(Error.NotFound($"Case with number {request.CaseNumber} was not found."));
         }
 
-        var notes = await caseRepository.GetCaseNotesAsync(request.CaseNumber, cancellationToken);
+        var notes = await caseRepository.GetPagedCaseNotesAsync(request.CaseNumber, request.PageNumber, request.PageSize, cancellationToken);
 
-        return Result<IReadOnlyList<CaseNoteDto>>.Success(notes);
+        return Result<PagedList<CaseNoteDto>>.Success(notes);
     }
 }

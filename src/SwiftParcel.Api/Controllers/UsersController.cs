@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Application.DTO.Users;
 using SwiftParcel.Application.Users.Commands.AdminResetPassword;
 using SwiftParcel.Application.Users.Commands.ChangeMyPassword;
@@ -20,14 +21,20 @@ public class UsersController : ApiController
     /// Retrieves a list of all users. Supports optional filtering by Role, Status, and Search text.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(List<UserDetailsDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedList<UserDetailsDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUsers(
         [FromQuery] int? roleId, 
         [FromQuery] bool? isActive, 
-        [FromQuery] string? searchTerm, 
-        CancellationToken cancellationToken)
+        [FromQuery] string? searchTerm,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
-        var query = new GetUsersQuery(roleId, isActive, searchTerm);
+        var query = new GetUsersQuery(roleId, isActive, searchTerm)
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
         var result = await Mediator.Send(query, cancellationToken);
         return HandleResult(result);
     }

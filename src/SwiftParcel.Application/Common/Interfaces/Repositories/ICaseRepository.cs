@@ -13,7 +13,7 @@ public interface ICaseRepository
     Task<Case?> GetByCaseNumberWithCustomerAsync(string caseNumber, CancellationToken cancellationToken = default);
     Task<List<Tag>> GetTagsByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
     Task<bool> ExistsByCaseNumberAsync(string caseNumber, CancellationToken cancellationToken = default);
-    Task<List<CaseNoteDto>> GetCaseNotesAsync(string caseNumber, CancellationToken cancellationToken = default);
+    Task<PagedList<CaseNoteDto>> GetPagedCaseNotesAsync(string caseNumber, int pageNumber, int pageSize, CancellationToken cancellationToken = default);
     Task<CaseStatusResponse?> GetCaseStatusAsync(string caseNumber, CancellationToken cancellationToken = default);
     Task<List<CustomerFacingCaseNoteDto>> GetCustomerCaseNotesAsync(string caseNumber, CancellationToken cancellationToken = default);
     Task<List<CustomerCaseItemDto>> GetCustomerCasesByEmailAsync(string customerEmail, CancellationToken cancellationToken = default);
