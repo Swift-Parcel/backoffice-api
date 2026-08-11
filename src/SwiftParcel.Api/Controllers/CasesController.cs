@@ -25,9 +25,16 @@ public class CasesController : ApiController
         [FromQuery] int? customerId,
         [FromQuery] string? customerEmail,
         [FromQuery] string? customerPhone,
-        CancellationToken cancellationToken)
+        [FromQuery] string? searchTerm,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
     {
-        var query = new GetCasesQuery(customerId, customerEmail, customerPhone);
+        var query = new GetCasesQuery(customerId, customerEmail, customerPhone, searchTerm)
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
         return HandleResult(await Mediator.Send(query, cancellationToken));
     }
     
