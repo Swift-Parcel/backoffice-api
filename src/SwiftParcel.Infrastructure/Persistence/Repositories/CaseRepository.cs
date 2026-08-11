@@ -135,7 +135,12 @@ public class CaseRepository : ICaseRepository
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        var query = _context.Cases.AsNoTracking();
+        var query = _context.Cases
+            .Include(c => c.Customer)
+            .Include(c => c.Region)
+            .Include(c => c.Tags)
+            .Include(c => c.Handler.User)
+            .AsQueryable();
 
         if (!canAccessAllRegions)
         {
