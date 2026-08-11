@@ -9,6 +9,7 @@ using SwiftParcel.Domain.Enums;
 using SwiftParcel.Application.Cases.Commands.UpdateCaseStatusCommand;
 using SwiftParcel.Application.Cases.Queries.GetCases;
 using SwiftParcel.Application.Common.Models;
+using CreateCaseRequest = SwiftParcel.Application.Cases.Commands.CreateCase.CreateCaseRequest;
 
 namespace SwiftParcel.Api.Controllers;
 
@@ -38,8 +39,22 @@ public class CasesController : ApiController
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Create([FromBody] CreateCaseCommand command)
+    public async Task<IActionResult> Create([FromBody] CreateCaseRequest request)
     {
+        var command = new CreateCaseCommand(
+            request.Title,
+            request.Description,
+            request.CaseType,
+            request.CaseStatus,
+            request.CustomerEmail,
+            request.HandlerId,
+            request.RegionId,
+            request.Channel,
+            request.TagIds,
+            request.ParcelIds,
+            request.Priority
+        );
+
         var result = await Mediator.Send(command);
         return HandleResult(result);
     }
