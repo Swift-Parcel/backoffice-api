@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using SwiftParcel.Api.Extensions;
 using SwiftParcel.Api.Middleware;
 using SwiftParcel.Application;
@@ -16,7 +17,14 @@ Action<System.Text.Json.JsonSerializerOptions> configureJsonOptions = options =>
 };
 
 builder.Services.AddControllers()
-    .AddJsonOptions(options => configureJsonOptions(options.JsonSerializerOptions));
+    .AddJsonOptions(options => configureJsonOptions(options.JsonSerializerOptions))
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            return new BadRequestObjectResult(new { message = "invalid request payload." });
+        };
+    });
 
 builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options => 
     configureJsonOptions(options.SerializerOptions));
