@@ -25,10 +25,6 @@ public class GlobalExceptionHandler : IExceptionHandler
                 StatusCodes.Status400BadRequest, 
                 valEx.Message
             ),
-            JsonException => (
-                StatusCodes.Status400BadRequest,
-                "invalid request payload."
-            ),
             UnauthorizedException unauthEx => (
                 StatusCodes.Status401Unauthorized, 
                 string.IsNullOrWhiteSpace(unauthEx.Message) ? "Unauthorized" : unauthEx.Message
