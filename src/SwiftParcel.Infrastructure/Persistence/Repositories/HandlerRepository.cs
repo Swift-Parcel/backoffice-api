@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces.Repositories;
+using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Domain.Entities;
 
 namespace SwiftParcel.Infrastructure.Persistence.Repositories;
@@ -80,17 +81,18 @@ public class HandlerRepository : IHandlerRepository
             .FirstOrDefaultAsync(h => h.Id == id, cancellationToken);
     }
     
-    public async Task<List<Handler>> GetFilteredWithDetailsAsync(
+    public async Task<PagedList<Handler>> GetFilteredPagedWithDetailsAsync(
         IEnumerable<int>? allowedRegionIds, 
         bool? isActive, 
         string? department, 
-        CancellationToken cancellationToken = default)
+        int pageNumber, 
+        int pageSize, 
+        CancellationToken cancellationToken)
     {
         var query = _dbContext.Handlers
             .Include(h => h.User)
             .ThenInclude(u => u.Regions)
-            .Include(h => h.Cases.Where(c => Case.ActiveStatuses.Contains(c.Status))) 
-            .AsNoTracking()
+            .Include(h => h.Cases)
             .AsQueryable();
 
         if (allowedRegionIds != null)
@@ -108,7 +110,14 @@ public class HandlerRepository : IHandlerRepository
             query = query.Where(h => h.Department == department);
         }
 
-        return await query.ToListAsync(cancellationToken);
+        var totalCount = await query.CountAsync(cancellationToken);
+    
+        var items = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return new PagedList<Handler>(items, totalCount, pageNumber, pageSize);
     }
     
     public async Task<int?> GetIdByUserIdAsync(int userId, CancellationToken cancellationToken = default)

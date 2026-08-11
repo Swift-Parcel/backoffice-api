@@ -10,33 +10,41 @@ namespace SwiftParcel.Application.Handlers.Queries.GetHandlers;
 public class GetHandlersQueryHandler(
     IHandlerRepository handlerRepository, 
     ICurrentUserService currentUserService) 
-    : IRequestHandler<GetHandlersQuery, Result<List<HandlerDto>>>
+    : IRequestHandler<GetHandlersQuery, Result<PagedList<HandlerDto>>>
 {
-    public async Task<Result<List<HandlerDto>>> Handle(GetHandlersQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedList<HandlerDto>>> Handle(GetHandlersQuery request, CancellationToken cancellationToken)
     {
         IEnumerable<int>? allowedRegionIds = currentUserService.CanAccessAllRegions 
             ? null 
             : currentUserService.GetRegionIds();
 
-        var handlers = await handlerRepository.GetFilteredWithDetailsAsync(
+        var pagedEntities = await handlerRepository.GetFilteredPagedWithDetailsAsync(
             allowedRegionIds,
             request.IsActive,
             request.Department,
+            request.PageNumber,
+            request.PageSize,
             cancellationToken);
 
-        var dtos = handlers.Select(h => new HandlerDto(
+        var dtos = pagedEntities.Items.Select(h => new HandlerDto(
             h.Id,
             h.UserId,
-            h.User.FullName,
-            h.User.Email,
+            h.User?.FullName,
+            h.User?.Email,
             h.Department,
             h.MaxCases,
-            h.Cases.Count,
+            h.Cases?.Count ?? 0,
             h.HireDate,
             h.IsActive,
-            h.User.Regions.Select(r => r.Id).ToList()
+            h.User?.Regions?.Select(r => r.Id).ToList() ?? new List<int>()
         )).ToList();
 
-        return Result<List<HandlerDto>>.Success(dtos);
+        var pagedDtos = new PagedList<HandlerDto>(
+            dtos,
+            pagedEntities.TotalCount,
+            pagedEntities.PageNumber,
+            pagedEntities.PageSize);
+
+        return Result<PagedList<HandlerDto>>.Success(pagedDtos);
     }
 }

@@ -7,7 +7,11 @@ using SwiftParcel.Domain.Shared;
 
 namespace SwiftParcel.Application.Handlers.Queries.GetHandlers;
 
-public record GetHandlersQuery(bool? IsActive = null, string? Department = null) : IRequest<Result<List<HandlerDto>>>, IAuthorizableRequest
+public record GetHandlersQuery(
+    bool? IsActive = null,
+    string? Department = null,
+    string? SearchTerm = null) 
+    : PagedQuery, IRequest<Result<PagedList<HandlerDto>>>, IAuthorizableRequest
 {
     public bool RequireAuthentication = true;
     public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Supervisor, UserRole.Admin];

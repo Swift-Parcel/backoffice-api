@@ -1,3 +1,4 @@
+using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Domain.Entities;
 
 namespace SwiftParcel.Application.Common.Interfaces.Repositories;
@@ -15,9 +16,11 @@ public interface IHandlerRepository
     Task<int?> GetIdByUserIdAsync(int userId, CancellationToken cancellationToken = default);
     Task<Handler?> GetByUserIdWithDetailsAsync(int userId, CancellationToken cancellationToken = default);
     Task<Handler?> GetByIdWithDetailsAsync(int id, CancellationToken cancellationToken = default);
-    Task<List<Handler>> GetFilteredWithDetailsAsync(
+    Task<PagedList<Handler>> GetFilteredPagedWithDetailsAsync(
         IEnumerable<int>? allowedRegionIds, 
         bool? isActive, 
         string? department, 
+        int pageNumber,
+        int pageSize,
         CancellationToken cancellationToken = default);
 }
