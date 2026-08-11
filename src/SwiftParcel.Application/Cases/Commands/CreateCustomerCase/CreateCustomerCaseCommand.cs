@@ -12,8 +12,4 @@ public record CreateCustomerCaseCommand(
     string CustomerEmail,
     List<string> TrackingNumbers,
     CaseType CaseType,
-    string Description) : IRequest<Result<CreateCustomerCaseResponse>>, IAuthorizableRequest
-{
-    public bool RequireAuthentication => true;
-    public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Operator, UserRole.Supervisor, UserRole.Admin];
-};
+    string Description) : IRequest<Result<CreateCustomerCaseResponse>>;
