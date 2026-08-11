@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using SwiftParcel.Application.Common.Interfaces.Repositories;
+using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Domain.Entities;
+using SwiftParcel.Infrastructure.Persistence.Extensions;
 
 namespace SwiftParcel.Infrastructure.Persistence.Repositories;
 
@@ -66,7 +68,29 @@ public class UserRepository : IUserRepository
             .AsNoTracking()
             .Include(u => u.Regions)
             .AsQueryable();
+        
+        query = ApplyFilters(query, roleId, isActive, searchTerm);
 
+        return await query.ToListAsync(cancellationToken);
+    }
+
+    public async Task<PagedList<User>> GetPagedFilteredWithRegionsAsync(int? roleId, bool? isActive, string? searchTerm, int pageNumber, int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _dbContext.Users
+            .Include(u => u.Regions)
+            .AsNoTracking();
+        
+        query = ApplyFilters(query, roleId, isActive, searchTerm);
+        
+        query = query.OrderBy(u => u.Username);
+        
+        return await query
+            .ToPagedListAsync(pageNumber, pageSize, cancellationToken);
+    }
+    
+    private static IQueryable<User> ApplyFilters(IQueryable<User> query, int? roleId, bool? isActive, string? searchTerm)
+    {
         if (roleId.HasValue)
         {
             query = query.Where(u => u.RoleId == roleId.Value);
@@ -86,6 +110,6 @@ public class UserRepository : IUserRepository
                 u.Username.ToLower().Contains(term));
         }
 
-        return await query.ToListAsync(cancellationToken);
+        return query;
     }
 }

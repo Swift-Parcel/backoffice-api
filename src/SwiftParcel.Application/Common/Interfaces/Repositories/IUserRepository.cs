@@ -1,3 +1,4 @@
+using SwiftParcel.Application.Common.Models;
 using SwiftParcel.Domain.Entities;
 
 namespace SwiftParcel.Application.Common.Interfaces.Repositories;
@@ -15,5 +16,12 @@ public interface IUserRepository
         int? roleId, 
         bool? isActive, 
         string? searchTerm, 
+        CancellationToken cancellationToken = default);
+    Task<PagedList<User>> GetPagedFilteredWithRegionsAsync(
+        int? roleId,
+        bool? isActive,
+        string? searchTerm,
+        int pageNumber,
+        int pageSize,
         CancellationToken cancellationToken = default);
 }
