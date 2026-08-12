@@ -7,8 +7,9 @@ namespace SwiftParcel.Application.Cases.Commands.ChangeCaseStatusCommand;
 
 public record ChangeCaseStatusCommand(
     string CaseNumber,
-    CaseStatus NewStatus) : IRequest<Result<ChangeStatusResponse>>, IAuthorizableRequest
+    CaseStatus NewStatus,
+    string? Resolution = null) : IRequest<Result<ChangeStatusResponse>>, IAuthorizableRequest
 {
     public bool RequireAuthentication => true;
     public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Operator, UserRole.Supervisor, UserRole.Admin];
-};
+}

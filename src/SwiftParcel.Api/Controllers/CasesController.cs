@@ -6,7 +6,6 @@ using SwiftParcel.Application.Cases.Commands.CreateCase;
 using SwiftParcel.Application.Cases.Commands.DeliveryChangeCommand;
 using SwiftParcel.Application.DTO.Cases;
 using SwiftParcel.Domain.Enums;
-using SwiftParcel.Application.Cases.Commands.UpdateCaseStatusCommand;
 using SwiftParcel.Application.Cases.Queries.GetCases;
 using SwiftParcel.Application.Common.Models;
 using CreateCaseRequest = SwiftParcel.Application.Cases.Commands.CreateCase.CreateCaseRequest;
@@ -96,7 +95,7 @@ public class CasesController : ApiController
         [FromBody] ChangeCaseStatusRequest request, 
         CancellationToken cancellationToken)
     {
-        var command = new ChangeCaseStatusCommand(caseNumber, request.Status);
+        var command = new ChangeCaseStatusCommand(caseNumber, request.Status, request.Resolution);
         
         var result = await Mediator.Send(command, cancellationToken);
         

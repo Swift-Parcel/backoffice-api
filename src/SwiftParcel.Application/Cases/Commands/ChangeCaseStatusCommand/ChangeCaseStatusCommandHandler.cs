@@ -7,7 +7,6 @@ using SwiftParcel.Domain.Shared;
 namespace SwiftParcel.Application.Cases.Commands.ChangeCaseStatusCommand;
 
 public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCommand, Result<ChangeStatusResponse>>
-
 {
     private readonly ICaseRepository _caseRepository;
     private readonly IPublisher _publisher;
@@ -33,12 +32,9 @@ public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCo
             return Result<ChangeStatusResponse>.Failure(Error.Validation($"Cannot transition case status from {@case.Status} to {request.NewStatus}."));
         }
 
-        @case.Status = request.NewStatus;
-        @case.UpdatedDate = DateTime.UtcNow;
-
-        if (request.NewStatus == CaseStatus.Resolved)
+        if (request.NewStatus == CaseStatus.Resolved && !string.IsNullOrWhiteSpace(request.Resolution))
         {
-            @case.ResolvedDate = DateTime.UtcNow;
+            @case.Resolution = request.Resolution;
         }
 
         await _caseRepository.UpdateAsync(@case, cancellationToken);
@@ -49,7 +45,7 @@ public class ChangeCaseStatusCommandHandler : IRequestHandler<ChangeCaseStatusCo
             @case.Status
         ), cancellationToken);
 
-        var response = new ChangeStatusResponse(@case.Status, @case.UpdatedDate);
+        var response = new ChangeStatusResponse(@case.Status, @case.UpdatedDate ?? DateTime.UtcNow);
         
         return Result<ChangeStatusResponse>.Success(response);
     }
