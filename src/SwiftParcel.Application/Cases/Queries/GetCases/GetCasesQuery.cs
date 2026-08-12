@@ -15,5 +15,5 @@ public record GetCasesQuery(
 ) : PagedQuery, IRequest<Result<PagedList<CaseDto>>>, IAuthorizableRequest
 {
     public bool RequireAuthentication => true;
-    public IReadOnlyList<UserRole> AllowedRoles => [UserRole.Operator, UserRole.Supervisor, UserRole.Admin];
+    public IReadOnlyList<UserRole> AllowedRoles => [UserRole.ReadOnly, UserRole.Operator, UserRole.Supervisor, UserRole.Admin];
 };
